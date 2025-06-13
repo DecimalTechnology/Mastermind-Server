@@ -1,20 +1,21 @@
 import { UserRole } from "../../../../../enums/common";
 import { INation } from "../../../../../interfaces/models/INation";
 import { IUser } from "../../../../../interfaces/models/IUser";
-import { NationRepository } from "../../shared/repositories/nationRepository";
-import { UserRepository } from "../../shared/repositories/userRepository";
-import { SuperAdminRepository } from "./repository";
 
-export class SuperAdminService {
+import { UserRepository } from "../../shared/repositories/userRepository";
+import { NationRepository } from "./repository";
+
+
+export class NationServices {
     constructor(
-        private superAdminRepository: SuperAdminRepository,
+       
         private nationRepository: NationRepository,
         private userRepository: UserRepository
     ) {}
 
     // Search users
     async searchUsers(search: string): Promise<IUser[]> {
-        return await this.superAdminRepository.findAllUser(search);
+        return await this.nationRepository.findAllUser(search);
     }
 
     // Create nation
@@ -36,6 +37,6 @@ export class SuperAdminService {
 
     // Find all nations
     async searchNations(search:string):Promise<INation[]|[]>{
-        return await this.superAdminRepository.searchBySearchQuery(search)
+        return await this.nationRepository.searchBySearchQuery(search)
     }
 }

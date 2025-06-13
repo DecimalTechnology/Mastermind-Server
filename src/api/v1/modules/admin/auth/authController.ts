@@ -7,7 +7,7 @@ import { STATUS_CODES } from "../../../../../constants/statusCodes";
 const { OK } = STATUS_CODES;
 
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService) {}
 
     // @desc   Get All Users
     // @route  GET v1/admin/users
@@ -36,15 +36,24 @@ export class AuthController {
     // @access Admin
     async adminLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-
             const credentials = loginSchema.parse(req.body);
-            const response = await this.authService.adminLogin(credentials as { email: string, password: string })
+            const response = await this.authService.adminLogin(credentials as { email: string; password: string });
             const ACCESS_TOKEN_MAX_AGE = 60 * 60 * 1000;
             const REFRESH_TOKEN_MAX_AGE = 48 * 60 * 60 * 1000;
-            res?.status(OK).
-                cookie("mastermind_admin_access_token", response?.accessToken, { httpOnly: true, sameSite: "none", maxAge: ACCESS_TOKEN_MAX_AGE, secure: true }).
-                cookie("mastermind_admin_refresh_token", response?.accessToken, { httpOnly: true, sameSite: "none", maxAge: REFRESH_TOKEN_MAX_AGE, secure: true }).
-                json({ success: true, message: "Admin verification successfull", data: response?.adminData });
+            res?.status(OK)
+                .cookie("mastermind_admin_access_token", response?.accessToken, {
+                    httpOnly: true,
+                    sameSite: "none",
+                    maxAge: ACCESS_TOKEN_MAX_AGE,
+                    secure: true,
+                })
+                .cookie("mastermind_admin_refresh_token", response?.accessToken, {
+                    httpOnly: true,
+                    sameSite: "none",
+                    maxAge: REFRESH_TOKEN_MAX_AGE,
+                    secure: true,
+                })
+                .json({ success: true, message: "Admin verification successfull", data: response?.adminData });
         } catch (error) {
             next(error);
         }
@@ -54,16 +63,23 @@ export class AuthController {
     // @access Admin
     async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-
             const refreshToken = req.cookies.mastermind_admin_refresh_token;
+
             if (!refreshToken || !verifyRefreshToken(refreshToken)) throw new UnAuthorizedError("Session expired. Please login again");
 
             const payload = verifyRefreshToken(refreshToken);
-            if (!payload || Object.keys(payload).length !== 2) throw new UnAuthorizedError("Session expired. Please login again");
 
-            const newAccesstoken = generateAccessToken(payload);
-
-            res.status(OK).json({ success: true, message: "", data: { newAccesstoken } });
+            const newAccesstoken = generateAccessToken(payload?.data);
+            console.log(newAccesstoken);
+            const ACCESS_TOKEN_MAX_AGE = 60 * 60 * 1000;
+            res.status(OK)
+                .cookie("mastermind_admin_access_token", newAccesstoken, {
+                    httpOnly: true,
+                    sameSite: "none",
+                    maxAge: ACCESS_TOKEN_MAX_AGE,
+                    secure: true,
+                })
+                .json({ success: true, message: "", data: { newAccesstoken } });
         } catch (error) {
             next(error);
         }

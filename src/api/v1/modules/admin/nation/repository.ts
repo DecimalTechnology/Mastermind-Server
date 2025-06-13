@@ -2,9 +2,12 @@ import { INation } from "../../../../../interfaces/models/INation";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import { Nation } from "../../../../../models/nationModel";
 import User from "../../../../../models/userModel";
-import { NationRepository } from "../../shared/repositories/nationRepository";
+import { BaseRepository } from "../../shared/repositories/baseRepository";
 
-export class SuperAdminRepository {
+export class NationRepository extends BaseRepository<INation> {
+    constructor() {
+        super(Nation);
+    }
     async findAllUser(search: string): Promise<IUser[]> {
         return await User.aggregate([
             {
@@ -25,7 +28,14 @@ export class SuperAdminRepository {
     async updateManageField(userId: string, data: any): Promise<IUser | null> {
         return await User.findByIdAndUpdate(userId, { manage: data });
     }
+    // Find All nations
     async searchBySearchQuery(search: string): Promise<INation[] | []> {
-        return await Nation.find({ name: { $regex: search, $options: "i" } }).populate({path:"createdBy",select:"name"})
+        const res = await Nation.aggregate([
+            { $match: { name: { $regex: search, $options: "i" } } },
+            { $lookup: { from: "users", localField: "_id", foreignField: "manage.nation", as: "admin" } },
+            { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
+        ]);
+
+        return res;
     }
 }

@@ -37,6 +37,11 @@ class BaseRepository {
             return this.Model.find();
         });
     }
+    findByName(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.Model.findOne({ name: name });
+        });
+    }
     // Delete
     deleteById(id) {
         return __awaiter(this, void 0, void 0, function* () {

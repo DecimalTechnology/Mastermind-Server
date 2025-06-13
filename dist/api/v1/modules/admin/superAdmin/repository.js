@@ -12,10 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SuperAdminRepository = void 0;
+exports.NationRepogis = void 0;
 const nationModel_1 = require("../../../../../models/nationModel");
 const userModel_1 = __importDefault(require("../../../../../models/userModel"));
-class SuperAdminRepository {
+class NationRepogis {
     findAllUser(search) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield userModel_1.default.aggregate([
@@ -40,10 +40,16 @@ class SuperAdminRepository {
             return yield userModel_1.default.findByIdAndUpdate(userId, { manage: data });
         });
     }
+    // Find All nations
     searchBySearchQuery(search) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield nationModel_1.Nation.find({ name: { $regex: search, $options: "i" } }).populate({ path: "createdBy", select: "name" });
+            const res = yield nationModel_1.Nation.aggregate([
+                { $match: { name: { $regex: search, $options: "i" } } },
+                { $lookup: { from: "users", localField: "_id", foreignField: "manage.nation", as: "admin" } },
+                { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
+            ]);
+            return res;
         });
     }
 }
-exports.SuperAdminRepository = SuperAdminRepository;
+exports.NationRepogis = NationRepogis;

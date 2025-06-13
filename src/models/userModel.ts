@@ -25,7 +25,10 @@ const userSchema = new mongoose.Schema<IUser>(
         // Where the user belongs
         // nation: { type: Schema.Types.ObjectId, ref: 'Nation', default: null },
         // region: { type: Schema.Types.ObjectId, ref: 'Region', default: null },
-        chapter: { type: Schema.Types.ObjectId, ref: 'Chapter', default: null },
+        chapter: { type: Schema.Types.ObjectId, ref: 'Chapter',  },
+        nation: { type: Schema.Types.ObjectId, ref: 'Nation',  },
+        region: { type: Schema.Types.ObjectId, ref: 'Region', },
+        local: { type: Schema.Types.ObjectId, ref: 'Local', },
 
         // What the user manages
         manage: {

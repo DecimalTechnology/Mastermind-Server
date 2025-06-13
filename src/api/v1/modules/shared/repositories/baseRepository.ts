@@ -20,6 +20,9 @@ export class BaseRepository<T> {
   async findAll(): Promise<T[]> {
     return this.Model.find();
   }
+  async findByName(name:string): Promise<T[]> {
+    return this.Model.findOne({name:name});
+  }
 
   // Delete
   async deleteById(id: string): Promise<T | null> {

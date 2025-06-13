@@ -8,7 +8,10 @@ import { printBody } from "./middewares.ts/bodyLogger";
 import dotenv from 'dotenv';
 import { corsConfig } from "./config/corsConfig";
 import userRouter from "./api/v1/modules/admin/auth/authRoutes";
-import superAdminRouter from "./api/v1/modules/admin/superAdmin/route";
+import nationRouter from "./api/v1/modules/admin/nation/route";
+import chapterRouter from "./api/v1/modules/admin/chapter/chapterRoutes";
+import regionRouter from "./api/v1/modules/admin/region/regionRoutes";
+import localRouter from "./api/v1/modules/admin/local/localRoutes";
 
 
 dotenv.config()
@@ -26,7 +29,12 @@ app.use(`/${version}/auth`, authRouter);
 app.use(`/${version}/profile`, profileRouter)
 
 // Admin Routes
-app.use(`/${version}/admin`, userRouter);
-app.use(`/${version}/superadmin`, superAdminRouter);
+app.use(`/${version}/admin/auth`, userRouter);
+app.use(`/${version}/admin/nation`, nationRouter);
+app.use(`/${version}/admin/chapter`,chapterRouter)
+app.use(`/${version}/admin/region`,regionRouter)
+app.use(`/${version}/admin/local`,localRouter)
+
+// Error handler
 app.use(errorHandler);
 export const Server = http.createServer(app);

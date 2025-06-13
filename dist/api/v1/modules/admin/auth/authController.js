@@ -57,7 +57,17 @@ class AuthController {
                 const response = yield this.authService.adminLogin(credentials);
                 const ACCESS_TOKEN_MAX_AGE = 60 * 60 * 1000;
                 const REFRESH_TOKEN_MAX_AGE = 48 * 60 * 60 * 1000;
-                res === null || res === void 0 ? void 0 : res.status(OK).cookie("mastermind_admin_access_token", response === null || response === void 0 ? void 0 : response.accessToken, { httpOnly: true, sameSite: "none", maxAge: ACCESS_TOKEN_MAX_AGE, secure: true }).cookie("mastermind_admin_refresh_token", response === null || response === void 0 ? void 0 : response.accessToken, { httpOnly: true, sameSite: "none", maxAge: REFRESH_TOKEN_MAX_AGE, secure: true }).json({ success: true, message: "Admin verification successfull", data: response === null || response === void 0 ? void 0 : response.adminData });
+                res === null || res === void 0 ? void 0 : res.status(OK).cookie("mastermind_admin_access_token", response === null || response === void 0 ? void 0 : response.accessToken, {
+                    httpOnly: true,
+                    sameSite: "none",
+                    maxAge: ACCESS_TOKEN_MAX_AGE,
+                    secure: true,
+                }).cookie("mastermind_admin_refresh_token", response === null || response === void 0 ? void 0 : response.accessToken, {
+                    httpOnly: true,
+                    sameSite: "none",
+                    maxAge: REFRESH_TOKEN_MAX_AGE,
+                    secure: true,
+                }).json({ success: true, message: "Admin verification successfull", data: response === null || response === void 0 ? void 0 : response.adminData });
             }
             catch (error) {
                 next(error);
@@ -74,10 +84,17 @@ class AuthController {
                 if (!refreshToken || !(0, token_1.verifyRefreshToken)(refreshToken))
                     throw new customErrors_1.UnAuthorizedError("Session expired. Please login again");
                 const payload = (0, token_1.verifyRefreshToken)(refreshToken);
-                if (!payload || Object.keys(payload).length !== 2)
-                    throw new customErrors_1.UnAuthorizedError("Session expired. Please login again");
-                const newAccesstoken = (0, token_1.generateAccessToken)(payload);
-                res.status(OK).json({ success: true, message: "", data: { newAccesstoken } });
+                const newAccesstoken = (0, token_1.generateAccessToken)(payload === null || payload === void 0 ? void 0 : payload.data);
+                console.log(newAccesstoken);
+                const ACCESS_TOKEN_MAX_AGE = 60 * 60 * 1000;
+                res.status(OK)
+                    .cookie("mastermind_admin_access_token", newAccesstoken, {
+                    httpOnly: true,
+                    sameSite: "none",
+                    maxAge: ACCESS_TOKEN_MAX_AGE,
+                    secure: true,
+                })
+                    .json({ success: true, message: "", data: { newAccesstoken } });
             }
             catch (error) {
                 next(error);

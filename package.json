@@ -11,7 +11,9 @@
     "seed.user": "tsc && node dist/seed/dummyUserSeed.js",
     "seed.local": "tsc && node dist/seed/dummyLocalSeed.js",
     "seed.chapter": "tsc && node dist/seed/dummyChapterSeed.js",
-    "seed.admin": "tsc && node dist/seed/seedAdmin.js"
+    "seed.admin": "tsc && node dist/seed/seedAdmin.js",
+    "seed.assignLocal":"tsc && node dist/seed/assignLocal.js",
+    "seed.updateAllUser":"tsc && node dist/seed/updateAllUser.js"
   },
   "keywords": [],
   "author": "",

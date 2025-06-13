@@ -13,6 +13,7 @@ export interface IUser extends Document {
     nation?: mongoose.Types.ObjectId;
     region?: mongoose.Types.ObjectId;
     chapter?: mongoose.Types.ObjectId;
+    local?: mongoose.Types.ObjectId;
 
     // What the user manages (only one allowed at a time)
     manage?: {

@@ -9,17 +9,18 @@ const chapterSchema = new mongoose_1.Schema({
         trim: true,
         unique: true,
     },
-    nation: {
+    description: { type: String },
+    nationId: {
         type: mongoose_1.Types.ObjectId,
         ref: "Nation", // Related Nation document
         required: true,
     },
-    region: {
+    regionId: {
         type: mongoose_1.Types.ObjectId,
         ref: "Region", // Related Region document
         required: true,
     },
-    local: {
+    localId: {
         type: mongoose_1.Types.ObjectId,
         ref: "Local", // Optional further subdivision
         required: true,
@@ -30,7 +31,7 @@ const chapterSchema = new mongoose_1.Schema({
             ref: "User", // Users who are part of this chapter
         },
     ],
-    coreTeam: [{ type: mongoose_1.Types.ObjectId, ref: 'User' }],
+    coreTeam: [{ type: mongoose_1.Types.ObjectId, ref: "User" }],
     createdBy: {
         type: mongoose_1.Types.ObjectId,
         ref: "User", // Admin or creator reference
