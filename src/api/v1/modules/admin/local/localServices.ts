@@ -1,10 +1,6 @@
 import { ConflictError } from "../../../../../constants/customErrors";
 import { UserRole } from "../../../../../enums/common";
-import { ILocal } from "../../../../../interfaces/models/ILocal";
-import { IRegion } from "../../../../../interfaces/models/IRegion";
 import { IUser } from "../../../../../interfaces/models/IUser";
-import { Local } from "../../../../../models/localModel";
-import { BaseRepository } from "../../shared/repositories/baseRepository";
 import { UserRepository } from "../../shared/repositories/userRepository";
 import { LocalRepository } from "./localRepository";
 
@@ -26,6 +22,11 @@ export class LocalServices {
         const res = await this.localRepository.create({ ...data, createdBy });
         await this.userResository.findByIdAndUpdate(adminId, { role: UserRole.LOCAL_ADMIN, manage: { local: res?._id } });
 
-        return await this.localRepository.findLocalData(res?._id as string);
+        const localData: any = await this.localRepository.findLocalData(res?._id as string);
+        return localData[0];
+    }
+
+    async findLocalById(chapterId: string): Promise<any> {
+        return await this.localRepository.findById(chapterId as string);
     }
 }

@@ -23,7 +23,6 @@ class AuthController {
     registration(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('called');
                 // userValidationSchema.parse(req.body)
                 const response = yield this.authService.userRegistration(req.body);
                 res.status(OK).json({ success: true, message: "User registration successfull", data: response });
@@ -67,7 +66,7 @@ class AuthController {
     }
     // @desc   Forget password
     // @route  POST v1/auth/password/forget  
-    // @access Admin 
+    // @access User 
     forgetPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -83,7 +82,7 @@ class AuthController {
     }
     // @desc   Updated new password while forgetting
     // @route  POST v1/auth/password/forget  
-    // @access Admin 
+    // @access User 
     updateForgetPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -91,6 +90,74 @@ class AuthController {
                     throw new customErrors_1.EmptyRequestBodyError();
                 const response = yield this.authService.updateForgetPassword(req.body.email, req.body.password);
                 res.status(OK).json({ success: true, message: "Your password has been updated successfully", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    // @desc   To get all the nation list
+    // @route  POST v1/auth/nations
+    // @access User 
+    getAllNations(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.authService.getAllNations();
+                res.status(OK).json({ success: true, message: "", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    // @desc   To get all the regions list
+    // @route  POST v1/auth/regions
+    // @access User 
+    getAllRegions(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const nationId = (_a = req.query) === null || _a === void 0 ? void 0 : _a.nationId;
+                if (!nationId)
+                    throw new customErrors_1.NotFoundError("Please provide region Id");
+                const response = yield this.authService.getAllRegions(nationId);
+                res.status(OK).json({ success: true, message: "", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    // @desc   To get all the locals list
+    // @route  POST v1/auth/locals
+    // @access User 
+    getAllLocals(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const regionId = (_a = req.query) === null || _a === void 0 ? void 0 : _a.regionId;
+                if (!regionId)
+                    throw new customErrors_1.NotFoundError("Please provide regionId Id");
+                const response = yield this.authService.getAllLocalsByRegionId(regionId);
+                res.status(OK).json({ success: true, message: "", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    // @desc   To get all the chapters list
+    // @route  POST v1/auth/chapters
+    // @access User 
+    getAllChapters(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const localId = (_a = req.query) === null || _a === void 0 ? void 0 : _a.localId;
+                if (!localId)
+                    throw new customErrors_1.NotFoundError("Please provide local Id");
+                const response = yield this.authService.getAllChaptersByLocalId(localId);
+                res.status(OK).json({ success: true, message: "", data: response });
             }
             catch (error) {
                 next(error);

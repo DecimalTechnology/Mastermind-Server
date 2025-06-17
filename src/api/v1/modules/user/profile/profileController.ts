@@ -26,7 +26,7 @@ export class ProfileController {
     // @access User
     async getProfile(req: Request, res: Response, next: NextFunction):Promise<void> {
         try {
-            
+           console.log(req.userId)
             const response = await this.profileService.getProfile(req.userId);
             res.status(OK).json({success:true,message:'User profile fetched successfully',data:response})
         } catch (error) {

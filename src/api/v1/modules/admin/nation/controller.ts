@@ -10,8 +10,9 @@ export class NationController {
     // @route  POST v1/admin/nation
     // @access Super admin
     async createNation(req: Request, res: Response, next: NextFunction): Promise<void> {
-        if (!req.body.name || !req.body?.admin) throw new NotFoundError("Nation name is required");
-        const result = await this.nationServices.createNation(req.body, req.adminId);
+        if (!req.body.name) throw new NotFoundError("Nation name is required");
+        if(!req.query.adminId) throw new NotFoundError("Admin data not found")
+        const result = await this.nationServices.createNation(req.body,req.query.adminId as string, req.adminId as string);
         res.status(OK).json({
             success: true,
             message: "New nation created successfully",

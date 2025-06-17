@@ -1,4 +1,5 @@
 import { BadRequestError, NotFoundError, UnAuthorizedError } from "../../../../../constants/customErrors";
+import { UserRole } from "../../../../../enums/common";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import { sendLinkToEmail } from "../../../../../utils/v1/mail/sendEmail";
 import { generateRandomPassword } from "../../../../../utils/v1/password/generateRandomPassword";
@@ -72,7 +73,7 @@ export class AuthService {
     async adminLogin({ email, password }: { email: string; password: string }): Promise<any> {
         try {
             const admin = await this.authRepository.findByEmail(email);
-
+            if(admin?.role=='member') throw new UnAuthorizedError("Permission denied. No admin roles found");
             if (!admin) throw new UnAuthorizedError("Invalid email or password");
             const isPasswordValid = await comparePassword(password, admin.password);
 
@@ -81,7 +82,10 @@ export class AuthService {
             const accessToken = generateAccessToken({ userId: admin?._id, role: admin?.role });
             const refreshToken = generateRefreshToken({ userId: admin?._id, role: admin?.role });
             admin.password = null;
-            return { adminData: admin, accessToken, refreshToken };
+          
+            const adminData =  await this.authRepository.findAdmin(admin?._id,admin?.role)
+            console.log(adminData,"",admin)
+            return { adminData: adminData[0], accessToken, refreshToken };
         } catch (error) {
             throw error;
         }

@@ -13,7 +13,8 @@
     "seed.chapter": "tsc && node dist/seed/dummyChapterSeed.js",
     "seed.admin": "tsc && node dist/seed/seedAdmin.js",
     "seed.assignLocal":"tsc && node dist/seed/assignLocal.js",
-    "seed.updateAllUser":"tsc && node dist/seed/updateAllUser.js"
+    "seed.updateAllUser":"tsc && node dist/seed/updateAllUser.js",
+    "seed.profile":"tsc && node dist/seed/dummyProfileSeed.js"
   },
   "keywords": [],
   "author": "",

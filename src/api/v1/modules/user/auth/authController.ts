@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { AuthService } from "./authService";
-import { EmptyRequestBodyError } from "../../../../../constants/customErrors";
+import { EmptyRequestBodyError, NotFoundError } from "../../../../../constants/customErrors";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
-
-
 const { OK, CREATED } = STATUS_CODES;
 export class AuthController {
     constructor(private authService: AuthService) { }
@@ -13,7 +11,7 @@ export class AuthController {
     // @access User 
     async registration(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            console.log('called')
+     
             // userValidationSchema.parse(req.body)
             const response = await this.authService.userRegistration(req.body);
             res.status(OK).json({ success: true, message: "User registration successfull", data: response });
@@ -48,7 +46,7 @@ export class AuthController {
     }
     // @desc   Forget password
     // @route  POST v1/auth/password/forget  
-    // @access Admin 
+    // @access User 
     async forgetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
 
@@ -61,7 +59,7 @@ export class AuthController {
     }
     // @desc   Updated new password while forgetting
     // @route  POST v1/auth/password/forget  
-    // @access Admin 
+    // @access User 
     async updateForgetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
 
@@ -72,4 +70,60 @@ export class AuthController {
             next(error);
         }
     }
+    // @desc   To get all the nation list
+    // @route  POST v1/auth/nations
+    // @access User 
+    async getAllNations(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            
+            const response = await this.authService.getAllNations()
+            res.status(OK).json({ success: true, message: "", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+    // @desc   To get all the regions list
+    // @route  POST v1/auth/regions
+    // @access User 
+    async getAllRegions(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const nationId = req.query?.nationId;
+            if(!nationId) throw new NotFoundError("Please provide region Id")
+            const response = await this.authService.getAllRegions(nationId as string);
+            res.status(OK).json({ success: true, message: "", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+    // @desc   To get all the locals list
+    // @route  POST v1/auth/locals
+    // @access User 
+    async getAllLocals(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const regionId = req.query?.regionId;
+            if(!regionId) throw new NotFoundError("Please provide regionId Id")
+            const response = await this.authService.getAllLocalsByRegionId(regionId as string);
+            res.status(OK).json({ success: true, message: "", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+    // @desc   To get all the chapters list
+    // @route  POST v1/auth/chapters
+    // @access User 
+    async getAllChapters(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const localId = req.query?.localId;
+            if(!localId) throw new NotFoundError("Please provide local Id")
+            const response = await this.authService.getAllChaptersByLocalId(localId as string);
+            res.status(OK).json({ success: true, message: "", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
 }

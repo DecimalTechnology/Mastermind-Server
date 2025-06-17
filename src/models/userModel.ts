@@ -25,10 +25,10 @@ const userSchema = new mongoose.Schema<IUser>(
         // Where the user belongs
         // nation: { type: Schema.Types.ObjectId, ref: 'Nation', default: null },
         // region: { type: Schema.Types.ObjectId, ref: 'Region', default: null },
-        chapter: { type: Schema.Types.ObjectId, ref: 'Chapter',  },
-        nation: { type: Schema.Types.ObjectId, ref: 'Nation',  },
-        region: { type: Schema.Types.ObjectId, ref: 'Region', },
-        local: { type: Schema.Types.ObjectId, ref: 'Local', },
+        chapter: { type: Schema.Types.ObjectId, ref: "Chapter" },
+        nation: { type: Schema.Types.ObjectId, ref: "Nation" },
+        region: { type: Schema.Types.ObjectId, ref: "Region" },
+        local: { type: Schema.Types.ObjectId, ref: "Local" },
 
         // What the user manages
         manage: {
@@ -36,11 +36,10 @@ const userSchema = new mongoose.Schema<IUser>(
             default: null, // or use {} if you prefer empty object
         },
 
-
         isVerified: { type: Boolean, default: false },
         isBlocked: { type: Boolean, default: false },
     },
     { timestamps: true }
 );
-const User = mongoose.model<IUser>('User', userSchema);
+const User = mongoose.model<IUser>("User", userSchema);
 export default User;

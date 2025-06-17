@@ -29,7 +29,7 @@ export class RegionController {
 
         res.status(OK).json({
             success: true,
-            message: "",
+            message: "New region created successfully",
             data: result,
         });
     }

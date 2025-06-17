@@ -27,8 +27,12 @@ const sendEmail_1 = require("../../../../../utils/v1/mail/sendEmail");
 const password_1 = require("../../../../../utils/v1/password/password");
 const token_1 = require("../../../../../utils/v1/token/token");
 class AuthService {
-    constructor(authRepository) {
+    constructor(authRepository, nationRepository, regionRepository, localRepository, chapterRepository) {
         this.authRepository = authRepository;
+        this.nationRepository = nationRepository;
+        this.regionRepository = regionRepository;
+        this.localRepository = localRepository;
+        this.chapterRepository = chapterRepository;
     }
     userRegistration(userData) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -133,7 +137,47 @@ class AuthService {
                 throw new customErrors_1.BadRequestError("Something went wrong password updation failed");
             }
             catch (error) {
-                console.log('Error: forget password');
+                console.log("Error: forget password");
+                throw error;
+            }
+        });
+    }
+    getAllNations() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.nationRepository.findAll();
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllRegions(nationId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.regionRepository.findAllRegionsByNationId(nationId);
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllLocalsByRegionId(regionId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.localRepository.findLocalsByRegionId(regionId);
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllChaptersByLocalId(localId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.chapterRepository.findChaptersByLocalId(localId);
+            }
+            catch (error) {
                 throw error;
             }
         });

@@ -39,6 +39,7 @@ class ProfileController {
     getProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(req.userId);
                 const response = yield this.profileService.getProfile(req.userId);
                 res.status(OK).json({ success: true, message: 'User profile fetched successfully', data: response });
             }

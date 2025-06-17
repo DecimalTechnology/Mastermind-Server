@@ -55,10 +55,10 @@ const userSchema = new mongoose_1.default.Schema({
     // Where the user belongs
     // nation: { type: Schema.Types.ObjectId, ref: 'Nation', default: null },
     // region: { type: Schema.Types.ObjectId, ref: 'Region', default: null },
-    chapter: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Chapter', },
-    nation: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Nation', },
-    region: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Region', },
-    local: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Local', },
+    chapter: { type: mongoose_1.Schema.Types.ObjectId, ref: "Chapter" },
+    nation: { type: mongoose_1.Schema.Types.ObjectId, ref: "Nation" },
+    region: { type: mongoose_1.Schema.Types.ObjectId, ref: "Region" },
+    local: { type: mongoose_1.Schema.Types.ObjectId, ref: "Local" },
     // What the user manages
     manage: {
         type: Object,
@@ -67,5 +67,5 @@ const userSchema = new mongoose_1.default.Schema({
     isVerified: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
 }, { timestamps: true });
-const User = mongoose_1.default.model('User', userSchema);
+const User = mongoose_1.default.model("User", userSchema);
 exports.default = User;

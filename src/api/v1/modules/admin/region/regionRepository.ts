@@ -40,4 +40,8 @@ export class RegionRepository extends BaseRepository<any> {
             { $lookup: { from: "users", localField: "_id", foreignField: "manage.region", as: "adminData" } },
         ]);
     }
+
+    async findAllRegionsByNationId(nationId:string):Promise<IRegion[]>{
+        return await Region.find({nationId:nationId});
+    }
 }

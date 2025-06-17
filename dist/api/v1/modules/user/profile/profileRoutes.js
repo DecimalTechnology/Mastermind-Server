@@ -17,7 +17,6 @@ profileRouter.put("/", authenticate_1.authenticate, (req, res, next) => controll
 profileRouter.get("/", authenticate_1.authenticate, (req, res, next) => controller.getProfile(req, res, next));
 profileRouter.patch("/profile-picture", upload_1.default.any(), authenticate_1.authenticate, (req, res, next) => controller.updateProfilePicture(req, res, next));
 profileRouter.get('/search', authenticate_1.authenticate, (req, res, next) => controller.searchProfile(req, res, next));
-profileRouter.get('/:id', authenticate_1.authenticate, (req, res, next) => controller.getProfileById(req, res, next));
 profileRouter.post('/connect', authenticate_1.authenticate, (req, res, next) => controller.connectUser(req, res, next));
 profileRouter.patch('/connect/accept', authenticate_1.authenticate, (req, res, next) => controller.acceptConnection(req, res, next));
 profileRouter.patch('/connect/remove', authenticate_1.authenticate, (req, res, next) => controller.removeConnection(req, res, next));
@@ -26,4 +25,5 @@ profileRouter.get('/connect/all', authenticate_1.authenticate, (req, res, next) 
 profileRouter.get('/connect/sent', authenticate_1.authenticate, (req, res, next) => controller.getSendRequests(req, res, next));
 profileRouter.get('/connect/received', authenticate_1.authenticate, (req, res, next) => controller.getReceiveRequests(req, res, next));
 profileRouter.get('/connect/connections', authenticate_1.authenticate, (req, res, next) => controller.getAllConnections(req, res, next));
+profileRouter.get('/:id', authenticate_1.authenticate, (req, res, next) => controller.getProfileById(req, res, next));
 exports.default = profileRouter;

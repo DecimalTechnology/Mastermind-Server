@@ -4,14 +4,9 @@ exports.authenticate = void 0;
 const token_1 = require("../utils/v1/token/token");
 const customErrors_1 = require("../constants/customErrors");
 const authenticate = (req, res, next) => {
-    var _a;
     const header = req.headers;
     // Try to get the token from Authorization header
-    let token = header["authorization"]
-        ? header["authorization"].startsWith("Bearer ")
-            ? header["authorization"].split(" ")[1]
-            : null
-        : null;
+    let token = header["authorization"] ? (header["authorization"].startsWith("Bearer ") ? header["authorization"].split(" ")[1] : null) : null;
     // If the token is not found in Authorization, check access-token header
     if (!token) {
         token = header["access-token"];
@@ -24,7 +19,7 @@ const authenticate = (req, res, next) => {
     if (!accessTokenValid)
         throw new customErrors_1.UnAuthorizedError("Access token expired, login again");
     // Store userId from the decoded token
-    req.userId = (_a = accessTokenValid.data) === null || _a === void 0 ? void 0 : _a._id;
+    req.userId = accessTokenValid.data;
     next();
 };
 exports.authenticate = authenticate;

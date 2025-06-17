@@ -4,10 +4,20 @@ import { sendLinkToEmail } from "../../../../../utils/v1/mail/sendEmail";
 import { generateRandomPassword } from "../../../../../utils/v1/password/generateRandomPassword";
 import { comparePassword, hashPassword } from "../../../../../utils/v1/password/password";
 import { generateAccessToken, generateRefreshToken } from "../../../../../utils/v1/token/token";
+import { ChapterRepository } from "../../admin/chapter/chapterRepository";
+import { LocalRepository } from "../../admin/local/localRepository";
+import { NationRepository } from "../../admin/nation/repository";
+import { RegionRepository } from "../../admin/region/regionRepository";
 import { AuthRepository } from "./authRepository";
 
 export class AuthService {
-    constructor(private authRepository: AuthRepository) {}
+    constructor(
+        private authRepository: AuthRepository,
+        private nationRepository: NationRepository,
+        private regionRepository: RegionRepository,
+        private localRepository: LocalRepository,
+        private chapterRepository: ChapterRepository
+    ) {}
 
     async userRegistration(userData: any) {
         try {
@@ -38,10 +48,8 @@ export class AuthService {
                 throw new BadRequestError("Your account has been blocked by the admin");
             }
 
-            
-
             // Check if the password is valid
-            const isPasswordValid = await comparePassword(userData?.password, user?.password as string)
+            const isPasswordValid = await comparePassword(userData?.password, user?.password as string);
 
             if (!isPasswordValid) {
                 throw new BadRequestError("Password you entered is incorrect");
@@ -62,15 +70,13 @@ export class AuthService {
         }
     }
 
-
-
     async resetPassword(oldPassword: string, newPassword: string, userId: string): Promise<string> {
         try {
             const user = await this.authRepository.findOne(userId);
             if (!user) throw new NotFoundError("User not found");
 
             const compare = await comparePassword(oldPassword, user?.password);
-          
+
             if (!compare) throw new BadRequestError("The old password you enter is incorrect please provide a valid password");
 
             const hashedPassword = await hashPassword(newPassword);
@@ -97,7 +103,7 @@ export class AuthService {
         try {
             const user = await this.authRepository.findUserByEmail(email);
             if (!user) throw new BadRequestError("No valid user found with this email ");
-            if(!user?.isVerified) throw new UnAuthorizedError("Your account is not verified by the admin")
+            if (!user?.isVerified) throw new UnAuthorizedError("Your account is not verified by the admin");
             const samePassword = await comparePassword(password, user?.password as string);
             const hashedPassword = await hashPassword(password);
             if (samePassword)
@@ -106,8 +112,36 @@ export class AuthService {
             if (res?.modifiedCount > 0) return;
             throw new BadRequestError("Something went wrong password updation failed");
         } catch (error) {
-            console.log('Error: forget password')  
-            throw error; 
-        }      
+            console.log("Error: forget password");
+            throw error;
+        }
+    }
+    async getAllNations(): Promise<any> {
+        try {
+            return await this.nationRepository.findAll();
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getAllRegions(nationId: string): Promise<any> {
+        try {
+            return await this.regionRepository.findAllRegionsByNationId(nationId as string);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getAllLocalsByRegionId(regionId: string): Promise<any> {
+        try {
+            return await this.localRepository.findLocalsByRegionId(regionId as string);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getAllChaptersByLocalId(localId: string): Promise<any> {
+        try {
+            return await this.chapterRepository.findChaptersByLocalId(localId as string);
+        } catch (error) {
+            throw error;
+        }
     }
 }

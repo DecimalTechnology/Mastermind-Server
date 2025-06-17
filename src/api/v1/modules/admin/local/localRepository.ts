@@ -23,18 +23,62 @@ export class LocalRepository extends BaseRepository<ILocal> {
     }
 
     async findAllLocals(search: string, regionId: string): Promise<any> {
-        const res = await Local.find({})
-            .populate({ path: "nationId", select: "name" })
-            .populate({ path: "regionId", select: "name" })
-            .populate({ path: "createdAt", select: "name" });
+        const res = await Local.aggregate([
+            { $match: { name: { $regex: search, $options: "i" } } },
+            { $lookup: { from: "nations", localField: "nationId", foreignField: "_id", as: "nationData" } },
+            { $lookup: { from: "regions", localField: "regionId", foreignField: "_id", as: "regionData" } },
+            { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
+            { $lookup: { from: "users", localField: "_id", foreignField: "manage.local", as: "adminData" } },
+            { $unwind: "$nationData" },
+            { $unwind: "$regionData" },
+            { $unwind: "$createdBy" },
+            { $unwind: "$adminData" },
+            {
+                $project: {
+                    nation: "$nationData.name",
+                    region: "$regionData.name",
+                    admin: "$adminData.name",
+                    createdBy: "$createdBy.name",
+                    isActive: 1,
+                    name: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                },
+            },
+        ]);
+
         const region = await Region.findOne({ _id: regionId });
         return { region: region, local: res };
     }
 
-    async findLocalData(id: string): Promise<ILocal | null> {
-        return await Local.findOne({ _id: id })
-            .populate({ path: "nationId", select: "name" })
-            .populate({ path: "regionId", select: "name" })
-            .populate({ path: "createdAt", select: "name" });
+    async findLocalData(id: string): Promise<ILocal[] | null> {
+        const res = await Local.aggregate([
+            { $match: { _id: id } },
+            { $lookup: { from: "nations", localField: "nationId", foreignField: "_id", as: "nationData" } },
+            { $lookup: { from: "regions", localField: "regionId", foreignField: "_id", as: "regionData" } },
+            { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
+            { $lookup: { from: "users", localField: "_id", foreignField: "manage.local", as: "adminData" } },
+            { $unwind: "$nationData" },
+            { $unwind: "$regionData" },
+            { $unwind: "$createdBy" },
+            { $unwind: "$adminData" },
+            {
+                $project: {
+                    nation: "$nationData.name",
+                    region: "$regionData.name",
+                    admin: "$adminData.name",
+                    createdBy: "$createdBy.name",
+                    isActive: 1,
+                    name: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                },
+            },
+        ]);
+
+        return res;
+    }
+    async findLocalsByRegionId(regionId: string): Promise<ILocal[]> {
+        return await Local.find({ regionId: regionId });
     }
 }

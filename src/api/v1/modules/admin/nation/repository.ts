@@ -38,4 +38,13 @@ export class NationRepository extends BaseRepository<INation> {
 
         return res;
     }
+
+    async findNation(nationId:string):Promise<INation[]>{
+        return  await Nation.aggregate([
+            { $match: {_id:nationId }},
+            { $lookup: { from: "users", localField: "_id", foreignField: "manage.nation", as: "admin" } },
+            { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
+        ]);
+
+    }
 }

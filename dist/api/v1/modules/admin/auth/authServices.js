@@ -83,6 +83,8 @@ class AuthService {
         return __awaiter(this, arguments, void 0, function* ({ email, password }) {
             try {
                 const admin = yield this.authRepository.findByEmail(email);
+                if ((admin === null || admin === void 0 ? void 0 : admin.role) == 'member')
+                    throw new customErrors_1.UnAuthorizedError("Permission denied. No admin roles found");
                 if (!admin)
                     throw new customErrors_1.UnAuthorizedError("Invalid email or password");
                 const isPasswordValid = yield (0, password_1.comparePassword)(password, admin.password);
@@ -91,7 +93,9 @@ class AuthService {
                 const accessToken = (0, token_1.generateAccessToken)({ userId: admin === null || admin === void 0 ? void 0 : admin._id, role: admin === null || admin === void 0 ? void 0 : admin.role });
                 const refreshToken = (0, token_1.generateRefreshToken)({ userId: admin === null || admin === void 0 ? void 0 : admin._id, role: admin === null || admin === void 0 ? void 0 : admin.role });
                 admin.password = null;
-                return { adminData: admin, accessToken, refreshToken };
+                const adminData = yield this.authRepository.findAdmin(admin === null || admin === void 0 ? void 0 : admin._id, admin === null || admin === void 0 ? void 0 : admin.role);
+                console.log(adminData, "", admin);
+                return { adminData: adminData[0], accessToken, refreshToken };
             }
             catch (error) {
                 throw error;
