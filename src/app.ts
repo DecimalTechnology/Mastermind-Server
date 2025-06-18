@@ -12,6 +12,8 @@ import nationRouter from "./api/v1/modules/admin/nation/route";
 import chapterRouter from "./api/v1/modules/admin/chapter/chapterRoutes";
 import regionRouter from "./api/v1/modules/admin/region/regionRoutes";
 import localRouter from "./api/v1/modules/admin/local/localRoutes";
+import eventRouter from "./api/v1/modules/admin/event/eventRouter";
+import userEventRouter from './api/v1/modules/user/event/eventRouter'
 
 
 dotenv.config()
@@ -27,13 +29,15 @@ const version = process.env.API_VERSION
 // User Routes
 app.use(`/${version}/auth`, authRouter);
 app.use(`/${version}/profile`, profileRouter)
+app.use(`/${version}/events`, userEventRouter)
 
 // Admin Routes
 app.use(`/${version}/admin/auth`, userRouter);
 app.use(`/${version}/admin/nation`, nationRouter);
 app.use(`/${version}/admin/chapter`,chapterRouter)
 app.use(`/${version}/admin/region`,regionRouter)
-app.use(`/${version}/admin/local`,localRouter)
+app.use(`/${version}/admin/local`,localRouter);
+app.use(`/${version}/admin/event`,eventRouter)
 
 // Error handler
 app.use(errorHandler);

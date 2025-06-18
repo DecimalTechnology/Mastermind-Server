@@ -7,8 +7,7 @@ const roleAuth = (...allowedRoles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
         try {
             const role = req?.role;
-            console.log(role)
-            console.log(allowedRoles)
+        
             if (!role || !allowedRoles.includes(role)) {
                 throw new UnAuthorizedError("Unauthorized: Role not permitted");
             }
