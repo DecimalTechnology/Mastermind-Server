@@ -10,3 +10,4 @@ dotenv_1.default.config();
 const PORT = (process === null || process === void 0 ? void 0 : process.env.PORT) || 3000;
 (0, connectDb_1.connectDB)();
 app_1.Server.listen(PORT, () => console.log(`Server Connected Successfully on ${PORT}`));
+// Entry point

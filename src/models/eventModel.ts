@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 import { IEvent } from "../interfaces/models/IEvent";
 
 export enum EventLevel {
@@ -25,6 +25,7 @@ const eventSchema = new mongoose.Schema<IEvent>({
     duration:{type:String},
     image: { type: String },
     location: { type: String },
+    createdBy:{type:mongoose.Schema.Types.ObjectId,ref:'User'},
     audienceType: { type: String, enum: ["all", "selected"], required: true },
     attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     eventType: { type: String, enum: Object.values(EventLevel), required: true },
@@ -32,8 +33,10 @@ const eventSchema = new mongoose.Schema<IEvent>({
     regionId: { type: mongoose.Schema.Types.ObjectId, ref: "Region" },
     nationId: { type: mongoose.Schema.Types.ObjectId, ref: "Nation" },
     localId:{type:mongoose.Schema.Types.ObjectId,ref:"Local"},
-    status:{type:String,enum:Object.values(EventStatus),default:'upcoming'}
-});
+    status:{type:String,enum:Object.values(EventStatus),default:'upcoming'},
+    customFields:{type:Schema.Types.Mixed,default:{}},
+    rsvp:[{type:mongoose.Schema.Types.ObjectId,ref:"User",defaut:[]}]
+},{timestamps:true});
 
 const Event  = mongoose.model<IEvent>("Event",eventSchema);
 export default Event;

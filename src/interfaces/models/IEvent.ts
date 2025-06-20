@@ -21,4 +21,7 @@ export interface IEvent extends Document {
   duration:any      ;
   localId:any
   audienceType: string;
+  customFields:any;
+  createdBy:any
+  rsvp:any
 }

@@ -154,4 +154,8 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         console.log(level,levelId,search)
         return ''
     }
+
+    async findChapter(chapterId:string):Promise<any>{
+         return await Chapter.findOne({_id:chapterId}).populate("localId").populate("regionId").populate("nationId");
+    }
 }

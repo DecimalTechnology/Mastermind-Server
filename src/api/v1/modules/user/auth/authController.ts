@@ -11,7 +11,7 @@ export class AuthController {
     // @access User 
     async registration(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-     
+           
             // userValidationSchema.parse(req.body)
             const response = await this.authService.userRegistration(req.body);
             res.status(OK).json({ success: true, message: "User registration successfull", data: response });
@@ -24,6 +24,7 @@ export class AuthController {
     // @access User 
     async userLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
             const response = await this.authService.userLogin(req.body);
             res.status(OK).json({ success: true, message: "User signin successfull", data: response });

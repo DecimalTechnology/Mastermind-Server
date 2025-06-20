@@ -43,6 +43,7 @@ export const errorHandler = (
             .join(", ");
     }
     console.error(`\x1b[31m${message}\x1b[0m`);
+
     // Send error response
     res.status(statusCode).json({
         success: false,

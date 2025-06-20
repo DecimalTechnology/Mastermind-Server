@@ -28,17 +28,20 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const customErrors_1 = require("../../../../../constants/customErrors");
 const uploadToCloudinary_1 = require("../../../../../utils/v1/cloudinary/uploadToCloudinary");
 class ProfileService {
-    constructor(profileRepository) {
+    constructor(profileRepository, chapterRepository) {
         this.profileRepository = profileRepository;
+        this.chapterRepository = chapterRepository;
     }
     getProfile(userId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             try {
                 const res = yield this.profileRepository.findProfileById(userId);
                 if (!res)
                     throw new customErrors_1.NotFoundError("Profile details not found");
                 const user = yield this.profileRepository.findUserById(userId);
-                return Object.assign(Object.assign({}, res), { name: user === null || user === void 0 ? void 0 : user.name, chapter: user === null || user === void 0 ? void 0 : user.chapter, region: user === null || user === void 0 ? void 0 : user.region });
+                const chapter = yield this.chapterRepository.findChapter(user === null || user === void 0 ? void 0 : user.chapter);
+                return Object.assign(Object.assign({}, res), { name: user === null || user === void 0 ? void 0 : user.name, chapter: chapter === null || chapter === void 0 ? void 0 : chapter.name, region: (_a = chapter === null || chapter === void 0 ? void 0 : chapter.regionId) === null || _a === void 0 ? void 0 : _a.name, nation: (_b = chapter === null || chapter === void 0 ? void 0 : chapter.nationId) === null || _b === void 0 ? void 0 : _b.name, local: (_c = chapter === null || chapter === void 0 ? void 0 : chapter.localId) === null || _c === void 0 ? void 0 : _c.name });
             }
             catch (error) {
                 console.log("Error while fetching profile information");
@@ -114,7 +117,7 @@ class ProfileService {
                         connectionStatus = "request_received";
                     }
                     else {
-                        connectionStatus = 'not_connected';
+                        connectionStatus = "not_connected";
                     }
                 }
                 // Attach connection status to the profile response
@@ -166,7 +169,7 @@ class ProfileService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this.profileRepository.acceptConnection(userId, senderId);
-                return { connectionStatus: 'connected' };
+                return { connectionStatus: "connected" };
             }
             catch (error) {
                 console.log("Error: accept connection ");
@@ -178,7 +181,7 @@ class ProfileService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const res = yield this.profileRepository.removeConnection(userId, senderId);
-                return { connectionStatus: 'not_connected' };
+                return { connectionStatus: "not_connected" };
             }
             catch (error) {
                 console.log("Error: remove connection");

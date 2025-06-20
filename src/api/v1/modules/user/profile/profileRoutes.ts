@@ -4,9 +4,11 @@ import { ProfileService } from './profileService';
 import { ProfileController } from './profileController';
 import { authenticate } from '../../../../../middewares.ts/authenticate';
 import upload from '../../../../../middewares.ts/upload';
+import { ChapterRepository } from '../../admin/chapter/chapterRepository';
 const profileRouter = express.Router();
 const profileRepository = new ProfileRepository();
-const profileService =  new ProfileService(profileRepository);
+const chapterRepository =  new ChapterRepository()
+const profileService =  new ProfileService(profileRepository,chapterRepository);
 const controller =  new ProfileController(profileService);
 
 
