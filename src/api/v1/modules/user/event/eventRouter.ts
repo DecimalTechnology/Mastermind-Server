@@ -15,6 +15,9 @@ const userRepository = new UserRepository()
 const eventService = new EventService(eventRepository,userRepository,chapterRepository);
 const controller = new EventController(eventService);
 
-eventRouter.get('/',authenticate,asyncHandler(controller.getAllEvents.bind(controller)))
+eventRouter.get('/',authenticate,asyncHandler(controller.getAllEvents.bind(controller)));
+eventRouter.patch('/register/:id',authenticate,asyncHandler(controller.registerEvent.bind(controller)))
+eventRouter.delete('/register/:id',authenticate,asyncHandler(controller.cancelRegistration.bind(controller)))
+eventRouter.get('/:id',authenticate,asyncHandler(controller.getEventById.bind(controller)))
 
 export default eventRouter;

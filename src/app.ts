@@ -14,6 +14,7 @@ import regionRouter from "./api/v1/modules/admin/region/regionRoutes";
 import localRouter from "./api/v1/modules/admin/local/localRoutes";
 import eventRouter from "./api/v1/modules/admin/event/eventRouter";
 import userEventRouter from './api/v1/modules/user/event/eventRouter'
+import testMonialRouter from "./api/v1/modules/user/testimonial/testimonialRoutes";
 
 
 dotenv.config()
@@ -21,7 +22,7 @@ const app = express();
 app.use(express.json());
 app.use(corsConfig());
 app.use(cookieParser())
-app.use(printBody)
+// app.use(printBody)
 
 // Version 1
 const version = process.env.API_VERSION
@@ -30,6 +31,7 @@ const version = process.env.API_VERSION
 app.use(`/${version}/auth`, authRouter);
 app.use(`/${version}/profile`, profileRouter)
 app.use(`/${version}/events`, userEventRouter)
+app.use(`/${version}/testimonial`, testMonialRouter)
 
 // Admin Routes
 app.use(`/${version}/admin/auth`, userRouter);

@@ -10,7 +10,6 @@ const authRoutes_1 = __importDefault(require("./api/v1/modules/user/auth/authRou
 const errorHandler_1 = require("./middewares.ts/errorHandler");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const profileRoutes_1 = __importDefault(require("./api/v1/modules/user/profile/profileRoutes"));
-const bodyLogger_1 = require("./middewares.ts/bodyLogger");
 const dotenv_1 = __importDefault(require("dotenv"));
 const corsConfig_1 = require("./config/corsConfig");
 const authRoutes_2 = __importDefault(require("./api/v1/modules/admin/auth/authRoutes"));
@@ -25,7 +24,7 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, corsConfig_1.corsConfig)());
 app.use((0, cookie_parser_1.default)());
-app.use(bodyLogger_1.printBody);
+// app.use(printBody)
 // Version 1
 const version = process.env.API_VERSION;
 // User Routes

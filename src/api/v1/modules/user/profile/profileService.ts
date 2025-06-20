@@ -4,17 +4,27 @@ import { IConnections } from "../../../../../interfaces/models/IConnection";
 import { IProfile } from "../../../../../interfaces/models/IProfile";
 import { uploadImageToCloudinary } from "../../../../../utils/v1/cloudinary/uploadToCloudinary";
 import { ProfileRepository } from "./profileRepository";
+import { ChapterRepository } from "../../admin/chapter/chapterRepository";
 
 export class ProfileService {
-    constructor(private profileRepository: ProfileRepository) {}
+    constructor(private profileRepository: ProfileRepository, private chapterRepository: ChapterRepository) {}
 
     async getProfile(userId: string): Promise<Record<string, any> | null> {
         try {
             const res = await this.profileRepository.findProfileById(userId);
             if (!res) throw new NotFoundError("Profile details not found");
-            const user = await this.profileRepository.findUserById(userId);
+            const user: any = await this.profileRepository.findUserById(userId);
 
-            return { ...res, name: user?.name, chapter: user?.chapter, region: user?.region };
+            const chapter = await this.chapterRepository.findChapter(user?.chapter);
+
+            return {
+                ...res,
+                name: user?.name,
+                chapter: chapter?.name,
+                region: chapter?.regionId?.name,
+                nation: chapter?.nationId?.name,
+                local: chapter?.localId?.name,
+            };
         } catch (error) {
             console.log("Error while fetching profile information");
             throw error;
@@ -45,9 +55,9 @@ export class ProfileService {
             throw error;
         }
     }
-    async searchProfile(query: string,userId:string): Promise<Record<string, any> | null> {
+    async searchProfile(query: string, userId: string): Promise<Record<string, any> | null> {
         try {
-            return await this.profileRepository.findUserBySearchQuery(query,userId);
+            return await this.profileRepository.findUserBySearchQuery(query, userId);
         } catch (error) {
             console.log("Error while updating profile picture");
             throw error;
@@ -61,7 +71,7 @@ export class ProfileService {
 
             const receiverId = res?.userId.toString(); // Ensure receiverId is a string
             const senderId = currentUserId.toString(); // Ensure senderId is a string
-          
+
             const connectionHistory = await this.profileRepository.findAlreadyConnected(senderId);
 
             let connectionStatus = "not_connected"; // Default
@@ -77,8 +87,8 @@ export class ProfileService {
                     connectionStatus = "request_sent";
                 } else if (isRequestReceived) {
                     connectionStatus = "request_received";
-                }else{
-                    connectionStatus = 'not_connected'
+                } else {
+                    connectionStatus = "not_connected";
                 }
             }
 
@@ -91,15 +101,14 @@ export class ProfileService {
     }
     async connectUser(senderId: string, receiverId: string): Promise<any> {
         try {
-          
             const connection = await this.profileRepository.findConnectionsDataByArray([
                 new mongoose.Types.ObjectId(senderId),
                 new mongoose.Types.ObjectId(receiverId),
             ]);
-             
+
             const senderDataIndex = connection.findIndex((obj: any) => obj?.userId == senderId);
             const receiverDataIndex = connection.findIndex((obj: any) => obj?.userId == receiverId);
-            
+
             if (senderDataIndex < 0) {
                 const newConnectionData = {
                     userId: senderId,
@@ -109,7 +118,7 @@ export class ProfileService {
                 };
 
                 await this.profileRepository.createConnection(newConnectionData);
-            } 
+            }
 
             if (receiverDataIndex < 0) {
                 const newConnectionData = {
@@ -120,38 +129,37 @@ export class ProfileService {
                 };
 
                 await this.profileRepository.createConnection(newConnectionData);
-            } 
-            await this.profileRepository.addConnection(senderId,receiverId)
-            return {connectionStatus:"request_sent"}
+            }
+            await this.profileRepository.addConnection(senderId, receiverId);
+            return { connectionStatus: "request_sent" };
         } catch (error) {
             console.log("Error: connect user");
             throw error;
         }
     }
 
-    async acceptConnection(userId: string,senderId:string): Promise<Record<string, any> | null> {
+    async acceptConnection(userId: string, senderId: string): Promise<Record<string, any> | null> {
         try {
-            const result =  await this.profileRepository.acceptConnection(userId,senderId);
-            return {connectionStatus:'connected'}
+            const result = await this.profileRepository.acceptConnection(userId, senderId);
+            return { connectionStatus: "connected" };
         } catch (error) {
             console.log("Error: accept connection ");
             throw error;
         }
     }
-    async removeConnection(userId: string,senderId:string): Promise<Record<string, any> | null> {
+    async removeConnection(userId: string, senderId: string): Promise<Record<string, any> | null> {
         try {
-            const res =  await this.profileRepository.removeConnection(userId,senderId);
-            return {connectionStatus:'not_connected'}
+            const res = await this.profileRepository.removeConnection(userId, senderId);
+            return { connectionStatus: "not_connected" };
         } catch (error) {
             console.log("Error: remove connection");
             throw error;
         }
     }
-    async cancelConnection(userId: string,senderId:string): Promise<Record<string, any> | null> {
+    async cancelConnection(userId: string, senderId: string): Promise<Record<string, any> | null> {
         try {
-         
-            const result =  await this.profileRepository.cancelConnection(userId,senderId);
-            return {connectionStatus:"not_connected"}
+            const result = await this.profileRepository.cancelConnection(userId, senderId);
+            return { connectionStatus: "not_connected" };
         } catch (error) {
             console.log("Error: cancel connection");
             throw error;
@@ -159,38 +167,38 @@ export class ProfileService {
     }
     async getConnections(userId: string): Promise<IConnections | null> {
         try {
-            const result =  await this.profileRepository.findConnectionByUserId(userId);
-            if(!result) throw new NotFoundError("The required data not found ");
+            const result = await this.profileRepository.findConnectionByUserId(userId);
+            if (!result) throw new NotFoundError("The required data not found ");
             return result;
         } catch (error) {
             console.log("Error: get connections");
             throw error;
         }
     }
-    async getSendRequests(userId: string): Promise<any| null> {
+    async getSendRequests(userId: string): Promise<any | null> {
         try {
             const result = await this.profileRepository.findSendRequests(userId);
-            if(!result) throw new NotFoundError("Sent request list not found")
+            if (!result) throw new NotFoundError("Sent request list not found");
             return result;
         } catch (error) {
             console.log("Error: get sent requests");
             throw error;
         }
     }
-    async getReceiveRequests(userId: string): Promise<any| null> {
+    async getReceiveRequests(userId: string): Promise<any | null> {
         try {
             const result = await this.profileRepository.findReceiveRequests(userId);
-            if(!result) throw new NotFoundError("Sent request list not found")
+            if (!result) throw new NotFoundError("Sent request list not found");
             return result;
         } catch (error) {
             console.log("Error: get sent requests");
             throw error;
         }
     }
-    async getAllConnections(userId: string): Promise<any| null> {
+    async getAllConnections(userId: string): Promise<any | null> {
         try {
             const result = await this.profileRepository.findAllConnections(userId);
-            if(!result) throw new NotFoundError("Sent request list not found")
+            if (!result) throw new NotFoundError("Sent request list not found");
             return result;
         } catch (error) {
             console.log("Error: get sent requests");
