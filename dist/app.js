@@ -20,6 +20,7 @@ const localRoutes_1 = __importDefault(require("./api/v1/modules/admin/local/loca
 const eventRouter_1 = __importDefault(require("./api/v1/modules/admin/event/eventRouter"));
 const eventRouter_2 = __importDefault(require("./api/v1/modules/user/event/eventRouter"));
 const testimonialRoutes_1 = __importDefault(require("./api/v1/modules/user/testimonial/testimonialRoutes"));
+const TYCBRoutes_1 = __importDefault(require("./api/v1/modules/user/TYCB/TYCBRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -33,6 +34,7 @@ app.use(`/${version}/auth`, authRoutes_1.default);
 app.use(`/${version}/profile`, profileRoutes_1.default);
 app.use(`/${version}/events`, eventRouter_2.default);
 app.use(`/${version}/testimonial`, testimonialRoutes_1.default);
+app.use(`/${version}/tycb`, TYCBRoutes_1.default);
 // Admin Routes
 app.use(`/${version}/admin/auth`, authRoutes_2.default);
 app.use(`/${version}/admin/nation`, route_1.default);
