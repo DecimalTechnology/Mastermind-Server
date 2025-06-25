@@ -4,11 +4,13 @@ import { TYCBServices } from './TYCBServices';
 import {TYCBController} from './TYCBController'
 import asyncHandler from '../../../../../validations/asyncHandler';
 import { authenticate } from '../../../../../middewares.ts/authenticate';
+import { UserRepository } from '../../shared/repositories/userRepository';
 
 const tycbRouter = express.Router();
 
 const tycbRepository = new TYCBRepository();
-const tycbService = new TYCBServices(tycbRepository);
+const userRepository = new UserRepository()
+const tycbService = new TYCBServices(tycbRepository,userRepository);
 const controller = new TYCBController(tycbService);
 
 tycbRouter.post('/:id',authenticate, asyncHandler(controller.createTycb.bind(controller)));

@@ -24,7 +24,7 @@ export class TestimonialController {
     // @route  POST v1/testimonial/ask/:id
     // @access User
     async createAskTestimonial(req: Request, res: Response, next: NextFunction): Promise<void> {
-        console.log(req.body);
+       
         const userId = req.userId;
         const toUser = req.params.id;
         const message = req.body.message;
