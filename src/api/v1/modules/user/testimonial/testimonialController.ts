@@ -1,17 +1,67 @@
 import { TestimonialService } from "./testimonialService";
 import { NextFunction, Request, Response } from "express";
-import { chapterSchema } from "../../../../../validations/admin/chapter";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
-import { NotFoundError } from "../../../../../constants/customErrors";
 const { OK } = STATUS_CODES;
-export class TestimonialController{
-    constructor (private testimonialService:TestimonialService){
+export class TestimonialController {
+    constructor(private testimonialService: TestimonialService) {}
 
+    // @desc   Create
+    // @route  POST v1/testimonial/give/:id
+    // @access User
+    async createTestimonial(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const userId = req.userId;
+        const toUser = req.params.id;
+        const message = req.body.message;
+        const testimonialObject = {
+            fromUser: userId,
+            toUser,
+            message,
+        };
+        const result = await this.testimonialService.createTestimonial(testimonialObject);
+        res.status(OK).json({ success: true, message: "Thank you! Your testimonial has been submitted successfully.", data: result });
     }
-
-    // @desc   Create 
-    // @route  POST v1/admin/chapter
-    // @access Super_admin, National_admin, Regional_admin, Local_admin
-   
-
+    // @desc   Create
+    // @route  POST v1/testimonial/ask/:id
+    // @access User
+    async createAskTestimonial(req: Request, res: Response, next: NextFunction): Promise<void> {
+       
+        const userId = req.userId;
+        const toUser = req.params.id;
+        const message = req.body.message;
+        const testimonialObject = {
+            fromUser: userId,
+            toUser,
+            message,
+        };
+        const result = await this.testimonialService.createAskTestimonial(testimonialObject);
+        res.status(OK).json({ success: true, message: "Testimonial request sent successfully", data: result });
+    }
+    // @desc   Get all the given testimonial
+    // @route  POST v1/testimonial/given/:id
+    // @access User
+    async getGivenTestimonial(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const result = await this.testimonialService.getAllGivenTestimonial(req.userId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Get all the given testimonial
+    // @route  POST v1/testimonial/given/:id
+    // @access User
+    async getAllTheTestimonialCount(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const result = await this.testimonialService.getAllTestimonialCount(req.userId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Get all the received testimonial
+    // @route  POST v1/testimonial/received/:id
+    // @access User
+    async getReceivedTestimonial(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const result = await this.testimonialService.getAllReceivedTestimonials(req.userId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Get all the received testimonial
+    // @route  POST v1/testimonial/received/:id
+    // @access User
+    async getAllTestimonialRequests(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const result = await this.testimonialService.getAllTestimonialRequests(req.userId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
 }

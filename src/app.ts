@@ -15,6 +15,7 @@ import localRouter from "./api/v1/modules/admin/local/localRoutes";
 import eventRouter from "./api/v1/modules/admin/event/eventRouter";
 import userEventRouter from './api/v1/modules/user/event/eventRouter'
 import testMonialRouter from "./api/v1/modules/user/testimonial/testimonialRoutes";
+import tycbRouter from "./api/v1/modules/user/TYCB/TYCBRoutes";
 
 
 dotenv.config()
@@ -32,6 +33,7 @@ app.use(`/${version}/auth`, authRouter);
 app.use(`/${version}/profile`, profileRouter)
 app.use(`/${version}/events`, userEventRouter)
 app.use(`/${version}/testimonial`, testMonialRouter)
+app.use(`/${version}/tycb`, tycbRouter)
 
 // Admin Routes
 app.use(`/${version}/admin/auth`, userRouter);
