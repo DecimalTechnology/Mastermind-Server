@@ -14,19 +14,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendLinkToEmail = sendLinkToEmail;
 const nodemailer_1 = __importDefault(require("nodemailer"));
-function sendLinkToEmail(email, text) {
+function sendLinkToEmail(email, text, html) {
     const transporter = nodemailer_1.default.createTransport({
         service: "gmail", // Use your email service provider
         auth: {
             user: 'adarshjithu10@gmail.com',
-            pass: "ydwt thcd qsds vtmn",
+            pass: process.env.TRANSPORTER_PASSWORD,
         },
     });
     const mailOptions = {
         from: "adarshjithu10@gmail.com",
         to: email,
-        subject: "OTP Verification",
-        text: text,
+        subject: 'Your Login Password - Master Mind',
+        html: html
     };
     const sendEmail = (mailOptions) => __awaiter(this, void 0, void 0, function* () {
         try {

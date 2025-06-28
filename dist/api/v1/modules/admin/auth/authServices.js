@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const customErrors_1 = require("../../../../../constants/customErrors");
+const htmlGenerator_1 = require("../../../../../utils/v1/mail/htmlGenerator");
 const sendEmail_1 = require("../../../../../utils/v1/mail/sendEmail");
 const generateRandomPassword_1 = require("../../../../../utils/v1/password/generateRandomPassword");
 const password_1 = require("../../../../../utils/v1/password/password");
@@ -57,8 +58,9 @@ class AuthService {
       Best regards,
       The MasterMind Team
     `;
+                const html = (0, htmlGenerator_1.generateEmailHtml)(user === null || user === void 0 ? void 0 : user.name, password);
                 // Send the email to the user
-                const isMailSend = yield (0, sendEmail_1.sendLinkToEmail)(user.email, message);
+                const isMailSend = yield (0, sendEmail_1.sendLinkToEmail)(user.email, "", html);
                 if (!isMailSend)
                     throw new customErrors_1.BadRequestError("Failed to send password to email");
                 // Hash the password
@@ -83,7 +85,7 @@ class AuthService {
         return __awaiter(this, arguments, void 0, function* ({ email, password }) {
             try {
                 const admin = yield this.authRepository.findByEmail(email);
-                if ((admin === null || admin === void 0 ? void 0 : admin.role) == 'member')
+                if ((admin === null || admin === void 0 ? void 0 : admin.role) == "member")
                     throw new customErrors_1.UnAuthorizedError("Permission denied. No admin roles found");
                 if (!admin)
                     throw new customErrors_1.UnAuthorizedError("Invalid email or password");

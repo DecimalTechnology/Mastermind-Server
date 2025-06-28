@@ -21,6 +21,8 @@ const eventRouter_1 = __importDefault(require("./api/v1/modules/admin/event/even
 const eventRouter_2 = __importDefault(require("./api/v1/modules/user/event/eventRouter"));
 const testimonialRoutes_1 = __importDefault(require("./api/v1/modules/user/testimonial/testimonialRoutes"));
 const TYCBRoutes_1 = __importDefault(require("./api/v1/modules/user/TYCB/TYCBRoutes"));
+const accountablitySlipRouter_1 = __importDefault(require("./api/v1/modules/user/accountabilitySlip/accountablitySlipRouter"));
+const memberRoutes_1 = __importDefault(require("./api/v1/modules/admin/member/memberRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -35,6 +37,7 @@ app.use(`/${version}/profile`, profileRoutes_1.default);
 app.use(`/${version}/events`, eventRouter_2.default);
 app.use(`/${version}/testimonial`, testimonialRoutes_1.default);
 app.use(`/${version}/tycb`, TYCBRoutes_1.default);
+app.use(`/${version}/accountability`, accountablitySlipRouter_1.default);
 // Admin Routes
 app.use(`/${version}/admin/auth`, authRoutes_2.default);
 app.use(`/${version}/admin/nation`, route_1.default);
@@ -42,6 +45,7 @@ app.use(`/${version}/admin/chapter`, chapterRoutes_1.default);
 app.use(`/${version}/admin/region`, regionRoutes_1.default);
 app.use(`/${version}/admin/local`, localRoutes_1.default);
 app.use(`/${version}/admin/event`, eventRouter_1.default);
+app.use(`/${version}/admin/member`, memberRoutes_1.default);
 // Error handler
 app.use(errorHandler_1.errorHandler);
 exports.Server = http_1.default.createServer(app);

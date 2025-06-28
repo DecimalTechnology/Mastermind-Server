@@ -12,20 +12,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const customErrors_1 = require("../../../../../constants/customErrors");
 const statusCodes_1 = require("../../../../../constants/statusCodes");
+const registerValidation_1 = require("../../../../../validations/user/registerValidation");
 const { OK, CREATED } = statusCodes_1.STATUS_CODES;
 class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
     // @desc   New User Registration pwa
-    // @route  POST v1/auth/register  
-    // @access User 
+    // @route  POST v1/auth/register
+    // @access User
     registration(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // userValidationSchema.parse(req.body)
+                registerValidation_1.userRegistrationSchema.parse(req.body);
                 const response = yield this.authService.userRegistration(req.body);
-                res.status(OK).json({ success: true, message: "User registration successfull", data: response });
+                res.status(OK).json({
+                    success: true,
+                    message: "User registration successfull, You will get a password after admin verification",
+                    data: response,
+                });
             }
             catch (error) {
                 next(error);
@@ -33,8 +38,8 @@ class AuthController {
         });
     }
     // @desc   New User login pwa
-    // @route  POST v1/auth/signin  
-    // @access User 
+    // @route  POST v1/auth/signin
+    // @access User
     userLogin(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -48,9 +53,9 @@ class AuthController {
             }
         });
     }
-    // @desc   Reset password  
-    // @route  POST v1/auth/password/reset   
-    // @access User 
+    // @desc   Reset password
+    // @route  POST v1/auth/password/reset
+    // @access User
     resetPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -65,8 +70,8 @@ class AuthController {
         });
     }
     // @desc   Forget password
-    // @route  POST v1/auth/password/forget  
-    // @access User 
+    // @route  POST v1/auth/password/forget
+    // @access User
     forgetPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -81,8 +86,8 @@ class AuthController {
         });
     }
     // @desc   Updated new password while forgetting
-    // @route  POST v1/auth/password/forget  
-    // @access User 
+    // @route  POST v1/auth/password/forget
+    // @access User
     updateForgetPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -98,7 +103,7 @@ class AuthController {
     }
     // @desc   To get all the nation list
     // @route  POST v1/auth/nations
-    // @access User 
+    // @access User
     getAllNations(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -112,7 +117,7 @@ class AuthController {
     }
     // @desc   To get all the regions list
     // @route  POST v1/auth/regions
-    // @access User 
+    // @access User
     getAllRegions(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -130,7 +135,7 @@ class AuthController {
     }
     // @desc   To get all the locals list
     // @route  POST v1/auth/locals
-    // @access User 
+    // @access User
     getAllLocals(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -148,7 +153,7 @@ class AuthController {
     }
     // @desc   To get all the chapters list
     // @route  POST v1/auth/chapters
-    // @access User 
+    // @access User
     getAllChapters(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -158,6 +163,42 @@ class AuthController {
                     throw new customErrors_1.NotFoundError("Please provide local Id");
                 const response = yield this.authService.getAllChaptersByLocalId(localId);
                 res.status(OK).json({ success: true, message: "", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    // @desc   To send otp to users email
+    // @route  POST v1/auth/send-otp
+    // @access User
+    sendOtp(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { email } = req.body;
+                if (!email)
+                    throw new customErrors_1.NotFoundError("Please provide email");
+                const response = yield this.authService.sendOtp(email);
+                res.status(OK).json({ success: true, message: "The email send successfully", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    // @desc   To verify otp to users email
+    // @route  POST v1/auth/verify-otp
+    // @access User
+    verifyOtp(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { email, otp } = req.body;
+                if (!email)
+                    throw new customErrors_1.NotFoundError("Please provide email");
+                if (!otp)
+                    throw new customErrors_1.NotFoundError("Please provide email");
+                const response = yield this.authService.verifyOtp(email, otp);
+                res.status(OK).json({ success: true, message: "The email send successfully", data: response });
             }
             catch (error) {
                 next(error);

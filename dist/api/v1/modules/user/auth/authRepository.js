@@ -43,6 +43,26 @@ class AuthRepository {
             }
         });
     }
+    findByEmailOrPhoneNumber(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield userModel_1.default.findOne({ email: email }).lean();
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findByPhoneNumber(phoneNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield userModel_1.default.findOne({ phonenumber: phoneNumber }).lean();
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
     deleteUserById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

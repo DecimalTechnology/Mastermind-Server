@@ -24,6 +24,20 @@ export class AuthRepository {
             throw error;
         }
     }
+    async findByEmailOrPhoneNumber(email: string): Promise<IUser | null> {
+        try {
+            return await User.findOne({ email: email }).lean();
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findByPhoneNumber(phoneNumber: number): Promise<IUser | null> {
+        try {
+            return await User.findOne({ phonenumber:phoneNumber }).lean();
+        } catch (error) {
+            throw error;
+        }
+    }
 
     async deleteUserById(userId: any) {
         try {

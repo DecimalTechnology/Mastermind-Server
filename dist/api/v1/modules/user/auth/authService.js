@@ -19,11 +19,18 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const customErrors_1 = require("../../../../../constants/customErrors");
 const messages_1 = require("../../../../../constants/messages");
+const common_1 = require("../../../../../enums/common");
+const otpModel_1 = __importDefault(require("../../../../../models/otpModel"));
+const htmlGenerator_1 = require("../../../../../utils/v1/mail/htmlGenerator");
 const sendEmail_1 = require("../../../../../utils/v1/mail/sendEmail");
+const generateOtp_1 = require("../../../../../utils/v1/otp/generateOtp");
 const password_1 = require("../../../../../utils/v1/password/password");
 const token_1 = require("../../../../../utils/v1/token/token");
 class AuthService {
@@ -37,10 +44,18 @@ class AuthService {
     userRegistration(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this.authRepository.findUserByEmail(userData === null || userData === void 0 ? void 0 : userData.email);
-                if (user)
-                    throw new customErrors_1.BadRequestError("User already registered");
-                return yield this.authRepository.createUser(Object.assign(Object.assign({}, userData), { password: "" }));
+                // Convert mobile number from string to number
+                const phoneNumber = parseInt(userData === null || userData === void 0 ? void 0 : userData.phonenumber);
+                // Checking email and password already exists or not
+                const emailExists = yield this.authRepository.findUserByEmail(userData === null || userData === void 0 ? void 0 : userData.email);
+                const phoneNumberExists = yield this.authRepository.findByPhoneNumber(phoneNumber);
+                // If exists throw new error
+                if (emailExists)
+                    throw new customErrors_1.ConflictError("The email already exists");
+                if (phoneNumberExists)
+                    throw new customErrors_1.ConflictError("The phonenumber  already exists");
+                const newUserData = Object.assign(Object.assign({}, userData), { phonenumber: phoneNumber, role: common_1.UserRole.MEMBER, password: "" });
+                return yield this.authRepository.createUser(Object.assign(Object.assign({}, newUserData), { password: "" }));
             }
             catch (error) {
                 console.log("User registration error");
@@ -109,7 +124,8 @@ class AuthService {
                 if (!user)
                     throw new customErrors_1.BadRequestError("Invaild email address ");
                 const message = (0, messages_1.forgetPasswordMessage)(otp);
-                const isEmailSend = yield (0, sendEmail_1.sendLinkToEmail)(email, otp);
+                const html = (0, htmlGenerator_1.generateOtpEmailHtml)(user === null || user === void 0 ? void 0 : user.name, otp);
+                const isEmailSend = yield (0, sendEmail_1.sendLinkToEmail)(email, "", html);
                 if (!isEmailSend)
                     throw new customErrors_1.BadRequestError("Somthing went wrong while sending email to the user");
                 return { email, otp };
@@ -176,6 +192,47 @@ class AuthService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 return yield this.chapterRepository.findChaptersByLocalId(localId);
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    sendOtp(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.authRepository.findUserByEmail(email);
+                if (user)
+                    throw new customErrors_1.ConflictError("The email already registered");
+                const otp = (0, generateOtp_1.generateOtp)();
+                const html = (0, htmlGenerator_1.sendOtpHtml)(otp);
+                const isEmailSend = yield (0, sendEmail_1.sendLinkToEmail)(email, "", html);
+                if (!isEmailSend)
+                    throw new customErrors_1.BadRequestError("Failed to send OTP to the email");
+                const otpExists = yield otpModel_1.default.findOne({ email: email });
+                if (otpExists)
+                    yield otpModel_1.default.updateOne({ email: email }, { $set: { otp: otp } });
+                else
+                    yield otpModel_1.default.create({ email: email, otp: otp });
+                return { email: email, otp: otp };
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    verifyOtp(email, otp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.authRepository.findUserByEmail(email);
+                if (user)
+                    throw new customErrors_1.ConflictError("The email is already registered");
+                const otpData = yield otpModel_1.default.findOne({ email: email });
+                if (!otpData)
+                    throw new customErrors_1.BadRequestError("Otp expired");
+                if (otp !== (otpData === null || otpData === void 0 ? void 0 : otpData.otp))
+                    throw new customErrors_1.BadRequestError("The otp you entered is incorrect, Please enter a valid OTP");
+                return { email, otp };
             }
             catch (error) {
                 throw error;

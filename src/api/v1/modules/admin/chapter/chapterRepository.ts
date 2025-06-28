@@ -158,4 +158,10 @@ export class ChapterRepository extends BaseRepository<IChapter> {
     async findChapter(chapterId:string):Promise<any>{
          return await Chapter.findOne({_id:chapterId}).populate("localId").populate("regionId").populate("nationId");
     }
+    async findMembersByChapterId(chapterId:string,query:any):Promise<any>{
+
+        const {search,page,status} = query;
+        
+         return await Chapter.findOne({_id:chapterId}).populate("localId").populate("regionId").populate("nationId");
+    }
 }
