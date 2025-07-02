@@ -14,6 +14,8 @@ const controller = new AccountabilityController(accountabilityService);
 accountabilityRouter.post("/",authenticate,asyncHandler(controller.createSlip.bind(controller)));
 accountabilityRouter.get("/",authenticate,asyncHandler(controller.getAllSlips.bind(controller)))
 accountabilityRouter.get("/:id",authenticate,asyncHandler(controller.getSlipById.bind(controller)))
+accountabilityRouter.put("/:id",authenticate,asyncHandler(controller.updateAccountabilitySlip.bind(controller)))
+accountabilityRouter.delete("/:id",authenticate,asyncHandler(controller.deleteAccountabilitySlip.bind(controller)))
 
 
 

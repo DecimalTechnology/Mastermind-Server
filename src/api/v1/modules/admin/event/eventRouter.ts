@@ -19,6 +19,10 @@ const coreTeamAccess = [UserRole.SUPER_ADMIN, UserRole.REGIONAL_ADMIN, UserRole.
 
 eventRouter.get("/users", adminAuth, roleAuth(...coreTeamAccess), asyncHandler(controller.getAllUsersByLevel.bind(controller)));
 eventRouter.post("/", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.createEvent.bind(controller)));
-eventRouter.get("/", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getAllEvents.bind(controller)));
+eventRouter.get("/chapter/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getAllEvents.bind(controller)));
+eventRouter.get("/attendees/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getAllAttendeesList.bind(controller)));
+eventRouter.get("/rsvp/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.findAllRsvpUsersList.bind(controller)));
+eventRouter.patch("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.eventParialUpdate.bind(controller)));
+eventRouter.put("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.updateEvent.bind(controller)));
 
 export default eventRouter;

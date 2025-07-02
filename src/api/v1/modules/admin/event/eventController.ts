@@ -24,16 +24,56 @@ export class EventController {
         eventSchema.parse(req.body);
         const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
 
-         const result = await this.eventServices.createEvent(data,req.files,req.adminId as string);
-        res.status(OK).json({ success: true, message: "New event created successfully", data: result});
+        const result = await this.eventServices.createEvent(data, req.files, req.adminId as string);
+        res.status(OK).json({ success: true, message: "New event created successfully", data: result });
     }
     // @desc   Get all the events
     // @route  GET v1/admin/event
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getAllEvents(req: Request, res: Response, next: NextFunction): Promise<void> {
-        
-
-         const result = await this.eventServices.getAllEvents();
-        res.status(OK).json({ success: true, message: "", data: result});
+        const chapterId = req.params.id;
+        if (!chapterId) throw new NotFoundError("Chapter Id is required");
+        const result = await this.eventServices.getAllEvents(chapterId);
+        res.status(OK).json({ success: true, message: "", data: result });
     }
+    // @desc   Update events
+    // @route  PUT v1/admin/event/id
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async updateEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const eventId = req.params.id;
+        const data = { ...req.body, customFields: JSON.parse(req.body.customFields) };
+        if (!eventId) throw new NotFoundError("The event Id not found");
+        const result = await this.eventServices.updateEvent(eventId, data, req.files);
+        res.status(OK).json({ success: true, message: "Event updated successfully", data: result });
+    }
+    // @desc   Get all rsvp list
+    // @route  GET v1/admin/event/rspv-list/:id
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async getAllAttendeesList(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const eventId = req.params.id;
+
+        const result = await this.eventServices.getAllAttendeesList(eventId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Find all rsvp users list
+    // @route  GET v1/admin/event/rspv-list/:id
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async findAllRsvpUsersList(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const eventId = req.params.id;
+
+        const result = await this.eventServices.getAllRsvpList(eventId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Update attendees list
+    // @route  PUT v1/admin/event/:id
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async eventParialUpdate(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const eventId = req.params.id;
+
+        const result = await this.eventServices.eventPartialUpdate(eventId, req.body);
+        res.status(OK).json({ success: true, message: "Successfully updated", data: result });
+    }
+    // @desc   Remove user from rsvp list
+    // @route  PUT v1/admin/event/rsvp/:id
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
 }

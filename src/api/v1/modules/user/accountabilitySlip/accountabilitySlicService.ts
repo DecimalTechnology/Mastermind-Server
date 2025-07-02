@@ -18,4 +18,12 @@ export class AccountabilitySliService{
         if(!slip) throw new NotFoundError("The slip is not found")
         return slip;
     }
+    async updateAccountablitySlip(slipId:string,data:any):Promise<IAccountablity|null>{
+        const result = await this.accountabilityRepository.findByIdAndUpdate(slipId,data);
+        if(!result) throw new NotFoundError("Accountablity slip is not found");
+        return result;
+    }
+    async deleteAccountabilitySlip(slipId:string):Promise<IAccountablity|null>{
+        return await this.accountabilityRepository.deleteById(slipId);
+    }
 }

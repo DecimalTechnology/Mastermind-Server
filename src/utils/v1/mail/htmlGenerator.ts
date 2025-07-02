@@ -64,4 +64,25 @@ export const registrationRejectedHtml = (userName: string, reason: string) => {
   `;
 };
 
+export const registrationAcceptedHtml = (userName: string, password: string) => {
+  return `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #388e3c;">Registration Approved - Master Mind</h2>
+      <p>Hi ${userName},</p>
+
+      <p>Congratulations! Your registration request to join <strong>Master Mind</strong> has been <strong>approved</strong>.</p>
+
+      <p>You can now log in to your account using the credentials below:</p>
+
+      <p><strong>Temporary Password:</strong> <code style="background-color: #f4f4f4; padding: 2px 6px; border-radius: 4px;">${password}</code></p>
+
+      <p>For security reasons, we recommend changing your password after your first login.</p>
+
+      <p>If you have any questions or need assistance, feel free to contact our support team.</p>
+
+      <br/>
+      <p>Best regards,<br/>The Master Mind Team</p>
+    </div>
+  `;
+};
 

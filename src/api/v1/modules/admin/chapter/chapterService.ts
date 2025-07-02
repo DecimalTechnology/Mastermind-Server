@@ -45,4 +45,6 @@ export class ChapterService {
     async unblockUser(userId: string): Promise<IUser> {
         return await this.userRepository.unblockUser(userId);
     }
+    async getChapterById(chapterId:string): Promise<any> {
+        return await this.chapterRepository.findChapterByChapterId(chapterId)    }
 }

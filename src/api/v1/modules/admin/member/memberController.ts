@@ -1,4 +1,4 @@
-import { NextFunction,Request,Response } from "express";
+import { NextFunction,Request,response,Response } from "express";
 import { MemberService } from "./memberService";
 import { NotFoundError } from "../../../../../constants/customErrors";
 
@@ -33,7 +33,19 @@ export class MemberController{
         const userId = req.params.id;
         const {reason} = req.body;
         if (!userId) throw new NotFoundError("User Id not found");
+        if(!reason) throw new NotFoundError("Please provide reason for rejection");
         const result = await this.memberService.rejectUser(userId as string,reason);
-        res.status(OK).json({ success: true, message: "The user has been rejected and their data has been permanently removed from the system.", data: result });
+        res.status(OK).json({ success: true, message: "The user registration request has been rejected and their data has been permanently removed from the system.", data: result });
+    }
+    // @desc   Accept user
+    // @route  PATCH v1/admin/members/accept/:id
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async acceptUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const userId = req.params.id;
+       
+        if (!userId) throw new NotFoundError("User Id not found");
+      
+        const result = await this.memberService.acceptUser(userId as string);
+        res.status(OK).json({ success: true, message: "The users request successfully accepted", data: result });
     }
 }

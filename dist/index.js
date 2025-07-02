@@ -7,6 +7,7 @@ const app_1 = require("./app");
 const connectDb_1 = require("./config/connectDb");
 // import './config/redisClient'
 const dotenv_1 = __importDefault(require("dotenv"));
+require("./utils/v1/cron/updateEventStatus");
 dotenv_1.default.config();
 const PORT = (process === null || process === void 0 ? void 0 : process.env.PORT) || 3000;
 (0, connectDb_1.connectDB)();

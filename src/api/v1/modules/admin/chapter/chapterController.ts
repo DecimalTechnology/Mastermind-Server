@@ -48,9 +48,10 @@ export class ChapterController {
     // @route  GET v1/admin/users
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getChapterById(req: Request, res: Response, next: NextFunction): Promise<void> {
-        // const chapterId =  req.params.chapterId;
-        // const result = await this.chapterService.getChapterById(chapterId as string);
-        // res.status(OK).json({ success: true, message: "", data: result });
+         const chapterId =  req.params.id;
+         
+         const result = await this.chapterService.getChapterById(chapterId as string);
+         res.status(OK).json({ success: true, message: "", data: result });
     }
     // @desc   Get all members inside a chapter
     // @route  GET v1/admin/members/:id

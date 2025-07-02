@@ -75,6 +75,7 @@ class UserRepository extends baseRepository_1.BaseRepository {
             }
             else if (status === "Approved") {
                 matchStage.isVerified = true;
+                matchStage.isBlocked = false;
             }
             else if (status === "Blocked") {
                 matchStage.isBlocked = true;

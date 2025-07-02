@@ -5,6 +5,7 @@ import { Chapter } from "../../../../../models/chapterModal";
 import { Local } from "../../../../../models/localModel";
 import User from "../../../../../models/userModel";
 import { BaseRepository } from "../../shared/repositories/baseRepository";
+import Event from "../../../../../models/eventModel";
 
 export class ChapterRepository extends BaseRepository<IChapter> {
     constructor() {
@@ -46,29 +47,31 @@ export class ChapterRepository extends BaseRepository<IChapter> {
                     as: "localData",
                 },
             },
-            {$unwind:"$localData"},
-            {$unwind:"$nationData"},
-            {$unwind:"$regionData"},
-        {    $project:{
-                _id:1,
-                name:1,
-                description:1,
-                createdAt:1,
-                createdBy:"$createdBy.name",
-                updatedAt:1,
-                localData:"$localData.name",
-                regionData:"$regionData.name",
-                nationData:"$nationData.name",
-                coreTeamCount:{"$size":"$coreTeam"},
-                membersCount:{"$size":"$members"}
-            }}
+            { $unwind: "$localData" },
+            { $unwind: "$nationData" },
+            { $unwind: "$regionData" },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    createdAt: 1,
+                    createdBy: "$createdBy.name",
+                    updatedAt: 1,
+                    localData: "$localData.name",
+                    regionData: "$regionData.name",
+                    nationData: "$nationData.name",
+                    coreTeamCount: { $size: "$coreTeam" },
+                    membersCount: { $size: "$members" },
+                },
+            },
         ]);
 
         return res;
     }
-   async findChapterById(chapterId:string):Promise<IChapter[]>{
-     const res = await Chapter.aggregate([
-            { $match: { _id:chapterId } },
+    async findChapterById(chapterId: string): Promise<IChapter[]> {
+        const res = await Chapter.aggregate([
+            { $match: { _id: chapterId } },
             {
                 $lookup: {
                     from: "users",
@@ -101,67 +104,77 @@ export class ChapterRepository extends BaseRepository<IChapter> {
                     as: "localData",
                 },
             },
-            {$unwind:"$localData"},
-            {$unwind:"$nationData"},
-            {$unwind:"$regionData"},
-        {    $project:{
-                _id:1,
-                name:1,
-                description:1,
-                createdAt:1,
-                createdBy:"$createdBy.name",
-                updatedAt:1,
-                localData:"$localData.name",
-                regionData:"$regionData.name",
-                nationData:"$nationData.name",
-                coreTeamCount:{"$size":"$coreTeam"},
-                membersCount:{"$size":"$members"}
-            }}
+            { $unwind: "$localData" },
+            { $unwind: "$nationData" },
+            { $unwind: "$regionData" },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    createdAt: 1,
+                    createdBy: "$createdBy.name",
+                    updatedAt: 1,
+                    localData: "$localData.name",
+                    regionData: "$regionData.name",
+                    nationData: "$nationData.name",
+                    coreTeamCount: { $size: "$coreTeam" },
+                    membersCount: { $size: "$members" },
+                },
+            },
         ]);
 
         return res;
-   }
+    }
 
     async findUsersBySearch(search: string): Promise<IUser[]> {
         return await User.aggregate([{ $match: { name: { $regex: search, $options: "i" } } }, { $match: { role: "member" } }]);
     }
-    async findChapterDetailsById(chapterId:string): Promise<IUser[]> {
-        return await User.find()
+    async findChapterDetailsById(chapterId: string): Promise<IUser[]> {
+        return await User.find();
     }
-    async findChaptersByLocalId(localId:string): Promise<IChapter[]> {
-        return await Chapter.find({localId:localId});
+    async findChaptersByLocalId(localId: string): Promise<IChapter[]> {
+        return await Chapter.find({ localId: localId });
     }
-    async findAllUsersByLevel(level:string,levelId:string,search:string): Promise<any> {
-
-        if(level=='chapter'){
-        return await User.aggregate([{$match:{chapter:new mongoose.Types.ObjectId(levelId)}},{$match:{name:{$regex:search,$options:'i'}}}]);
+    async findAllUsersByLevel(level: string, levelId: string, search: string): Promise<any> {
+        if (level == "chapter") {
+            return await User.aggregate([
+                { $match: { chapter: new mongoose.Types.ObjectId(levelId) } },
+                { $match: { name: { $regex: search, $options: "i" } } },
+            ]);
         }
 
-        if(level=='region'){
-
+        if (level == "region") {
         }
 
-        if(level=='local'){
-
+        if (level == "local") {
         }
 
-        if(level=='nation'){
-            
+        if (level == "nation") {
         }
-        if(level=='global'){
-
+        if (level == "global") {
         }
-        console.log(level,levelId,search)
-        return ''
+        console.log(level, levelId, search);
+        return "";
     }
 
-    async findChapter(chapterId:string):Promise<any>{
-         return await Chapter.findOne({_id:chapterId}).populate("localId").populate("regionId").populate("nationId");
+    async findChapter(chapterId: string): Promise<any> {
+        return await Chapter.findOne({ _id: chapterId }).populate("localId").populate("regionId").populate("nationId");
     }
-    async findMembersByChapterId(chapterId:string,query:any):Promise<any>{
+    async findMembersByChapterId(chapterId: string, query: any): Promise<any> {
+        const { search, page, status } = query;
 
-        const {search,page,status} = query;
-        
-         return await Chapter.findOne({_id:chapterId}).populate("localId").populate("regionId").populate("nationId");
+        return await Chapter.findOne({ _id: chapterId }).populate("localId").populate("regionId").populate("nationId");
+    }
+
+    async findChapterByChapterId(chapterId: string): Promise<any> {
+        const result   = await Promise.all([
+            Chapter.findById(chapterId).populate("regionId").populate("nationId").populate("localId").populate("createdBy"),
+            User.find({ "manage.chapter": new mongoose.Types.ObjectId(chapterId) }),
+            User.countDocuments({ chapter: chapterId }),
+            Event.countDocuments({chapterId:chapterId})
+        ]);
+
+        return result;
     }
 }

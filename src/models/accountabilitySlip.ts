@@ -6,12 +6,12 @@ const accountabilitySlipSchema = new mongoose.Schema<IAccountablity>(
         place: { type: String, required: true },
         date: { type: Date, required: true },
         time: { type: String, required: true },
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         members: {
             type: [
                 {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: "users",
+                    ref: "User",
                 },
             ],
             default: [],

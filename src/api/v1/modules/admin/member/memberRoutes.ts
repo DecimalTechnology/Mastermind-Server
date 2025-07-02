@@ -17,6 +17,6 @@ const coreTeamAccess = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LO
 
 memberRouter.patch('/block/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.blockMember.bind(controller)))
 memberRouter.patch('/unblock/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.unblockMember.bind(controller)))
-memberRouter.patch('/accept/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.rejectMember.bind(controller)))
+memberRouter.patch('/accept/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.acceptUser.bind(controller)))
 memberRouter.patch('/reject/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.rejectMember.bind(controller)))
 export default memberRouter;

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { IAccountablity } from "../../../../../interfaces/models/IAccountablity";
 import { AccountabilitySliService } from "./accountabilitySlicService";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
@@ -31,5 +30,23 @@ export class AccountabilityController {
         if(!slipId) throw new NotFoundError("Accountability slip Id not found")
         const result = await this.accountabilityService.getSlipById(slipId);
         res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @dec   Update accountability slip
+    // @route PUT v1/accountability/:id
+    // @access User
+    async updateAccountabilitySlip(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const slipId =  req.params.id;
+        if(!slipId) throw new NotFoundError("Accountability slip Id not found")
+        const result = await this.accountabilityService.updateAccountablitySlip(slipId,req.body);
+        res.status(OK).json({ success: true, message: "Accountablity slip successfully updated", data: result });
+    }
+    // @dec   Update accountability slip
+    // @route PUT v1/accountability/:id
+    // @access User
+    async deleteAccountabilitySlip(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const slipId =  req.params.id;
+        if(!slipId) throw new NotFoundError("Accountability slip Id not found")
+        const result = await this.accountabilityService.deleteAccountabilitySlip(slipId);
+        res.status(OK).json({ success: true, message: "Accountablity slip successfully deleted", data: result });
     }
 }

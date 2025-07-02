@@ -31,6 +31,7 @@ export class UserRepository extends BaseRepository<IUser> {
             matchStage.isVerified = false;
         } else if (status === "Approved") {
             matchStage.isVerified = true;
+            matchStage.isBlocked=false
         } else if (status === "Blocked") {
             matchStage.isBlocked = true;
         }
