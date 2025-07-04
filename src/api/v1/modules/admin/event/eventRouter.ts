@@ -23,6 +23,9 @@ eventRouter.get("/chapter/:id", adminAuth, roleAuth(...coreTeamAccess), upload.a
 eventRouter.get("/attendees/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getAllAttendeesList.bind(controller)));
 eventRouter.get("/rsvp/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.findAllRsvpUsersList.bind(controller)));
 eventRouter.patch("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.eventParialUpdate.bind(controller)));
+eventRouter.post("/cancel/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.cancelEvent.bind(controller)));
 eventRouter.put("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.updateEvent.bind(controller)));
+eventRouter.get("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getEventById.bind(controller)));
+
 
 export default eventRouter;

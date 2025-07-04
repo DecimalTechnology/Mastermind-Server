@@ -1,3 +1,4 @@
+import { NotFoundError } from "../../../../../constants/customErrors";
 import { IEvent } from "../../../../../interfaces/models/IEvent";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import { deleteImageFromCloudinary } from "../../../../../utils/v1/cloudinary/deleteImageFromCloudinary";
@@ -17,8 +18,8 @@ export class EventServices {
         return await this.eventRepository.create(newEventObj);
     }
 
-    async getAllEvents(chapterId:string): Promise<IEvent[]> {
-        return await this.eventRepository.getAllEvents(chapterId);
+    async getAllEvents(chapterId:string,query:any): Promise<IEvent[]> {
+        return await this.eventRepository.getAllEvents(chapterId,query);
     }
     async updateEvent(eventId: string, data: IEvent, files: any): Promise<IEvent[]> {
         if (files.length == 0) {
@@ -42,5 +43,15 @@ export class EventServices {
     }
     async eventPartialUpdate(eventId: string,data:any): Promise<any> {
         return await this.eventRepository.findByIdAndUpdate(eventId,data)
+    }
+    async cancelEvent(eventId: string,data:any): Promise<IEvent> {
+        // Sending notification or any other logic while cancelling can be written here
+        return await this.eventRepository.findByIdAndUpdate(eventId,{status:'cancelled'})
+    }
+    async getEventById(eventId: string): Promise<IEvent> {
+       
+        const event  =  await this.eventRepository.findByEventId(eventId)
+        if(!event) throw new NotFoundError("Event details id not found")
+            return event
     }
 }

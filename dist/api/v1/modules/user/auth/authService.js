@@ -68,7 +68,7 @@ class AuthService {
             try {
                 const user = yield this.authRepository.findUserByEmail(userData === null || userData === void 0 ? void 0 : userData.email);
                 if (!user) {
-                    throw new customErrors_1.BadRequestError("Invalid user");
+                    throw new customErrors_1.NotFoundError("Invalid user");
                 }
                 // Check if the user is verified
                 if (!(user === null || user === void 0 ? void 0 : user.isVerified)) {

@@ -30,8 +30,40 @@ export class EventRepository extends BaseRepository<IEvent> {
         return "";
     }
 
-    async getAllEvents(chapterId:string): Promise<IEvent[]> {
-        return await Event.find({chapterId:chapterId});
+    async getAllEvents(chapterId: string, query: any): Promise<IEvent[]> {
+        const matchStage: any = {
+            chapterId: new mongoose.Types.ObjectId(chapterId),
+        };
+
+        // Match status if provided
+        if (query.status&&query?.status!=='all') {
+            matchStage.status = query.status;
+        }
+
+        // Match date if provided (exact day in local timezone, e.g., IST)
+        if (query.date) {
+            const date = new Date(query.date);
+            const nextDay = new Date(date);
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            matchStage.date = {
+                $gte: date,
+                $lt: nextDay,
+            };
+        }
+
+        // Text search if provided
+        if (query.search) {
+            matchStage.$or = [
+                { name: { $regex: query.search, $options: "i" } }, // case-insensitive
+                { description: { $regex: query.search, $options: "i" } },
+            ];
+        }
+
+        return await Event.aggregate([
+            { $match: matchStage },
+            { $sort: { date: -1 } }, // Optional: sort by latest
+        ]);
     }
 
     async getAllAttendeesList(eventId: string): Promise<any> {
@@ -42,5 +74,8 @@ export class EventRepository extends BaseRepository<IEvent> {
 
     async findRsvpList(eventId: string): Promise<any> {
         return await Event.findOne({ _id: eventId }).populate("rsvp");
+    }
+    async findByEventId(eventId: string): Promise<any> {
+        return await Event.findById(eventId ).populate("rsvp").populate("attendees").populate('createdBy').populate('chapterId');
     }
 }

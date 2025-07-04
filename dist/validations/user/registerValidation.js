@@ -5,9 +5,7 @@ const zod_1 = require("zod");
 exports.userRegistrationSchema = zod_1.z.object({
     name: zod_1.z.string().min(1, { message: "Name is required" }),
     email: zod_1.z.string().email({ message: "Invalid email address" }),
-    phonenumber: zod_1.z
-        .string()
-        .regex(/^[0-9]{10}$/, { message: "Phone number must be 10 digits" }),
+    phonenumber: zod_1.z.string().regex(/^[0-9]{10}$/, { message: "Phone number must be 10 digits" }),
     chapter: zod_1.z.string().min(1, { message: "Chapter is required" }),
 });
 // ✅ Example use

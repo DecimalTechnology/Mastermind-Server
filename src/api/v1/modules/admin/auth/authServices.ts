@@ -1,5 +1,4 @@
 import { BadRequestError, NotFoundError, UnAuthorizedError } from "../../../../../constants/customErrors";
-import { UserRole } from "../../../../../enums/common";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import { generateEmailHtml } from "../../../../../utils/v1/mail/htmlGenerator";
 import { sendLinkToEmail } from "../../../../../utils/v1/mail/sendEmail";

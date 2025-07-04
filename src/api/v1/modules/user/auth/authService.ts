@@ -48,7 +48,7 @@ export class AuthService {
             const user = await this.authRepository.findUserByEmail(userData?.email);
 
             if (!user) {
-                throw new BadRequestError("Invalid user");
+                throw new NotFoundError("Invalid user");
             }
 
             // Check if the user is verified

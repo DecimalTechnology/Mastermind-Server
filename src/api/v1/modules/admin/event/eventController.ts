@@ -1,5 +1,5 @@
 import { EventServices } from "./eventServices";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, query, Request, Response } from "express";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 import { NotFoundError } from "../../../../../constants/customErrors";
 import eventSchema from "../../../../../validations/admin/event";
@@ -32,8 +32,10 @@ export class EventController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getAllEvents(req: Request, res: Response, next: NextFunction): Promise<void> {
         const chapterId = req.params.id;
+        
+     
         if (!chapterId) throw new NotFoundError("Chapter Id is required");
-        const result = await this.eventServices.getAllEvents(chapterId);
+        const result = await this.eventServices.getAllEvents(chapterId,req.query);
         res.status(OK).json({ success: true, message: "", data: result });
     }
     // @desc   Update events
@@ -73,7 +75,22 @@ export class EventController {
         const result = await this.eventServices.eventPartialUpdate(eventId, req.body);
         res.status(OK).json({ success: true, message: "Successfully updated", data: result });
     }
-    // @desc   Remove user from rsvp list
-    // @route  PUT v1/admin/event/rsvp/:id
+    // @desc   Cancel an event
+    // @route  PUT v1/admin/event/cancel/:id
     // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async cancelEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const eventId = req.params.id;
+
+        const result = await this.eventServices.cancelEvent(eventId, req.body);
+        res.status(OK).json({ success: true, message: "Successfully updated", data: result });
+    }
+    // @desc   Get an event by event id
+    // @route  PUT v1/admin/event/:id
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async getEventById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const eventId = req.params.id;
+
+        const result = await this.eventServices.getEventById(eventId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
 }
