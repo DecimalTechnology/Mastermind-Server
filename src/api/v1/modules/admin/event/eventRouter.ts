@@ -7,17 +7,20 @@ import { UserRole } from "../../../../../enums/common";
 import roleAuth from "../../../../../middewares.ts/roleAuth";
 import asyncHandler from "../../../../../validations/asyncHandler";
 import upload from "../../../../../middewares.ts/upload";
+import { ReportRepository } from "../../shared/repositories/reportRepository";
 
 const eventRouter = express.Router();
 
 const eventRepository = new EventRepository();
-const eventServices = new EventServices(eventRepository);
+const reportRepository =  new ReportRepository()
+const eventServices = new EventServices(eventRepository,reportRepository);
 const controller = new EventController(eventServices);
 
 const allowedRoles = [UserRole.SUPER_ADMIN, UserRole.REGIONAL_ADMIN, UserRole.LOCAL_ADMIN];
 const coreTeamAccess = [UserRole.SUPER_ADMIN, UserRole.REGIONAL_ADMIN, UserRole.LOCAL_ADMIN, UserRole.CORE_TEAM_ADMIN];
 
 eventRouter.get("/users", adminAuth, roleAuth(...coreTeamAccess), asyncHandler(controller.getAllUsersByLevel.bind(controller)));
+eventRouter.post("/chapter/report", adminAuth, roleAuth(...coreTeamAccess),upload.single('file'), asyncHandler(controller.createChapterEventReport.bind(controller)));
 eventRouter.post("/", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.createEvent.bind(controller)));
 eventRouter.get("/chapter/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getAllEvents.bind(controller)));
 eventRouter.get("/attendees/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getAllAttendeesList.bind(controller)));

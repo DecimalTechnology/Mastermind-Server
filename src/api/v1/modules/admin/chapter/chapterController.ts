@@ -21,7 +21,7 @@ export class ChapterController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getAllChapters(req: Request, res: Response, next: NextFunction): Promise<void> {
         const { search, localId } = req.query;
-        console.log(search, localId);
+       
 
         const result = await this.chapterService.getAllChapters(search as string, localId as string);
         res.status(OK).json({ success: true, message: "", data: result });

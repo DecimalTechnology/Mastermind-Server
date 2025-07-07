@@ -1,12 +1,15 @@
 import { NotFoundError } from "../../../../../constants/customErrors";
 import { IEvent } from "../../../../../interfaces/models/IEvent";
+import { IReport } from "../../../../../interfaces/models/IReport";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import { deleteImageFromCloudinary } from "../../../../../utils/v1/cloudinary/deleteImageFromCloudinary";
+import { uploadPdfToCloudinary } from "../../../../../utils/v1/cloudinary/uploadPdf";
 import { uploadImageToCloudinary } from "../../../../../utils/v1/cloudinary/uploadToCloudinary";
+import { ReportRepository } from "../../shared/repositories/reportRepository";
 import { EventRepository } from "./eventRepository";
 
 export class EventServices {
-    constructor(private eventRepository: EventRepository) {}
+    constructor(private eventRepository: EventRepository,private reportRepository:ReportRepository) {}
     async getAllUsersByLevel(level: string, levelId: string, search: string): Promise<IUser[]> {
         return await this.eventRepository.findAllUsersByLevel(level, levelId, search);
     }
@@ -53,5 +56,12 @@ export class EventServices {
         const event  =  await this.eventRepository.findByEventId(eventId)
         if(!event) throw new NotFoundError("Event details id not found")
             return event
+    }
+    async createChapterEventReport(reportData:IReport,files:any): Promise<any> {
+       
+        const file =  await uploadPdfToCloudinary(files);
+        const url =file.secure_url;
+        const data ={...reportData,file:url};
+        return await this.reportRepository.createReport(data)
     }
 }

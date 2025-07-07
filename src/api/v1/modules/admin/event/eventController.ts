@@ -3,6 +3,7 @@ import { NextFunction, query, Request, Response } from "express";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 import { NotFoundError } from "../../../../../constants/customErrors";
 import eventSchema from "../../../../../validations/admin/event";
+import { reportValidator } from "../../../../../validations/admin/report";
 const { OK } = STATUS_CODES;
 
 export class EventController {
@@ -32,10 +33,9 @@ export class EventController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getAllEvents(req: Request, res: Response, next: NextFunction): Promise<void> {
         const chapterId = req.params.id;
-        
-     
+
         if (!chapterId) throw new NotFoundError("Chapter Id is required");
-        const result = await this.eventServices.getAllEvents(chapterId,req.query);
+        const result = await this.eventServices.getAllEvents(chapterId, req.query);
         res.status(OK).json({ success: true, message: "", data: result });
     }
     // @desc   Update events
@@ -92,5 +92,15 @@ export class EventController {
 
         const result = await this.eventServices.getEventById(eventId);
         res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Create chapter event report
+    // @route  PUT v1/admin/event/chapter/report
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async createChapterEventReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+        reportValidator.parse(req.body);
+
+        if (!req.file) throw new NotFoundError("Please upload document in pdf format");
+        const result = await this.eventServices.createChapterEventReport(req.body, req.file);
+        res.status(OK).json({ success: true, message: "Event report successfully submitted", data: result });
     }
 }
