@@ -18,8 +18,8 @@ class ProfileController {
         this.profileService = profileService;
     }
     // @desc   Update profile details
-    // @route  PUT v1/profile  
-    // @access User 
+    // @route  PUT v1/profile
+    // @access User
     updateProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -34,13 +34,13 @@ class ProfileController {
         });
     }
     // @desc   Get all the profile info
-    // @route  GET v1/profile  
+    // @route  GET v1/profile
     // @access User
     getProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.profileService.getProfile(req.userId);
-                res.status(OK).json({ success: true, message: 'User profile fetched successfully', data: response });
+                res.status(OK).json({ success: true, message: "User profile fetched successfully", data: response });
             }
             catch (error) {
                 next(error);
@@ -48,13 +48,13 @@ class ProfileController {
         });
     }
     // @desc   Update profile image
-    // @route  PATCH v1/profile/profile-picture  
+    // @route  PATCH v1/profile/profile-picture
     // @access User
     updateProfilePicture(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.profileService.updateProfilePicture(req.userId, req.files);
-                res.status(OK).json({ success: true, message: 'Profile picture updated successfully', data: response });
+                res.status(OK).json({ success: true, message: "Profile picture updated successfully", data: response });
             }
             catch (error) {
                 next(error);
@@ -62,15 +62,16 @@ class ProfileController {
         });
     }
     // @desc   Search profile by query
-    // @route  GET v1/profile/search  
+    // @route  GET v1/profile/search
     // @access User
     searchProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
+                const { search, type, page } = req.query;
+                const filter = Object.assign(Object.assign({}, req.body), { search, type, page });
                 if (!req.query.search)
                     throw new customErrors_1.NotFoundError("Search query not provided");
-                const response = yield this.profileService.searchProfile((_a = req.query) === null || _a === void 0 ? void 0 : _a.search, req.userId);
+                const response = yield this.profileService.searchProfile(filter, req.adminId);
                 res.status(OK).json({ success: true, message: "", data: response });
             }
             catch (error) {
@@ -79,7 +80,7 @@ class ProfileController {
         });
     }
     // @desc   Get profile by profile _id
-    // @route  GET v1/profile/:id  
+    // @route  GET v1/profile/:id
     // @access User
     getProfileById(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -95,7 +96,7 @@ class ProfileController {
         });
     }
     // @desc   Connect users
-    // @route  POST v1/profile/connect  
+    // @route  POST v1/profile/connect
     // @access User
     connectUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -111,7 +112,7 @@ class ProfileController {
         });
     }
     // @desc   Get all connection
-    // @route  GET v1/profile/connect/all  
+    // @route  GET v1/profile/connect/all
     // @access User
     getConnections(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -125,7 +126,7 @@ class ProfileController {
         });
     }
     // @desc   Accept connection
-    // @route  PATCH v1/profile/connect/accept  
+    // @route  PATCH v1/profile/connect/accept
     // @access User
     acceptConnection(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -141,7 +142,7 @@ class ProfileController {
         });
     }
     // @desc   Remove connection
-    // @route  PATCH v1/profile/connect/remove  
+    // @route  PATCH v1/profile/connect/remove
     // @access User
     removeConnection(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -157,7 +158,7 @@ class ProfileController {
         });
     }
     // @desc   Cancel cancelConnection connection
-    // @route  PATCH v1/profile/connect/cancel  
+    // @route  PATCH v1/profile/connect/cancel
     // @access User
     cancelConnection(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -173,7 +174,7 @@ class ProfileController {
         });
     }
     // @desc   Get all the list of sent requests
-    // @route  GET v1/profile/connect/sent  
+    // @route  GET v1/profile/connect/sent
     // @access User
     getSendRequests(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -187,7 +188,7 @@ class ProfileController {
         });
     }
     // @desc   Get the list of receive requests
-    // @route  GET v1/profile/connect/received  
+    // @route  GET v1/profile/connect/received
     // @access User
     getReceiveRequests(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -201,7 +202,7 @@ class ProfileController {
         });
     }
     // @desc   Get all connection for the current user
-    // @route  GET v1/profile/connect/connections  
+    // @route  GET v1/profile/connect/connections
     // @access User
     getAllConnections(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {

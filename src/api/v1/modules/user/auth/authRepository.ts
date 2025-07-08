@@ -53,5 +53,19 @@ export class AuthRepository {
             throw error;
         }
     }
+    async findUserById(userId:string): Promise<any> {
+        try {
+            return await User.findById(userId)
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findAllUsersByChapterId(chapterId:string): Promise<any> {
+        try {
+            return await User.find({chapterId:chapterId})
+        } catch (error) {
+            throw error;
+        }
+    }
 
 }

@@ -32,4 +32,5 @@ authRouter.get('/nations', (req, res, next) => controller.getAllNations(req, res
 authRouter.get('/regions', (req, res, next) => controller.getAllRegions(req, res, next));
 authRouter.get('/locals', (req, res, next) => controller.getAllLocals(req, res, next));
 authRouter.get('/chapters', (req, res, next) => controller.getAllChapters(req, res, next));
+authRouter.get('/chapter/users', authenticate_1.authenticate, (req, res, next) => controller.getAllUsers(req, res, next));
 exports.default = authRouter;

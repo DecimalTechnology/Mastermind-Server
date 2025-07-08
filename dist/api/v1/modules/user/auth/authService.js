@@ -239,5 +239,12 @@ class AuthService {
             }
         });
     }
+    getAllUsersBySameChapter(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.authRepository.findUserById(userId);
+            const users = yield this.authRepository.findAllUsersByChapterId(user === null || user === void 0 ? void 0 : user.chapterId);
+            return users;
+        });
+    }
 }
 exports.AuthService = AuthService;

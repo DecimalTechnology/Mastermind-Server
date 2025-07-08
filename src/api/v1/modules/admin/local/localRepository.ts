@@ -1,6 +1,8 @@
 import { ILocal } from "../../../../../interfaces/models/ILocal";
 import { IRegion } from "../../../../../interfaces/models/IRegion";
 import { IUser } from "../../../../../interfaces/models/IUser";
+import { Chapter } from "../../../../../models/chapterModal";
+import Event from "../../../../../models/eventModel";
 import { Local } from "../../../../../models/localModel";
 import { Region } from "../../../../../models/regionModel";
 import User from "../../../../../models/userModel";
@@ -80,5 +82,25 @@ export class LocalRepository extends BaseRepository<ILocal> {
     }
     async findLocalsByRegionId(regionId: string): Promise<ILocal[]> {
         return await Local.find({ regionId: regionId });
+    }
+    async findLocalDetails(adminId: string): Promise<any> {
+        const user: any = await User.findById(adminId);
+
+        const local: any = await Local.findOne({ _id: user?.manage?.local }).populate("nationId").populate("regionId").populate("createdBy");
+
+        // Get all chapter _id's under this local
+        const chapterIds = await Chapter.distinct("_id", { localId: local?._id });
+
+        // Get users who belong to any of those chapters (if user has chapterId field)
+        const members = await User.find({ chapter: { $in: chapterIds } });
+
+        // Get events under those chapters
+        const events = await Event.find({ chapterId: { $in: chapterIds } });
+
+        return {
+            local: local,
+            members,
+            events,
+        };
     }
 }

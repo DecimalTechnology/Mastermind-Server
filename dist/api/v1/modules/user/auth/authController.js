@@ -205,5 +205,20 @@ class AuthController {
             }
         });
     }
+    // @desc   Get all users
+    // @route  GET v1/auth/chapter/users
+    // @access User
+    getAllUsers(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = req.userId;
+                const response = yield this.authService.getAllUsersBySameChapter(userId);
+                res.status(OK).json({ success: true, message: "", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
 }
 exports.AuthController = AuthController;

@@ -83,5 +83,25 @@ class AuthRepository {
             }
         });
     }
+    findUserById(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield userModel_1.default.findById(userId);
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findAllUsersByChapterId(chapterId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield userModel_1.default.find({ chapterId: chapterId });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.AuthRepository = AuthRepository;

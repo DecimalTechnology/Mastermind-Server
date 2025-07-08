@@ -79,34 +79,35 @@ class ProfileRepository {
     findUserBySearchQuery(query, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield userModel_1.default.aggregate([
-                    {
-                        $match: {
-                            name: { $regex: query, $options: "i" },
-                        },
-                    },
-                    {
-                        $match: { _id: { $ne: new mongoose_1.default.Types.ObjectId(userId) } },
-                    },
-                    {
-                        $lookup: {
-                            from: "profiles", // Collection name
-                            localField: "_id", // User `_id`
-                            foreignField: "userId", // Profile's `userId`
-                            as: "profileData",
-                        },
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            name: 1,
-                            image: { $arrayElemAt: ["$profileData.image", 0] },
-                            profileId: { $arrayElemAt: ["$profileData._id", 0] },
-                            company: { $arrayElemAt: ["$profileData.company", 0] },
-                        },
-                    },
-                ]);
-                return result;
+                console.log(query, userId);
+                // const result = await User.aggregate([
+                //     {
+                //         $match: {
+                //             name: { $regex: query, $options: "i" },
+                //         },
+                //     },
+                //     {
+                //         $match: { _id: { $ne: new mongoose.Types.ObjectId(userId) } },
+                //     },
+                //     {
+                //         $lookup: {
+                //             from: "profiles", // Collection name
+                //             localField: "_id", // User `_id`
+                //             foreignField: "userId", // Profile's `userId`
+                //             as: "profileData",
+                //         },
+                //     },
+                //     {
+                //         $project: {
+                //             _id: 1,
+                //             name: 1,
+                //             image: { $arrayElemAt: ["$profileData.image", 0] },
+                //             profileId: { $arrayElemAt: ["$profileData._id", 0] },
+                //             company: { $arrayElemAt: ["$profileData.company", 0] },
+                //         },
+                //     },
+                // ]);
+                // return result;
             }
             catch (error) {
                 console.log("Error while finding user by Id in the profile repository");

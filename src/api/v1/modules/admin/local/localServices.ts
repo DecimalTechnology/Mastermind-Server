@@ -33,4 +33,7 @@ export class LocalServices {
     async findAllReports(adminId: string,query:any): Promise<any> {
         return await this.reportRepository.findAllReportsForLocalAdmin(adminId as string,query);
     }
+    async getLocalDetails(adminId: string): Promise<any> {
+        return await this.localRepository.findLocalDetails(adminId as string);
+    }
 }

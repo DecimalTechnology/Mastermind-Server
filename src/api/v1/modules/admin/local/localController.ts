@@ -68,4 +68,18 @@ export class LocalController {
             next(error);
         }
     }
+    // @desc   Get all reports
+    // @route  GET v1/admin/local/reports
+    // @access Super_admin, National_admin, Regional_admin
+    async getAllLocalDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            
+            const adminId = req.adminId;
+  
+            const response = await this.localServices.getLocalDetails(adminId as string);
+            res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

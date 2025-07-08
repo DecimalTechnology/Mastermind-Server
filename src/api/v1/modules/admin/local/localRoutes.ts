@@ -18,12 +18,13 @@ const localServices = new LocalServices(localRepository,userRepository,reportRep
 const controller = new LocalController(localServices);
 
 const accessRoles = [UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN];
-const chapterAdminAccess = [UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.CHAPTER_ADMIN];
+const chapterAdminAccess = [UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN];
 
 localRouter.get("/users", adminAuth,roleAuth(...accessRoles),asyncHandler(controller.getAllUsers.bind(controller)));
 localRouter.get("/reports", adminAuth,roleAuth(...accessRoles),asyncHandler(controller.getAllReports.bind(controller)));
 localRouter.get("/",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.getAllLocals.bind(controller)));
 localRouter.post("/",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.createLocalArea.bind(controller)));
 localRouter.post("/:id",adminAuth,roleAuth(...chapterAdminAccess),asyncHandler(controller.findLocalById.bind(controller)));
+localRouter.get("/info",adminAuth,roleAuth(...chapterAdminAccess),asyncHandler(controller.getAllLocalDetails.bind(controller)));
 
 export default localRouter;

@@ -10,6 +10,7 @@ export class AuthController {
     // @desc   New User Registration pwa
     // @route  POST v1/auth/register
     // @access User
+
     async registration(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             userRegistrationSchema.parse(req.body);
@@ -23,9 +24,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   New User login pwa
     // @route  POST v1/auth/signin
     // @access User
+    
     async userLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
@@ -35,9 +38,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   Reset password
     // @route  POST v1/auth/password/reset
     // @access User
+
     async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
@@ -47,9 +52,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   Forget password
     // @route  POST v1/auth/password/forget
     // @access User
+
     async forgetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
@@ -59,9 +66,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   Updated new password while forgetting
     // @route  POST v1/auth/password/forget
     // @access User
+
     async updateForgetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
@@ -71,9 +80,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   To get all the nation list
     // @route  POST v1/auth/nations
     // @access User
+
     async getAllNations(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const response = await this.authService.getAllNations();
@@ -82,9 +93,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   To get all the regions list
     // @route  POST v1/auth/regions
     // @access User
+
     async getAllRegions(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const nationId = req.query?.nationId;
@@ -95,9 +108,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   To get all the locals list
     // @route  POST v1/auth/locals
     // @access User
+
     async getAllLocals(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const regionId = req.query?.regionId;
@@ -108,9 +123,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   To get all the chapters list
     // @route  POST v1/auth/chapters
     // @access User
+
     async getAllChapters(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const localId = req.query?.localId;
@@ -121,9 +138,11 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   To send otp to users email
     // @route  POST v1/auth/send-otp
     // @access User
+
     async sendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { email } = req.body;
@@ -135,17 +154,33 @@ export class AuthController {
             next(error);
         }
     }
+
     // @desc   To verify otp to users email
     // @route  POST v1/auth/verify-otp
     // @access User
+
     async verifyOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { email,otp } = req.body;
+            const { email, otp } = req.body;
             if (!email) throw new NotFoundError("Please provide email");
             if (!otp) throw new NotFoundError("Please provide email");
 
-            const response = await this.authService.verifyOtp(email,otp);
+            const response = await this.authService.verifyOtp(email, otp);
             res.status(OK).json({ success: true, message: "The email send successfully", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // @desc   Get all users
+    // @route  GET v1/auth/chapter/users
+    // @access User
+
+    async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {    
+            const userId = req.userId;
+            const response = await this.authService.getAllUsersBySameChapter(userId);
+            res.status(OK).json({ success: true, message: "", data: response });
         } catch (error) {
             next(error);
         }

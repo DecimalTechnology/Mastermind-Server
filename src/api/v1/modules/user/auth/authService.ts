@@ -2,6 +2,7 @@ import { BadRequestError, ConflictError, NotFoundError, UnAuthorizedError } from
 import { forgetPasswordMessage } from "../../../../../constants/messages";
 import { UserRole } from "../../../../../enums/common";
 import Otp from "../../../../../models/otpModel";
+import User from "../../../../../models/userModel";
 import { generateEmailHtml, generateOtpEmailHtml, sendOtpHtml } from "../../../../../utils/v1/mail/htmlGenerator";
 import { sendLinkToEmail } from "../../../../../utils/v1/mail/sendEmail";
 import { generateOtp } from "../../../../../utils/v1/otp/generateOtp";
@@ -167,24 +168,32 @@ export class AuthService {
             const html = sendOtpHtml(otp);
             const isEmailSend = await sendLinkToEmail(email, "", html);
             if (!isEmailSend) throw new BadRequestError("Failed to send OTP to the email");
-            const otpExists = await Otp.findOne({email:email});
-            if(otpExists) await Otp.updateOne({email:email},{$set:{otp:otp}})
-                else  await Otp.create({ email: email, otp: otp });
-            return {email:email,otp:otp}
+            const otpExists = await Otp.findOne({ email: email });
+            if (otpExists) await Otp.updateOne({ email: email }, { $set: { otp: otp } });
+            else await Otp.create({ email: email, otp: otp });
+            return { email: email, otp: otp };
         } catch (error) {
             throw error;
         }
     }
-    async verifyOtp(email: string,otp:string): Promise<any> {
+    async verifyOtp(email: string, otp: string): Promise<any> {
         try {
             const user = await this.authRepository.findUserByEmail(email);
-            if(user) throw new ConflictError("The email is already registered");
-            const otpData = await Otp.findOne({email:email});
-            if(!otpData) throw new BadRequestError("Otp expired");
-            if(otp!==otpData?.otp) throw new BadRequestError("The otp you entered is incorrect, Please enter a valid OTP");
-            return {email,otp}
+            if (user) throw new ConflictError("The email is already registered");
+            const otpData = await Otp.findOne({ email: email });
+            if (!otpData) throw new BadRequestError("Otp expired");
+            if (otp !== otpData?.otp) throw new BadRequestError("The otp you entered is incorrect, Please enter a valid OTP");
+            return { email, otp };
         } catch (error) {
             throw error;
         }
+    }
+
+    async getAllUsersBySameChapter(userId: string): Promise<any> {
+
+            const user =  await this.authRepository.findUserById(userId);
+            const users = await this.authRepository.findAllUsersByChapterId(user?.chapterId);
+
+           return users
     }
 }
