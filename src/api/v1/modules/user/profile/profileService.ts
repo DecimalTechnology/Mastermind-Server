@@ -30,12 +30,14 @@ export class ProfileService {
             throw error;
         }
     }
-    async updateProfile(profileData: IProfile, userId: string): Promise<IProfile | null> {
+    async updateProfile(profileData: IProfile, userId: string): Promise<any | null> {
         try {
-            const industries = profileData.industries.split(",");
+            const industries = profileData.industries;
             profileData.industries = industries;
             const { image, ...newProfileData } = profileData;
-            return await this.profileRepository.updateProfile(newProfileData, userId);
+             await this.profileRepository.updateProfile(userId, newProfileData);
+             return this.getProfile(userId)
+            
         } catch (error) {
             console.log("Error while updating profile");
             throw error;

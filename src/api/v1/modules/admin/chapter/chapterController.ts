@@ -80,4 +80,14 @@ export class ChapterController {
         const result = await this.chapterService.unblockUser(userId as string);
         res.status(OK).json({ success: true, message: "User is now active and can access the system", data: result });
     }
+    // @desc   Find members
+    // @route  GET v1/admin/members
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async findMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        
+        const adminId = req.adminId;
+        
+        const result = await this.chapterService.findMembers(adminId as string,req?.query);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
 }

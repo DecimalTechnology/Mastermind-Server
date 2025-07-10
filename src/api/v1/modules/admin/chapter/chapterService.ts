@@ -36,8 +36,8 @@ export class ChapterService {
     async getAllUsersByLevel(level: string, levelId: string, search: string): Promise<IUser[]> {
         return await this.chapterRepository.findAllUsersByLevel(level, levelId, search);
     }
-    async getAllMembersByChapterId(chapterId: string,query:any): Promise<IUser[]> {
-        return await this.userRepository.findMembersByChapterId(chapterId,query);
+    async getAllMembersByChapterId(chapterId: string, query: any): Promise<IUser[]> {
+        return await this.userRepository.findMembersByChapterId(chapterId, query);
     }
     async blockUser(userId: string): Promise<IUser> {
         return await this.userRepository.blockUser(userId);
@@ -45,6 +45,10 @@ export class ChapterService {
     async unblockUser(userId: string): Promise<IUser> {
         return await this.userRepository.unblockUser(userId);
     }
-    async getChapterById(chapterId:string): Promise<any> {
-        return await this.chapterRepository.findChapterByChapterId(chapterId)    }
+    async getChapterById(chapterId: string): Promise<any> {
+        return await this.chapterRepository.findChapterByChapterId(chapterId);
+    }
+    async findMembers(adminId: string,query:any): Promise<IUser[]> {
+        return await this.chapterRepository.findMembers(adminId,query);
+    }
 }

@@ -31,6 +31,7 @@ export class AuthController {
     
     async userLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            console.log(req.body)
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
             const response = await this.authService.userLogin(req.body);
             res.status(OK).json({ success: true, message: "User signin successfull", data: response });

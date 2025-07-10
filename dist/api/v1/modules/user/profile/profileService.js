@@ -52,10 +52,11 @@ class ProfileService {
     updateProfile(profileData, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const industries = profileData.industries.split(",");
+                const industries = profileData.industries;
                 profileData.industries = industries;
                 const { image } = profileData, newProfileData = __rest(profileData, ["image"]);
-                return yield this.profileRepository.updateProfile(newProfileData, userId);
+                yield this.profileRepository.updateProfile(userId, newProfileData);
+                return this.getProfile(userId);
             }
             catch (error) {
                 console.log("Error while updating profile");

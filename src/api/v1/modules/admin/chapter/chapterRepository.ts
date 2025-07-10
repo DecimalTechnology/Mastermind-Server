@@ -55,7 +55,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
                     _id: 1,
                     name: 1,
                     description: 1,
-                    isActive:1,
+                    isActive: 1,
                     createdAt: 1,
                     createdBy: "$createdBy.name",
                     updatedAt: 1,
@@ -120,7 +120,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
                     regionData: "$regionData.name",
                     nationData: "$nationData.name",
                     coreTeamCount: { $size: "$coreTeam" },
-                    isActive:1,
+                    isActive: 1,
                     membersCount: { $size: "$members" },
                 },
             },
@@ -170,13 +170,37 @@ export class ChapterRepository extends BaseRepository<IChapter> {
     }
 
     async findChapterByChapterId(chapterId: string): Promise<any> {
-        const result   = await Promise.all([
+        const result = await Promise.all([
             Chapter.findById(chapterId).populate("regionId").populate("nationId").populate("localId").populate("createdBy"),
             User.find({ "manage.chapter": new mongoose.Types.ObjectId(chapterId) }),
             User.countDocuments({ chapter: chapterId }),
-            Event.countDocuments({chapterId:chapterId})
+            Event.countDocuments({ chapterId: chapterId }),
         ]);
 
+        return result;
+    }
+
+
+    
+    async findMembers(adminId: string, query: any): Promise<any> {
+
+        const { page, type, search } = query;
+
+        const user = await User.findById(adminId);
+
+        const matchStage: any = {};
+
+        matchStage.chapter = new mongoose.Types.ObjectId(user?.manage?.chapter);
+        matchStage.name = {$regex:search,$options:'i'}
+
+        type == "member" ? (matchStage.role = "member") : "";
+
+        type == "admin" ? (matchStage.role = "core_team_admin") : "";
+        type=='all'?(matchStage.role={$in:['core_team_admin','member']}):''
+       
+        console.log(search,page)
+        const result = await User.aggregate([{ $match: matchStage },{$project:{password:0}}]);
+    
         return result;
     }
 }

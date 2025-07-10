@@ -23,7 +23,8 @@ const coreTeamAccess = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LO
 chapterRouter.post('/',adminAuth,roleAuth(...allowedRoles),asyncHandler(controller.createChapter.bind(controller)))
 chapterRouter.get('/all',adminAuth,roleAuth(...allowedRoles),asyncHandler(controller.getAllChapters.bind(controller)));
 chapterRouter.get("/users",adminAuth,roleAuth(...allowedRoles),asyncHandler(controller.getAllUsers.bind(controller)))
+chapterRouter.get('/members/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllMembers.bind(controller)));
+chapterRouter.get('/members',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.findMembers.bind(controller)))
 chapterRouter.get("/:id",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getChapterById.bind(controller)))
-chapterRouter.get('/members/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllMembers.bind(controller)))
 
 export default chapterRouter;

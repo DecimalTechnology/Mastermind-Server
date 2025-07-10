@@ -23,6 +23,7 @@ class ProfileController {
     updateProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log("hiii", req.body);
                 if (!req.body || Object.keys(req.body).length == 0)
                     throw new customErrors_1.EmptyRequestBodyError();
                 const result = yield this.profileService.updateProfile(req.body, req.userId);
@@ -71,7 +72,7 @@ class ProfileController {
                 const filter = Object.assign(Object.assign({}, req.body), { search, type, page });
                 if (!req.query.search)
                     throw new customErrors_1.NotFoundError("Search query not provided");
-                const response = yield this.profileService.searchProfile(filter, req.adminId);
+                const response = yield this.profileService.searchProfile(filter, req.userId);
                 res.status(OK).json({ success: true, message: "", data: response });
             }
             catch (error) {

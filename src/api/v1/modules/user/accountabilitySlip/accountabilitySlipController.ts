@@ -45,6 +45,7 @@ export class AccountabilityController {
     // @access User
     async deleteAccountabilitySlip(req: Request, res: Response, next: NextFunction): Promise<void> {
         const slipId =  req.params.id;
+        
         if(!slipId) throw new NotFoundError("Accountability slip Id not found")
         const result = await this.accountabilityService.deleteAccountabilitySlip(slipId);
         res.status(OK).json({ success: true, message: "Accountablity slip successfully deleted", data: result });

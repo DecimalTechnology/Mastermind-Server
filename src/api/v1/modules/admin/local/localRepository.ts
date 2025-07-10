@@ -92,7 +92,9 @@ export class LocalRepository extends BaseRepository<ILocal> {
         const chapterIds = await Chapter.distinct("_id", { localId: local?._id });
 
         // Get users who belong to any of those chapters (if user has chapterId field)
-        const members = await User.find({ chapter: { $in: chapterIds } });
+        const members = await User.find({
+            $and: [{ chapter: { $in: chapterIds } }, { role: { $in: ["member", "core_team_admin", "chapter_admin"] } }],
+        });
 
         // Get events under those chapters
         const events = await Event.find({ chapterId: { $in: chapterIds } });

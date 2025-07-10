@@ -8,17 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -51,11 +40,13 @@ class ProfileRepository {
             }
         });
     }
-    updateProfile(_a, userID) {
+    updateProfile(userId, profileData) {
         return __awaiter(this, void 0, void 0, function* () {
-            var { userId } = _a, profileData = __rest(_a, ["userId"]);
             try {
-                return yield (profileModel_1.default === null || profileModel_1.default === void 0 ? void 0 : profileModel_1.default.findOneAndUpdate({ userId: userID }, profileData, { new: true }));
+                if (profileData === null || profileData === void 0 ? void 0 : profileData.name) {
+                    yield userModel_1.default.findByIdAndUpdate(userId, { name: profileData === null || profileData === void 0 ? void 0 : profileData.name });
+                }
+                return yield (profileModel_1.default === null || profileModel_1.default === void 0 ? void 0 : profileModel_1.default.findOneAndUpdate({ userId: userId }, profileData, { new: true }));
             }
             catch (error) {
                 throw error;
@@ -79,35 +70,51 @@ class ProfileRepository {
     findUserBySearchQuery(query, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(query, userId);
-                // const result = await User.aggregate([
-                //     {
-                //         $match: {
-                //             name: { $regex: query, $options: "i" },
-                //         },
-                //     },
-                //     {
-                //         $match: { _id: { $ne: new mongoose.Types.ObjectId(userId) } },
-                //     },
-                //     {
-                //         $lookup: {
-                //             from: "profiles", // Collection name
-                //             localField: "_id", // User `_id`
-                //             foreignField: "userId", // Profile's `userId`
-                //             as: "profileData",
-                //         },
-                //     },
-                //     {
-                //         $project: {
-                //             _id: 1,
-                //             name: 1,
-                //             image: { $arrayElemAt: ["$profileData.image", 0] },
-                //             profileId: { $arrayElemAt: ["$profileData._id", 0] },
-                //             company: { $arrayElemAt: ["$profileData.company", 0] },
-                //         },
-                //     },
-                // ]);
-                // return result;
+                const { search, company, googleMapLocation, page, type } = query;
+                const user = yield userModel_1.default.findById(userId);
+                const chapterId = user === null || user === void 0 ? void 0 : user.chapter;
+                const matchStage = {};
+                matchStage.name = { $regex: search, $options: "i" };
+                matchStage["_id"] = { $ne: new mongoose_1.default.Types.ObjectId(userId) };
+                type == "chapter" ? (matchStage.chapter = new mongoose_1.default.Types.ObjectId(chapterId)) : "";
+                const filterMatchStage = {};
+                company ? (filterMatchStage["profileData.company"] = company) : "";
+                googleMapLocation ? (filterMatchStage["profileData.googleMapLocation"] = googleMapLocation) : "";
+                const result = yield userModel_1.default.aggregate([
+                    {
+                        $match: {
+                            name: { $regex: search, $options: "i" },
+                        },
+                    },
+                    {
+                        $match: matchStage,
+                    },
+                    {
+                        $lookup: {
+                            from: "profiles", // Collection name
+                            localField: "_id", // User `_id`
+                            foreignField: "userId", // Profile's `userId`
+                            as: "profileData",
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            image: { $arrayElemAt: ["$profileData.image", 0] },
+                            profileId: { $arrayElemAt: ["$profileData._id", 0] },
+                            company: { $arrayElemAt: ["$profileData.company", 0] },
+                            googleMapLocation: { $arrayElemAt: ["$profileData.googleMapLocation", 0] },
+                        },
+                    },
+                    { $match: filterMatchStage },
+                    {
+                        $project: {
+                            googleMapLocation: 0,
+                        },
+                    },
+                ]);
+                return result;
             }
             catch (error) {
                 console.log("Error while finding user by Id in the profile repository");

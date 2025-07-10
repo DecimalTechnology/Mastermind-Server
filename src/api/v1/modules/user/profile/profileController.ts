@@ -12,6 +12,7 @@ export class ProfileController {
     // @access User
     async updateProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            console.log("hiii",req.body)
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
             const result = await this.profileService.updateProfile(req.body, req.userId);
             res.status(OK).json({ success: true, message: "Profile datas succesfully updated", data: result });
@@ -50,7 +51,7 @@ export class ProfileController {
             const { search, type, page } = req.query;
             const filter ={...req.body,search,type,page};
             if (!req.query.search) throw new NotFoundError("Search query not provided");
-            const response = await this.profileService.searchProfile(filter,req.adminId);
+            const response = await this.profileService.searchProfile(filter,req.userId);
             res.status(OK).json({ success: true, message: "", data: response });
         } catch (error) {
             next(error);

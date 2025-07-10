@@ -5,11 +5,14 @@ import { ProfileController } from "./profileController";
 import { authenticate } from "../../../../../middewares.ts/authenticate";
 import upload from "../../../../../middewares.ts/upload";
 import { ChapterRepository } from "../../admin/chapter/chapterRepository";
+
+
 const profileRouter = express.Router();
 const profileRepository = new ProfileRepository();
 const chapterRepository = new ChapterRepository();
 const profileService = new ProfileService(profileRepository, chapterRepository);
 const controller = new ProfileController(profileService);
+
 
 profileRouter.put("/", authenticate, (req, res, next) => controller.updateProfile(req, res, next));
 profileRouter.get("/", authenticate, (req, res, next) => controller.getProfile(req, res, next));
