@@ -7,11 +7,13 @@ import { adminAuth } from "../../../../../middewares.ts/authenticateAdmin";
 import roleAuth from "../../../../../middewares.ts/roleAuth";
 import { UserRole } from "../../../../../enums/common";
 import asyncHandler from "../../../../../validations/asyncHandler";
+import { ProfileRepository } from "../../user/profile/profileRepository";
 
 const memberRouter = express.Router();
 const memberRepository = new MemberRepository();
 const userRepository = new UserRepository();
-const memberService = new MemberService(memberRepository, userRepository);
+const profileRepository = new ProfileRepository()
+const memberService = new MemberService(memberRepository, userRepository,profileRepository);
 const controller = new MemberController(memberService);
 const coreTeamAccess = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN,UserRole.CORE_TEAM_ADMIN]
 

@@ -12,7 +12,7 @@ export class ProfileController {
     // @access User
     async updateProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            console.log("hiii",req.body)
+            
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
             const result = await this.profileService.updateProfile(req.body, req.userId);
             res.status(OK).json({ success: true, message: "Profile datas succesfully updated", data: result });

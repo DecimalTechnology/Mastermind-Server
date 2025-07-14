@@ -43,7 +43,6 @@ class AuthController {
     userLogin(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body);
                 if (!req.body || Object.keys(req.body).length == 0)
                     throw new customErrors_1.EmptyRequestBodyError();
                 const response = yield this.authService.userLogin(req.body);

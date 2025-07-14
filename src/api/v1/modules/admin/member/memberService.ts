@@ -5,10 +5,11 @@ import { sendLinkToEmail } from "../../../../../utils/v1/mail/sendEmail";
 import { generateRandomPassword } from "../../../../../utils/v1/password/generateRandomPassword";
 import { hashPassword } from "../../../../../utils/v1/password/password";
 import { UserRepository } from "../../shared/repositories/userRepository";
+import { ProfileRepository } from "../../user/profile/profileRepository";
 import { MemberRepository } from "./memberRepository";
 
 export class MemberService {
-    constructor(private memberRepository: MemberRepository, private userRepository: UserRepository) {}
+    constructor(private memberRepository: MemberRepository, private userRepository: UserRepository,private profileRepository:ProfileRepository) {}
 
     async blockUser(userId: string): Promise<IUser> {
         return await this.userRepository.blockUser(userId);
@@ -37,6 +38,9 @@ export class MemberService {
         const isEmailSend = await sendLinkToEmail(email, "", html);
         if (!isEmailSend) throw new BadRequestError("Something went wrong while sending the email to the user");
         const hashedPassword = await hashPassword(randomPassword);
+        const profileData = {userId:user?._id,email:user?.email,phoneNumbers:[user?.phonenumber]};
+       await this.memberRepository.createInitialProfile(profileData)
+
         return await this.userRepository.findByIdAndUpdate(user?._id, { password: hashedPassword, isVerified: true });
     }
 }

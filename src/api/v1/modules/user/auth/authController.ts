@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { AuthService } from "./authService";
-import { EmptyRequestBodyError, NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, EmptyRequestBodyError, NotFoundError } from "../../../../../constants/customErrors";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 import { userRegistrationSchema } from "../../../../../validations/user/registerValidation";
 const { OK, CREATED } = STATUS_CODES;
@@ -31,7 +31,7 @@ export class AuthController {
     
     async userLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            console.log(req.body)
+            
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
             const response = await this.authService.userLogin(req.body);
             res.status(OK).json({ success: true, message: "User signin successfull", data: response });

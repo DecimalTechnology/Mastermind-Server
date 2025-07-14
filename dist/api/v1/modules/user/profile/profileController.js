@@ -23,7 +23,6 @@ class ProfileController {
     updateProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("hiii", req.body);
                 if (!req.body || Object.keys(req.body).length == 0)
                     throw new customErrors_1.EmptyRequestBodyError();
                 const result = yield this.profileService.updateProfile(req.body, req.userId);

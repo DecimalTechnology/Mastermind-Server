@@ -32,8 +32,12 @@ export class AuthService {
             const emailExists = await this.authRepository.findUserByEmail(userData?.email);
             const phoneNumberExists = await this.authRepository.findByPhoneNumber(phoneNumber);
             // If exists throw new error
+
+           
             if (emailExists) throw new ConflictError("The email already exists");
             if (phoneNumberExists) throw new ConflictError("The phonenumber  already exists");
+
+            
 
             const newUserData = { ...userData, phonenumber: phoneNumber, role: UserRole.MEMBER, password: "" };
 
