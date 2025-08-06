@@ -90,4 +90,15 @@ export class ChapterController {
         const result = await this.chapterService.findMembers(adminId as string,req?.query);
         res.status(OK).json({ success: true, message: "", data: result });
     }
+    // @desc   Get admin profile
+    // @route  GET v1/admin/chapter/profile
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async getProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
+        
+        const adminId = req.adminId;
+        
+        
+        const result = await this.chapterService.getProfile(adminId as string);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
 }

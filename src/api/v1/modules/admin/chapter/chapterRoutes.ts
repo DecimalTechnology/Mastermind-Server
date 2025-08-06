@@ -25,6 +25,7 @@ chapterRouter.get('/all',adminAuth,roleAuth(...allowedRoles),asyncHandler(contro
 chapterRouter.get("/users",adminAuth,roleAuth(...allowedRoles),asyncHandler(controller.getAllUsers.bind(controller)))
 chapterRouter.get('/members/:id',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllMembers.bind(controller)));
 chapterRouter.get('/members',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.findMembers.bind(controller)))
+chapterRouter.get("/profile",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getProfile.bind(controller)))
 chapterRouter.get("/:id",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getChapterById.bind(controller)))
 
 export default chapterRouter;

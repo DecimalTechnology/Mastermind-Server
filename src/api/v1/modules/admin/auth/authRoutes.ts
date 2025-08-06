@@ -3,10 +3,12 @@ import { AuthRepository } from "./authRepository";
 import { AuthService } from "./authServices";
 import { AuthController } from "./authController";
 import { adminAuth } from "../../../../../middewares.ts/authenticateAdmin";
+import { ProfileRepository } from "../../user/profile/profileRepository";
 
 const authRouter = express.Router();
 const authRepository = new AuthRepository();
-const authService = new AuthService(authRepository);
+const profileRepository = new ProfileRepository()
+const authService = new AuthService(authRepository,profileRepository);
 const controller = new AuthController(authService);
 
 authRouter.post("/login", (req, res, next) => controller.adminLogin(req, res, next));

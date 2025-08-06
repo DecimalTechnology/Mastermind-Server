@@ -30,13 +30,15 @@ export class EventRepository extends BaseRepository<IEvent> {
         return "";
     }
 
-    async getAllEvents(chapterId: string, query: any): Promise<IEvent[]> {
+    async getAllEvents(chapterId: string, query: any): Promise<any> {
+        const page = query?.page||0
+
         const matchStage: any = {
             chapterId: new mongoose.Types.ObjectId(chapterId),
         };
 
         // Match status if provided
-        if (query.status&&query?.status!=='all') {
+        if (query.status && query?.status !== "all") {
             matchStage.status = query.status;
         }
 
@@ -60,10 +62,16 @@ export class EventRepository extends BaseRepository<IEvent> {
             ];
         }
 
-        return await Event.aggregate([
+        const events =  await Event.aggregate([
             { $match: matchStage },
+            { $skip: parseInt(query?.page) * 10 },
+            { $limit: 10 },
             { $sort: { date: -1 } }, // Optional: sort by latest
         ]);
+        const totalPage = await Event.countDocuments();
+        
+
+        return {events:events,totalPage:totalPage}
     }
 
     async getAllAttendeesList(eventId: string): Promise<any> {
@@ -76,6 +84,6 @@ export class EventRepository extends BaseRepository<IEvent> {
         return await Event.findOne({ _id: eventId }).populate("rsvp");
     }
     async findByEventId(eventId: string): Promise<any> {
-        return await Event.findById(eventId ).populate("rsvp").populate("attendees").populate('createdBy').populate('chapterId');
+        return await Event.findById(eventId).populate("rsvp").populate("attendees").populate("createdBy").populate("chapterId");
     }
 }

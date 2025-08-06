@@ -467,4 +467,8 @@ export class ProfileRepository {
             throw error;
         }
     }
+
+    async findProfileByUserId(userId:string):Promise<any>{
+        return await Profile.findOne({userId:userId})
+    }
 }

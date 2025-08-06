@@ -8,4 +8,3 @@ dotenv.config();
 const PORT = process?.env.PORT || 3000;
 connectDB();
 Server.listen(PORT, () => console.log(`Server Connected Successfully on ${PORT}`));
-

@@ -6,6 +6,7 @@ import { Local } from "../../../../../models/localModel";
 import User from "../../../../../models/userModel";
 import { BaseRepository } from "../../shared/repositories/baseRepository";
 import Event from "../../../../../models/eventModel";
+import Profile from "../../../../../models/profileModel";
 
 export class ChapterRepository extends BaseRepository<IChapter> {
     constructor() {
@@ -180,10 +181,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         return result;
     }
 
-
-    
     async findMembers(adminId: string, query: any): Promise<any> {
-
         const { page, type, search } = query;
 
         const user = await User.findById(adminId);
@@ -191,16 +189,26 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         const matchStage: any = {};
 
         matchStage.chapter = new mongoose.Types.ObjectId(user?.manage?.chapter);
-        matchStage.name = {$regex:search,$options:'i'}
+        matchStage.name = { $regex: search, $options: "i" };
 
         type == "member" ? (matchStage.role = "member") : "";
 
         type == "admin" ? (matchStage.role = "core_team_admin") : "";
-        type=='all'?(matchStage.role={$in:['core_team_admin','member']}):''
-       
-        console.log(search,page)
-        const result = await User.aggregate([{ $match: matchStage },{$project:{password:0}}]);
-    
+        type == "all" ? (matchStage.role = { $in: ["core_team_admin", "member"] }) : "";
+
+        console.log(search, page);
+        const result = await User.aggregate([{ $match: matchStage }, { $project: { password: 0 } }]);
+
         return result;
+    }
+
+    async getProfile(adminId: string): Promise<any> {
+        const [user, profile] = await Promise.all([User.findById(adminId), Profile.findOne({ userId: adminId })]);
+
+        const chapterPromise = user ? Chapter.findOne({ _id: user.chapter }).populate("nationId").populate("regionId").populate("localId") : null;
+
+        const chapter = await chapterPromise;
+
+        return { user, chapter, profile };
     }
 }

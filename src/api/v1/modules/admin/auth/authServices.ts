@@ -1,14 +1,16 @@
 import { BadRequestError, NotFoundError, UnAuthorizedError } from "../../../../../constants/customErrors";
 import { IUser } from "../../../../../interfaces/models/IUser";
+import Profile from "../../../../../models/profileModel";
 import { generateEmailHtml } from "../../../../../utils/v1/mail/htmlGenerator";
 import { sendLinkToEmail } from "../../../../../utils/v1/mail/sendEmail";
 import { generateRandomPassword } from "../../../../../utils/v1/password/generateRandomPassword";
 import { comparePassword, hashPassword } from "../../../../../utils/v1/password/password";
 import { generateAccessToken, generateRefreshToken } from "../../../../../utils/v1/token/token";
+import { ProfileRepository } from "../../user/profile/profileRepository";
 import { AuthRepository } from "./authRepository";
 
 export class AuthService {
-    constructor(private authRepository: AuthRepository) {}
+    constructor(private authRepository: AuthRepository,private profileRepository:ProfileRepository) {}
 
     // Get all users from the database
     async getAllUsers(): Promise<IUser[] | null> {
@@ -75,6 +77,7 @@ export class AuthService {
         try {
             const admin = await this.authRepository.findByEmail(email);
             if (admin?.role == "member") throw new UnAuthorizedError("Permission denied. No admin roles found");
+            const profile = await this.profileRepository.findProfileByUserId(admin?._id)
             if (!admin) throw new UnAuthorizedError("Invalid email or password");
             const isPasswordValid = await comparePassword(password, admin.password);
 
@@ -85,8 +88,8 @@ export class AuthService {
             admin.password = null;
 
             const adminData = await this.authRepository.findAdmin(admin?._id, admin?.role);
-            console.log(adminData, "", admin);
-            return { adminData: adminData[0], accessToken, refreshToken };
+            
+            return { adminData: adminData[0], accessToken, refreshToken,image:profile?.image };
         } catch (error) {
             throw error;
         }

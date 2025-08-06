@@ -1,9 +1,10 @@
 import { EventServices } from "./eventServices";
 import { NextFunction, query, Request, Response } from "express";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
-import { NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
 import eventSchema from "../../../../../validations/admin/event";
 import { reportValidator } from "../../../../../validations/admin/report";
+import mongoose from "mongoose";
 const { OK } = STATUS_CODES;
 
 export class EventController {
@@ -97,10 +98,50 @@ export class EventController {
     // @route  PUT v1/admin/event/chapter/report
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async createChapterEventReport(req: Request, res: Response, next: NextFunction): Promise<void> {
-        reportValidator.parse(req.body);
+        console.log("hii");
+        // reportValidator.parse(req.body);
+        console.log(req.file);
 
-        if (!req.file) throw new NotFoundError("Please upload document in pdf format");
-        const result = await this.eventServices.createChapterEventReport(req.body, req.file);
-        res.status(OK).json({ success: true, message: "Event report successfully submitted", data: result });
+        // if (!req.file) throw new NotFoundError("Please upload document in pdf format");
+        // const result = await this.eventServices.createChapterEventReport(req.body, req.file);
+        // res.status(OK).json({ success: true, message: "Event report successfully submitted", data: result });
+    }
+
+    // @desc Upload images
+    // @route POST v1/admin/event/upload-images
+    async uploadImageMedia(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const adminId = req.adminId;
+
+        const eventId = req.body.eventId;
+
+        if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
+            throw new BadRequestError("Invalid Event Id");
+        }
+        const images = (req.files as any)?.images.map((obj: any) => obj?.location);
+
+        const result = await this.eventServices.uploadMediaImages(adminId, eventId, images);
+        res.status(OK).json({ success: true, message: "Images successfully uploaded", data: result });
+    }
+    // @desc Upload videos
+    // @route POST v1/admin/event/upload-videos
+    async uploadVideos(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const adminId = req.adminId;
+
+        const eventId = req.body.eventId;
+
+        if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
+            throw new BadRequestError("Invalid Event Id");
+        }
+        const videos = (req.files as any)?.videos.map((obj: any) => obj?.location);
+
+        const result = await this.eventServices.uploadVideos(adminId, eventId, videos);
+        res.status(OK).json({ success: true, message: "Videos successfully uploaded", data: result });
+    }
+
+    async getAllMedia(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const eventId = req.params.eventId;
+        if (!mongoose.Types.ObjectId.isValid(eventId)) throw new BadRequestError("Invalid event Id");
+        const result = await this.eventServices.getAllMedia(eventId);
+        res.status(OK).json({ success: true, message: "", data: result });
     }
 }

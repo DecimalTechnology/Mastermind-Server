@@ -51,4 +51,7 @@ export class ChapterService {
     async findMembers(adminId: string,query:any): Promise<IUser[]> {
         return await this.chapterRepository.findMembers(adminId,query);
     }
+    async getProfile(adminId: string,): Promise<IUser[]> {
+        return await this.chapterRepository.getProfile(adminId)
+    }
 }

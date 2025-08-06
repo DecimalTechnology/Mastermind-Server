@@ -39,7 +39,8 @@ export class UserRepository extends BaseRepository<IUser> {
         const pipeline: any = [{ $match: matchStage }, { $sort: { _id: -1 } }];
         const pendingCount = await User.aggregate([{ $match: { chapter: new mongoose.Types.ObjectId(chapterId), isVerified: false } }]);
         const users = await User.aggregate(pipeline);
-        return { users: users, pendingCount: pendingCount.length };
+        const totalPage = await User.find({chapter:chapterId});
+        return { users: users, pendingCount: pendingCount.length,totalPage:totalPage };
     }
 
     async blockUser(userId: string): Promise<IUser> {

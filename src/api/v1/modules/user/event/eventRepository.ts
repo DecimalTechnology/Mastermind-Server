@@ -72,7 +72,7 @@ export class EventRepository extends BaseRepository<IEvent> {
         });
 
         const res = await Event.aggregate(pipeline);
-       
+
         return res;
     }
 
@@ -103,22 +103,33 @@ export class EventRepository extends BaseRepository<IEvent> {
         return await Event.findByIdAndUpdate(eventId, { $pull: { rsvp: userId } }, { new: true });
     }
 
-async getEventByEventId(eventId: string, userId: string): Promise<IEvent | null> {
+    async getEventByEventId(eventId: string, userId: string): Promise<IEvent | null> {
+        const objectId = new mongoose.Types.ObjectId(eventId);
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    const objectId = new mongoose.Types.ObjectId(eventId);
-    const userObjectId = new mongoose.Types.ObjectId(userId);
+        const res = await Event.aggregate([
+            { $match: { _id: objectId } },
+            {
+                $addFields: {
+                    registered: { $in: [userObjectId, "$rsvp"] },
+                },
+            },
+        ]);
+        if (!res[0]) throw new NotFoundError("Event not found");
 
-    const res = await Event.aggregate([
-        { $match: { _id: objectId } },
-        {
-            $addFields: {
-                registered: { $in: [userObjectId, "$rsvp"] }
-            }
-        }
-    ]);
-    if(!res[0]) throw new NotFoundError("Event not found")
+        return res[0] || null;
+    }
 
-    return res[0] || null; 
+  async userParticipatedEvent(userId: string): Promise<any> {
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const events = await Event.find({
+    $or: [
+      { rsvp: userObjectId },
+      { attendees: userObjectId }
+    ]
+  });
+
+  return events;
 }
-
 }

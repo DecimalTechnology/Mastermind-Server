@@ -514,5 +514,10 @@ class ProfileRepository {
             }
         });
     }
+    findProfileByUserId(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield profileModel_1.default.findOne({ userId: userId });
+        });
+    }
 }
 exports.ProfileRepository = ProfileRepository;
