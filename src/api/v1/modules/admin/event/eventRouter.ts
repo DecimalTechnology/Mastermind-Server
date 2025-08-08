@@ -11,6 +11,7 @@ import { ReportRepository } from "../../shared/repositories/reportRepository";
 import uploadImageS3 from "../../../../../utils/v1/s3/image/uploadImageS3";
 import { MediaRepository } from "../../shared/media/mediaRepository";
 import uploadMediaS3 from "../../../../../utils/v1/s3/image/uploadImageS3";
+import uploadPdfS3 from "../../../../../utils/v1/s3/uploadPdf";
 
 const eventRouter = express.Router();
 
@@ -47,7 +48,7 @@ eventRouter.post(
     "/chapter/report",
     adminAuth,
     roleAuth(...coreTeamAccess),
-    upload.single("file"),
+    uploadPdfS3.single("file"),
     asyncHandler(controller.createChapterEventReport.bind(controller))
 );
 eventRouter.post("/", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.createEvent.bind(controller)));

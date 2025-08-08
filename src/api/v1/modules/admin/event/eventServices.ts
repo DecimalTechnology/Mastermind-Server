@@ -57,10 +57,9 @@ export class EventServices {
         if (!event) throw new NotFoundError("Event details id not found");
         return event;
     }
-    async createChapterEventReport(reportData: IReport, files: any): Promise<any> {
-        const file = await uploadPdfToCloudinary(files);
-        const url = file.secure_url;
-        const data = { ...reportData, file: url };
+    async createChapterEventReport(reportData: IReport, pdf: any): Promise<any> {
+       
+        const data = { ...reportData, file: pdf };
         return await this.reportRepository.createReport(data);
     }
 

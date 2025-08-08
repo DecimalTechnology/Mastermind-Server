@@ -98,13 +98,15 @@ export class EventController {
     // @route  PUT v1/admin/event/chapter/report
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async createChapterEventReport(req: Request, res: Response, next: NextFunction): Promise<void> {
-        console.log("hii");
-        // reportValidator.parse(req.body);
-        console.log(req.file);
+        reportValidator.parse(req.body);
+        if (!req.file || !(req.file as any).location) {
+            throw new NotFoundError("Invalid pdf file");
+        }
+        const file = (req.file as any).location;
 
-        // if (!req.file) throw new NotFoundError("Please upload document in pdf format");
-        // const result = await this.eventServices.createChapterEventReport(req.body, req.file);
-        // res.status(OK).json({ success: true, message: "Event report successfully submitted", data: result });
+        if (!req.file) throw new NotFoundError("Please upload document in pdf format");
+        const result = await this.eventServices.createChapterEventReport(req.body, file);
+        res.status(OK).json({ success: true, message: "Event report successfully submitted", data: result });
     }
 
     // @desc Upload images

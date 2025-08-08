@@ -23,6 +23,7 @@ const testimonialRoutes_1 = __importDefault(require("./api/v1/modules/user/testi
 const TYCBRoutes_1 = __importDefault(require("./api/v1/modules/user/TYCB/TYCBRoutes"));
 const accountablitySlipRouter_1 = __importDefault(require("./api/v1/modules/user/accountabilitySlip/accountablitySlipRouter"));
 const memberRoutes_1 = __importDefault(require("./api/v1/modules/admin/member/memberRoutes"));
+const visionBoardRouter_1 = __importDefault(require("./api/v1/modules/user/visionBoard/visionBoardRouter"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -38,6 +39,7 @@ app.use(`/${version}/events`, eventRouter_2.default);
 app.use(`/${version}/testimonial`, testimonialRoutes_1.default);
 app.use(`/${version}/tycb`, TYCBRoutes_1.default);
 app.use(`/${version}/accountability`, accountablitySlipRouter_1.default);
+app.use(`/${version}/visionboard`, visionBoardRouter_1.default);
 // Admin Routes
 app.use(`/${version}/admin/auth`, authRoutes_2.default);
 app.use(`/${version}/admin/nation`, route_1.default);

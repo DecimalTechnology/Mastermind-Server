@@ -18,6 +18,7 @@ import testMonialRouter from "./api/v1/modules/user/testimonial/testimonialRoute
 import tycbRouter from "./api/v1/modules/user/TYCB/TYCBRoutes";
 import accountabilityRouter from "./api/v1/modules/user/accountabilitySlip/accountablitySlipRouter";
 import memberRouter from "./api/v1/modules/admin/member/memberRoutes";
+import visionBoardRouter from "./api/v1/modules/user/visionBoard/visionBoardRouter";
 
 
 
@@ -37,7 +38,9 @@ app.use(`/${version}/profile`, profileRouter)
 app.use(`/${version}/events`, userEventRouter)
 app.use(`/${version}/testimonial`, testMonialRouter)
 app.use(`/${version}/tycb`, tycbRouter);
-app.use(`/${version}/accountability`,accountabilityRouter)
+app.use(`/${version}/accountability`,accountabilityRouter);
+app.use(`/${version}/visionboard`,visionBoardRouter);
+
 
 
 // Admin Routes
