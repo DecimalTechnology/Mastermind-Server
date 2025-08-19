@@ -4,6 +4,8 @@ import { IUser } from "../../../../../interfaces/models/IUser";
 import { ChapterRepository } from "../../admin/chapter/chapterRepository";
 import { MediaRepository } from "../../shared/media/mediaRepository";
 import { UserRepository } from "../../shared/repositories/userRepository";
+import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
+import { ProfileRepository } from "../profile/profileRepository";
 import { EventRepository } from "./eventRepository";
 
 export class EventService {
@@ -11,17 +13,23 @@ export class EventService {
         private eventRepository: EventRepository,
         private userRepository: UserRepository,
         private chapterRepository: ChapterRepository,
-        private mediaRepository: MediaRepository
+        private mediaRepository: MediaRepository,
+        private accountabilityRepository: AccountablityRepository,
+        private profileRepository:ProfileRepository
     ) {}
 
-    async getAllEvents(sort: string, filter: string, userId: string, date: string): Promise<IEvent[]> {
+    async getAllEvents(sort: string, filter: string, userId: string, date: string): Promise<any> {
         const userData: IUser | null = await this.userRepository.findById(userId);
         if (!userData) throw new NotFoundError("Something went wrong. Chapter info not found");
 
         const chapterId = userData?.chapter?.toString();
         const chapterInfo = await this.chapterRepository.findById(chapterId || "");
 
-        return await this.eventRepository.findEventsByFilter(sort, filter, chapterInfo, userId, date as string);
+        const events =  await this.eventRepository.findEventsByFilter(sort, filter, chapterInfo, userId, date as string);
+        const meetings = await this.accountabilityRepository.findAllAccountabilityByDate(userId,date);
+ 
+        
+        return { events, meetings };
     }
 
     async getEventById(eventId: string, userId: string): Promise<IEvent | null> {

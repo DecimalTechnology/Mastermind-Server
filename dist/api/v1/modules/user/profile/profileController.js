@@ -215,5 +215,20 @@ class ProfileController {
             }
         });
     }
+    // @desc   Get Homepage details with next meeting and profile
+    // @route  GET v1/profile/home
+    // @access User
+    getHomeProfile(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = req.userId;
+                const response = yield this.profileService.getHomeProfile(userId);
+                res.status(OK).json({ success: true, message: " ", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
 }
 exports.ProfileController = ProfileController;

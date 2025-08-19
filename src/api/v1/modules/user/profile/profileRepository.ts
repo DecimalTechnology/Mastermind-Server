@@ -24,12 +24,12 @@ export class ProfileRepository {
             throw error;
         }
     }
-    async updateProfile(userId:string,profileData:any): Promise<any | null> {
+    async updateProfile(userId: string, profileData: any): Promise<any | null> {
         try {
-           if(profileData?.name){
-             await User.findByIdAndUpdate(userId,{name:profileData?.name})
-           }
-            return await Profile?.findOneAndUpdate({userId:userId}, profileData, { new: true });
+            if (profileData?.name) {
+                await User.findByIdAndUpdate(userId, { name: profileData?.name });
+            }
+            return await Profile?.findOneAndUpdate({ userId: userId }, profileData, { new: true });
         } catch (error) {
             throw error;
         }
@@ -468,7 +468,16 @@ export class ProfileRepository {
         }
     }
 
-    async findProfileByUserId(userId:string):Promise<any>{
-        return await Profile.findOne({userId:userId})
+    async findProfileByUserId(userId: string): Promise<any> {
+        return await Profile.findOne({ userId: userId });
+    }
+
+    async findConnectionCount(userId: string): Promise<any> {
+        const connections = await Profile.aggregate([
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+            { $project: { $size: "$connections" } },
+        ]);
+        console.log(connections);
+        return connections;
     }
 }

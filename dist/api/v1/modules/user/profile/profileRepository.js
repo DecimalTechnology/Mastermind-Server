@@ -519,5 +519,15 @@ class ProfileRepository {
             return yield profileModel_1.default.findOne({ userId: userId });
         });
     }
+    findConnectionCount(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const connections = yield profileModel_1.default.aggregate([
+                { $match: { userId: new mongoose_1.default.Types.ObjectId(userId) } },
+                { $project: { $size: "$connections" } },
+            ]);
+            console.log(connections);
+            return connections;
+        });
+    }
 }
 exports.ProfileRepository = ProfileRepository;

@@ -161,4 +161,16 @@ export class ProfileController {
             next(error);
         }
     }
+    // @desc   Get Homepage details with next meeting and profile
+    // @route  GET v1/profile/home
+    // @access User
+    async getHomeProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId  = req.userId;
+            const response = await this.profileService.getHomeProfile(userId as string);
+            res.status(OK).json({ success: true, message: " ", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

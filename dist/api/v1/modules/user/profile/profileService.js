@@ -28,9 +28,11 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const customErrors_1 = require("../../../../../constants/customErrors");
 const uploadToCloudinary_1 = require("../../../../../utils/v1/cloudinary/uploadToCloudinary");
 class ProfileService {
-    constructor(profileRepository, chapterRepository) {
+    constructor(profileRepository, chapterRepository, userRepository, accountabilityRepository) {
         this.profileRepository = profileRepository;
         this.chapterRepository = chapterRepository;
+        this.userRepository = userRepository;
+        this.accountabilityRepository = accountabilityRepository;
     }
     getProfile(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -256,6 +258,43 @@ class ProfileService {
                 console.log("Error: get sent requests");
                 throw error;
             }
+        });
+    }
+    getHomeProfile(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            try {
+                const user = yield this.userRepository.findById(userId);
+                if (!user)
+                    throw new customErrors_1.NotFoundError("User not found");
+                const profile = yield this.profileRepository.findProfileByUserId(userId);
+                if (!(user === null || user === void 0 ? void 0 : user.chapter))
+                    throw new customErrors_1.NotFoundError("Chapter not found");
+                const chapter = yield this.chapterRepository.findChapter(user.chapter);
+                const connections = yield this.profileRepository.findConnectionByUserId(userId);
+                const allMeetings = yield this.accountabilityRepository.findAllThisWeekMeetings(userId);
+                const userInfo = {
+                    name: profile === null || profile === void 0 ? void 0 : profile.name,
+                    email: user === null || user === void 0 ? void 0 : user.email,
+                    image: profile === null || profile === void 0 ? void 0 : profile.image,
+                    memberSince: profile === null || profile === void 0 ? void 0 : profile.memberSince,
+                    chapter: chapter === null || chapter === void 0 ? void 0 : chapter.name,
+                    region: (_a = chapter === null || chapter === void 0 ? void 0 : chapter.regionId) === null || _a === void 0 ? void 0 : _a.name,
+                };
+                let nextMeeting = null;
+                const todayMeeting = yield this.accountabilityRepository.findAllAccountabilityByDate(userId, new Date().toISOString().split("T")[0]);
+                if (todayMeeting.length > 0) {
+                    nextMeeting = todayMeeting[0];
+                }
+                else {
+                    const allNextMeeting = yield this.accountabilityRepository.findAllNextMeeting(userId);
+                    if (allNextMeeting) {
+                        nextMeeting = allNextMeeting;
+                    }
+                }
+                return { userInfo, nextMeeting, connections: ((_b = connections === null || connections === void 0 ? void 0 : connections.connections) === null || _b === void 0 ? void 0 : _b.length) || 0, weeklyMeetings: allMeetings };
+            }
+            catch (error) { }
         });
     }
 }

@@ -5,9 +5,16 @@ import { IProfile } from "../../../../../interfaces/models/IProfile";
 import { uploadImageToCloudinary } from "../../../../../utils/v1/cloudinary/uploadToCloudinary";
 import { ProfileRepository } from "./profileRepository";
 import { ChapterRepository } from "../../admin/chapter/chapterRepository";
+import { UserRepository } from "../../shared/repositories/userRepository";
+import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
 
 export class ProfileService {
-    constructor(private profileRepository: ProfileRepository, private chapterRepository: ChapterRepository) {}
+    constructor(
+        private profileRepository: ProfileRepository,
+        private chapterRepository: ChapterRepository,
+        private userRepository: UserRepository,
+        private accountabilityRepository: AccountablityRepository
+    ) {}
 
     async getProfile(userId: string): Promise<Record<string, any> | null> {
         try {
@@ -35,9 +42,8 @@ export class ProfileService {
             const industries = profileData.industries;
             profileData.industries = industries;
             const { image, ...newProfileData } = profileData;
-             await this.profileRepository.updateProfile(userId, newProfileData);
-             return this.getProfile(userId)
-            
+            await this.profileRepository.updateProfile(userId, newProfileData);
+            return this.getProfile(userId);
         } catch (error) {
             console.log("Error while updating profile");
             throw error;
@@ -206,5 +212,39 @@ export class ProfileService {
             console.log("Error: get sent requests");
             throw error;
         }
+    }
+
+    async getHomeProfile(userId: string): Promise<any | null> {
+        try {
+            const user = await this.userRepository.findById(userId);
+            if (!user) throw new NotFoundError("User not found");
+            const profile = await this.profileRepository.findProfileByUserId(userId);
+            if (!user?.chapter) throw new NotFoundError("Chapter not found");
+            const chapter = await this.chapterRepository.findChapter(user.chapter as any as string);
+            const connections = await this.profileRepository.findConnectionByUserId(userId);
+            const allMeetings = await this.accountabilityRepository.findAllThisWeekMeetings(userId);
+            const userInfo = {
+                name: profile?.name,
+                email: user?.email,
+                image: profile?.image,
+                memberSince: profile?.memberSince,
+                chapter: chapter?.name,
+                region: chapter?.regionId?.name,
+            };
+
+            let nextMeeting = null;
+
+            const todayMeeting = await this.accountabilityRepository.findAllAccountabilityByDate(userId, new Date().toISOString().split("T")[0]);
+            if (todayMeeting.length > 0) {
+                nextMeeting = todayMeeting[0];
+            } else {
+                const allNextMeeting = await this.accountabilityRepository.findAllNextMeeting(userId);
+                if (allNextMeeting) {
+                    nextMeeting = allNextMeeting;
+                }
+            }
+
+            return { userInfo, nextMeeting, connections: connections?.connections?.length || 0, weeklyMeetings: allMeetings };
+        } catch (error) {}
     }
 }

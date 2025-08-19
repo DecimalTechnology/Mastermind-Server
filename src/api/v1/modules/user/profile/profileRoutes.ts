@@ -5,16 +5,21 @@ import { ProfileController } from "./profileController";
 import { authenticate } from "../../../../../middewares.ts/authenticate";
 import upload from "../../../../../middewares.ts/upload";
 import { ChapterRepository } from "../../admin/chapter/chapterRepository";
+import { UserRepository } from "../../shared/repositories/userRepository";
+import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
 
 
 const profileRouter = express.Router();
 const profileRepository = new ProfileRepository();
 const chapterRepository = new ChapterRepository();
-const profileService = new ProfileService(profileRepository, chapterRepository);
+const accountablityRepository = new AccountablityRepository();
+const userRepository = new UserRepository();
+const profileService = new ProfileService(profileRepository, chapterRepository,userRepository,accountablityRepository);
 const controller = new ProfileController(profileService);
 
 
 profileRouter.put("/", authenticate, (req, res, next) => controller.updateProfile(req, res, next));
+profileRouter.get("/home",authenticate, (req, res, next) => controller.getHomeProfile(req, res, next));
 profileRouter.get("/", authenticate, (req, res, next) => controller.getProfile(req, res, next));
 profileRouter.patch("/profile-picture", upload.any(), authenticate, (req, res, next) => controller.updateProfilePicture(req, res, next));
 profileRouter.post("/search", authenticate, (req, res, next) => controller.searchProfile(req, res, next));
