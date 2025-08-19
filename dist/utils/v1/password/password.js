@@ -33,8 +33,8 @@ const comparePassword = (normalPassword, encryptedPassword) => __awaiter(void 0,
         return yield bcrypt_1.default.compare(normalPassword, encryptedPassword);
     }
     catch (error) {
-        throw new customErrors_1.BadRequestError("Error while comparing password");
         console.log(error);
+        throw new customErrors_1.BadRequestError("Error while comparing password");
     }
 });
 exports.comparePassword = comparePassword;

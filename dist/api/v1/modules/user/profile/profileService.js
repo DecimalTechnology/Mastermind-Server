@@ -262,7 +262,7 @@ class ProfileService {
     }
     getHomeProfile(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a;
             try {
                 const user = yield this.userRepository.findById(userId);
                 if (!user)
@@ -292,7 +292,7 @@ class ProfileService {
                         nextMeeting = allNextMeeting;
                     }
                 }
-                return { userInfo, nextMeeting, connections: ((_b = connections === null || connections === void 0 ? void 0 : connections.connections) === null || _b === void 0 ? void 0 : _b.length) || 0, weeklyMeetings: allMeetings };
+                return { userInfo, nextMeeting, connections: connections[0].connections || 0, weeklyMeetings: allMeetings };
             }
             catch (error) { }
         });

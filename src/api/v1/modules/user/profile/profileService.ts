@@ -222,6 +222,7 @@ export class ProfileService {
             if (!user?.chapter) throw new NotFoundError("Chapter not found");
             const chapter = await this.chapterRepository.findChapter(user.chapter as any as string);
             const connections = await this.profileRepository.findConnectionByUserId(userId);
+           
             const allMeetings = await this.accountabilityRepository.findAllThisWeekMeetings(userId);
             const userInfo = {
                 name: profile?.name,
@@ -244,7 +245,7 @@ export class ProfileService {
                 }
             }
 
-            return { userInfo, nextMeeting, connections: connections?.connections?.length || 0, weeklyMeetings: allMeetings };
+            return { userInfo, nextMeeting, connections: connections[0].connections || 0, weeklyMeetings: allMeetings };
         } catch (error) {}
     }
 }

@@ -4,7 +4,6 @@ import authRouter from "./api/v1/modules/user/auth/authRoutes";
 import { errorHandler } from "./middewares.ts/errorHandler";
 import cookieParser from 'cookie-parser'
 import profileRouter from "./api/v1/modules/user/profile/profileRoutes";
-import { printBody } from "./middewares.ts/bodyLogger";
 import morgan from 'morgan'
 import dotenv from 'dotenv';
 import { corsConfig } from "./config/corsConfig";
