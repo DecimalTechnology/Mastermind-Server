@@ -5,6 +5,7 @@ import { errorHandler } from "./middewares.ts/errorHandler";
 import cookieParser from 'cookie-parser'
 import profileRouter from "./api/v1/modules/user/profile/profileRoutes";
 import { printBody } from "./middewares.ts/bodyLogger";
+import morgan from 'morgan'
 import dotenv from 'dotenv';
 import { corsConfig } from "./config/corsConfig";
 import userRouter from "./api/v1/modules/admin/auth/authRoutes";
@@ -27,6 +28,7 @@ const app = express();
 app.use(express.json());
 app.use(corsConfig());
 app.use(cookieParser())
+app.use(morgan("dev")); 
 // app.use(printBody)
 
 // Version 1
