@@ -140,31 +140,35 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
     }
 
     async findAllNextMeeting(userId: string): Promise<IAccountablity | null> {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
+        const now = new Date(); // current UTC time
+    
         const nextMeeting = await AccountablitySlip.findOne({
             userId: new mongoose.Types.ObjectId(userId),
-            date: { $gte: today },
-        }).sort({ date: 1 });
-
+            date: { $gte: now }, // only future meetings in UTC
+        }).sort({ date: 1 }); // earliest first
+    
         return nextMeeting;
     }
+    
+
     async findAllThisWeekMeetings(userId: string): Promise<IAccountablity[]> {
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // start from today
-    
+
+        // Start of the week (Monday)
+        const startOfWeek = new Date(today);
+        startOfWeek.setHours(0, 0, 0, 0);
+        startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+
         // End of the week (Sunday)
-        const endOfWeek = new Date(today);
-        endOfWeek.setDate(today.getDate() + (7 - today.getDay())); // Sunday
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
         endOfWeek.setHours(23, 59, 59, 999);
-    
+
         const meetings = await AccountablitySlip.find({
             userId: new mongoose.Types.ObjectId(userId),
-            date: { $gte: today, $lte: endOfWeek }, // only future meetings
+            date: { $gte: startOfWeek, $lte: endOfWeek },
         }).sort({ date: 1 });
-    
+
         return meetings;
     }
-    
 }
