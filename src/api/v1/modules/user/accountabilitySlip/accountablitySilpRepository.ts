@@ -150,25 +150,21 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
 
         return nextMeeting;
     }
-
     async findAllThisWeekMeetings(userId: string): Promise<IAccountablity[]> {
         const today = new Date();
-
-        // Start of the week (Monday)
-        const startOfWeek = new Date(today);
-        startOfWeek.setHours(0, 0, 0, 0);
-        startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
-
+        today.setHours(0, 0, 0, 0); // start from today
+    
         // End of the week (Sunday)
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + (7 - today.getDay())); // Sunday
         endOfWeek.setHours(23, 59, 59, 999);
-
+    
         const meetings = await AccountablitySlip.find({
             userId: new mongoose.Types.ObjectId(userId),
-            date: { $gte: startOfWeek, $lte: endOfWeek },
+            date: { $gte: today, $lte: endOfWeek }, // only future meetings
         }).sort({ date: 1 });
-
+    
         return meetings;
     }
+    
 }
