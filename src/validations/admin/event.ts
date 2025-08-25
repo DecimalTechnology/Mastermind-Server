@@ -4,7 +4,7 @@ const eventSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
   date: z.string().datetime({ message: "Invalid date format (ISO expected)" }),
-  time: z.string().regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
+  // time: z.string().regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
   place: z.string().min(1, "Place is required"),
   location: z.string().optional(),
   duration: z.string().min(1, "Duration is required"),

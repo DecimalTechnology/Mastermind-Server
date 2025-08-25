@@ -18,11 +18,11 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect(`mongodb+srv://developer:ee5KMl0yBq0dgTDV@cluster0.lpxu2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
+        yield mongoose_1.default.connect(`${process.env.MONGODB_CONNECTION_STRING}`);
         console.log("MongoDB Connected");
     }
     catch (error) {
-        console.log(error); // Throw error to be caught in the main app file
+        console.log(error);
     }
 });
 exports.connectDB = connectDB;

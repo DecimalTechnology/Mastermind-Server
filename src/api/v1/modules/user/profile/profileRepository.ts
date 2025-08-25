@@ -480,4 +480,9 @@ export class ProfileRepository {
         console.log(connections);
         return connections;
     }
+
+
+    async findNextAccountablityMeeting(userId:string):Promise<any>{
+         
+    }
 }

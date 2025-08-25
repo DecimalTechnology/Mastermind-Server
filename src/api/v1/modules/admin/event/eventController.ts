@@ -26,6 +26,7 @@ export class EventController {
         eventSchema.parse(req.body);
         const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
 
+      
         const result = await this.eventServices.createEvent(data, req.files, req.adminId as string);
         res.status(OK).json({ success: true, message: "New event created successfully", data: result });
     }

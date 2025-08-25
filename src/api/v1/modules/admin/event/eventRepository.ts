@@ -31,18 +31,18 @@ export class EventRepository extends BaseRepository<IEvent> {
     }
 
     async getAllEvents(chapterId: string, query: any): Promise<any> {
-        const page = query?.page||0
+        const page = parseInt(query?.page) || 0;
 
         const matchStage: any = {
             chapterId: new mongoose.Types.ObjectId(chapterId),
         };
 
-        // Match status if provided
-        if (query.status && query?.status !== "all") {
+        // Filter by status if provided
+        if (query.status && query.status !== "all") {
             matchStage.status = query.status;
         }
 
-        // Match date if provided (exact day in local timezone, e.g., IST)
+        // Filter by exact date if provided
         if (query.date) {
             const date = new Date(query.date);
             const nextDay = new Date(date);
@@ -56,22 +56,21 @@ export class EventRepository extends BaseRepository<IEvent> {
 
         // Text search if provided
         if (query.search) {
-            matchStage.$or = [
-                { name: { $regex: query.search, $options: "i" } }, // case-insensitive
-                { description: { $regex: query.search, $options: "i" } },
-            ];
+            matchStage.$or = [{ name: { $regex: query.search, $options: "i" } }, { description: { $regex: query.search, $options: "i" } }];
         }
 
-        const events =  await Event.aggregate([
+        // Aggregation pipeline
+        const events = await Event.aggregate([
             { $match: matchStage },
-            { $skip: parseInt(query?.page) * 10 },
+            { $sort: { date: -1 } }, // Latest first
+            { $skip: page * 10 },
             { $limit: 10 },
-            { $sort: { date: -1 } }, // Optional: sort by latest
         ]);
-        const totalPage = await Event.countDocuments();
-        
 
-        return {events:events,totalPage:totalPage}
+        // Count total documents after filters
+        const totalPage = await Event.countDocuments(matchStage);
+
+        return { events, totalPage };
     }
 
     async getAllAttendeesList(eventId: string): Promise<any> {

@@ -67,6 +67,8 @@ export class EventController {
     async getAllMedia(req: Request, res: Response, next: NextFunction): Promise<void> {
        const userId = req.userId;
        const result = await this.eventService.getAllMedia(userId)
+
+       console.log(result)
        res.status(OK).json({success:true,message:"",data:result})
     }
 }

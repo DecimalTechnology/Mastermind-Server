@@ -10,71 +10,80 @@ export class EventRepository extends BaseRepository<IEvent> {
         super(Event);
     }
 
-    async findEventsByFilter(sort: string, filter: string, chapterInfo: any, userId: string, date: string): Promise<IEvent[]> {
-        const chapterId = new mongoose.Types.ObjectId(chapterInfo?._id);
-        const localId = new mongoose.Types.ObjectId(chapterInfo?.localId);
-        const regionId = new mongoose.Types.ObjectId(chapterInfo?.regionId);
-        const nationId = new mongoose.Types.ObjectId(chapterInfo?.nationId);
-        const userObjectId = new mongoose.Types.ObjectId(userId);
+    async findEventsByFilter(
+    sort: string,
+    filter: string,
+    chapterInfo: any,
+    userId: string,
+    date: string
+): Promise<IEvent[]> {
+    const chapterId = new mongoose.Types.ObjectId(chapterInfo?._id);
+    const localId = new mongoose.Types.ObjectId(chapterInfo?.localId);
+    const regionId = new mongoose.Types.ObjectId(chapterInfo?.regionId);
+    const nationId = new mongoose.Types.ObjectId(chapterInfo?.nationId);
+    const userObjectId = new mongoose.Types.ObjectId(userId);
 
-        let pipeline: any = [];
-        pipeline.push({ $match: { eventType: sort } });
+    let pipeline: any = [];
+    pipeline.push({ $match: { eventType: sort } });
 
-        if (sort == "chapter") {
-            pipeline.push({ $match: { chapterId: chapterId } });
-        }
-        if (sort == "region") {
-            pipeline.push({ $match: { regionId: regionId } });
-        }
-        if (sort == "local") {
-            pipeline.push({ $match: { localId: localId } });
-        }
-        if (sort == "nation") {
-            pipeline.push({ $match: { nationId: nationId } }); // ✅ Fixed: was using localId mistakenly before
-        }
+    // Filter by hierarchy
+    if (sort === "chapter") pipeline.push({ $match: { chapterId } });
+    if (sort === "region") pipeline.push({ $match: { regionId } });
+    if (sort === "local") pipeline.push({ $match: { localId } });
+    if (sort === "nation") pipeline.push({ $match: { nationId } });
+
+    // Audience filter
+    pipeline.push({
+        $match: {
+            $or: [{ audienceType: "all" }, { attendees: { $in: [userObjectId] } }],
+        },
+    });
+
+    // RSVP / upcoming filter
+    if (filter === "rsvp") pipeline.push({ $match: { rsvp: { $in: [userObjectId] } } });
+    if (filter === "upcoming") pipeline.push({ $match: { status: "upcoming" } });
+
+    // ✅ Date filter: Convert Flutter UTC timestamp to IST day, then filter in UTC
+    if (date) {
+        const inputDateUTC = new Date(date);
+
+        // IST offset in minutes (+5:30)
+        const ISTOffset = 330; 
+        const inputDateIST = new Date(inputDateUTC.getTime() + ISTOffset * 60 * 1000);
+
+        // Compute UTC start/end of that IST day
+        const startOfDayUTC = new Date(Date.UTC(
+            inputDateIST.getUTCFullYear(),
+            inputDateIST.getUTCMonth(),
+            inputDateIST.getUTCDate(),
+            0, 0, 0, 0
+        ));
+        const endOfDayUTC = new Date(Date.UTC(
+            inputDateIST.getUTCFullYear(),
+            inputDateIST.getUTCMonth(),
+            inputDateIST.getUTCDate(),
+            23, 59, 59, 999
+        ));
 
         pipeline.push({
             $match: {
-                $or: [{ audienceType: "all" }, { attendees: { $in: [userObjectId] } }],
+                date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
             },
         });
-
-        if (filter == "rsvp") {
-            pipeline.push({ $match: { rsvp: { $in: [userObjectId] } } });
-        }
-        if (filter == "upcoming") {
-            pipeline.push({ $match: { status: "upcoming" } });
-        }
-
-        if (date) {
-            const inputDate = new Date(date);
-            const startOfDay = new Date(inputDate);
-            startOfDay.setUTCHours(0, 0, 0, 0);
-
-            const endOfDay = new Date(inputDate);
-            endOfDay.setUTCHours(23, 59, 59, 999);
-
-            pipeline.push({
-                $match: {
-                    date: {
-                        $gte: startOfDay,
-                        $lte: endOfDay,
-                    },
-                },
-            });
-        }
-
-        // ✅ Add 'registered' field: true if userId in rsvp array
-        pipeline.push({
-            $addFields: {
-                registered: { $in: [userObjectId, "$rsvp"] },
-            },
-        });
-
-        const res = await Event.aggregate(pipeline);
-
-        return res;
     }
+
+    // Add 'registered' field
+    pipeline.push({
+        $addFields: {
+            registered: { $in: [userObjectId, "$rsvp"] },
+        },
+    });
+
+    const res = await Event.aggregate(pipeline);
+    console.log(res);
+    return res;
+}
+
 
     async findEventByDate(date: string): Promise<any> {
         const dateObj = new Date(date);
@@ -126,7 +135,8 @@ export class EventRepository extends BaseRepository<IEvent> {
   const events = await Event.find({
     $or: [
       { rsvp: userObjectId },
-      { attendees: userObjectId }
+      { attendees: userObjectId },
+      {audienceType:'all'}
     ]
   });
 

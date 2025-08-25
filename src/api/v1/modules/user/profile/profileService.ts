@@ -214,16 +214,21 @@ export class ProfileService {
         }
     }
 
-    async getHomeProfile(userId: string): Promise<any | null> {
+    async getHomeProfile(userId: string): Promise<any> {
         try {
             const user = await this.userRepository.findById(userId);
             if (!user) throw new NotFoundError("User not found");
+    
             const profile = await this.profileRepository.findProfileByUserId(userId);
-            if (!user?.chapter) throw new NotFoundError("Chapter not found");
-            const chapter = await this.chapterRepository.findChapter(user.chapter as any as string);
+            if (!profile) throw new NotFoundError("Profile not found");
+    
+            if (!user.chapter) throw new NotFoundError("Chapter not found");
+            const chapter = await this.chapterRepository.findChapter(user.chapter.toString());
+    
             const connections = await this.profileRepository.findConnectionByUserId(userId);
-           
+    
             const allMeetings = await this.accountabilityRepository.findAllThisWeekMeetings(userId);
+    
             const userInfo = {
                 name: profile?.name,
                 email: user?.email,
@@ -232,20 +237,20 @@ export class ProfileService {
                 chapter: chapter?.name,
                 region: chapter?.regionId?.name,
             };
-
+    
             let nextMeeting = null;
-
-            const todayMeeting = await this.accountabilityRepository.findAllAccountabilityByDate(userId, new Date().toISOString().split("T")[0]);
-            if (todayMeeting.length > 0) {
-                nextMeeting = todayMeeting[0];
-            } else {
-                const allNextMeeting = await this.accountabilityRepository.findAllNextMeeting(userId);
-                if (allNextMeeting) {
-                    nextMeeting = allNextMeeting;
-                }
+            const meetings = await this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
+            if (Array.isArray(meetings) && meetings.length > 0) {
+                nextMeeting = meetings[0];
             }
-
-            return { userInfo, nextMeeting, connections: connections[0].connections || 0, weeklyMeetings: allMeetings };
-        } catch (error) {}
+    
+            const totalConnections = Array.isArray(connections) && connections.length > 0 ? connections[0].connections : 0;
+    
+            return { userInfo, nextMeeting, connections: totalConnections, weeklyMeetings: allMeetings };
+        } catch (error) {
+            console.error("Error in getHomeProfile:", error);
+            throw error;
+        }
     }
+    
 }

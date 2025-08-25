@@ -268,9 +268,11 @@ class ProfileService {
                 if (!user)
                     throw new customErrors_1.NotFoundError("User not found");
                 const profile = yield this.profileRepository.findProfileByUserId(userId);
-                if (!(user === null || user === void 0 ? void 0 : user.chapter))
+                if (!profile)
+                    throw new customErrors_1.NotFoundError("Profile not found");
+                if (!user.chapter)
                     throw new customErrors_1.NotFoundError("Chapter not found");
-                const chapter = yield this.chapterRepository.findChapter(user.chapter);
+                const chapter = yield this.chapterRepository.findChapter(user.chapter.toString());
                 const connections = yield this.profileRepository.findConnectionByUserId(userId);
                 const allMeetings = yield this.accountabilityRepository.findAllThisWeekMeetings(userId);
                 const userInfo = {
@@ -282,19 +284,17 @@ class ProfileService {
                     region: (_a = chapter === null || chapter === void 0 ? void 0 : chapter.regionId) === null || _a === void 0 ? void 0 : _a.name,
                 };
                 let nextMeeting = null;
-                const todayMeeting = yield this.accountabilityRepository.findAllAccountabilityByDate(userId, new Date().toISOString().split("T")[0]);
-                if (todayMeeting.length > 0) {
-                    nextMeeting = todayMeeting[0];
+                const meetings = yield this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
+                if (Array.isArray(meetings) && meetings.length > 0) {
+                    nextMeeting = meetings[0];
                 }
-                else {
-                    const allNextMeeting = yield this.accountabilityRepository.findAllNextMeeting(userId);
-                    if (allNextMeeting) {
-                        nextMeeting = allNextMeeting;
-                    }
-                }
-                return { userInfo, nextMeeting, connections: connections[0].connections || 0, weeklyMeetings: allMeetings };
+                const totalConnections = Array.isArray(connections) && connections.length > 0 ? connections[0].connections : 0;
+                return { userInfo, nextMeeting, connections: totalConnections, weeklyMeetings: allMeetings };
             }
-            catch (error) { }
+            catch (error) {
+                console.error("Error in getHomeProfile:", error);
+                throw error;
+            }
         });
     }
 }

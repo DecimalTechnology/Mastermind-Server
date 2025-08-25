@@ -140,16 +140,16 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
     }
 
     async findAllNextMeeting(userId: string): Promise<IAccountablity | null> {
-        const now = new Date(); // current UTC time
-    
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         const nextMeeting = await AccountablitySlip.findOne({
             userId: new mongoose.Types.ObjectId(userId),
-            date: { $gte: now }, // only future meetings in UTC
-        }).sort({ date: 1 }); // earliest first
-    
+            date: { $gte: today },
+        }).sort({ date: 1 });
+
         return nextMeeting;
     }
-    
 
     async findAllThisWeekMeetings(userId: string): Promise<IAccountablity[]> {
         const today = new Date();
@@ -171,4 +171,21 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
 
         return meetings;
     }
+
+    async getUpcomingAndNextMeeting(userId: string) {
+        const nowUtc = new Date(new Date().toISOString());
+
+        const nextMeeting = await AccountablitySlip.findOne({
+          userId: new mongoose.Types.ObjectId(userId),
+          date: { $gte: nowUtc }, // compare with UTC date
+        })
+          .sort({ date: 1 }) // get earliest upcoming meeting
+          .exec();
+      console.log(nextMeeting)
+        return nextMeeting;
+     
+    }
+
+
+
 }

@@ -55,6 +55,7 @@ export class EventService {
 
     async getAllMedia(userId: string): Promise<any> {
         const userParticipatedEvents = await this.eventRepository.userParticipatedEvent(userId);
+        console.log(userParticipatedEvents)
         const eventIds = userParticipatedEvents.map((event: any) => event._id);
 
         const allMedia = await this.mediaRepository.findAllMediaWithEventIds(eventIds);
