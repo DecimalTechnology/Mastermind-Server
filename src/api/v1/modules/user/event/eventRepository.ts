@@ -1,89 +1,75 @@
 import mongoose from "mongoose";
 import { IEvent } from "../../../../../interfaces/models/IEvent";
 import Event from "../../../../../models/eventModel";
-import User from "../../../../../models/userModel";
 import { BaseRepository } from "../../shared/repositories/baseRepository";
-import { BadRequestError, ConflictError, NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
 
 export class EventRepository extends BaseRepository<IEvent> {
     constructor() {
         super(Event);
     }
 
-    async findEventsByFilter(
-    sort: string,
-    filter: string,
-    chapterInfo: any,
-    userId: string,
-    date: string
-): Promise<IEvent[]> {
-    const chapterId = new mongoose.Types.ObjectId(chapterInfo?._id);
-    const localId = new mongoose.Types.ObjectId(chapterInfo?.localId);
-    const regionId = new mongoose.Types.ObjectId(chapterInfo?.regionId);
-    const nationId = new mongoose.Types.ObjectId(chapterInfo?.nationId);
-    const userObjectId = new mongoose.Types.ObjectId(userId);
+    async findEventsByFilter(sort: string, filter: string, chapterInfo: any, userId: string, date: string): Promise<IEvent[]> {
+        const chapterId = new mongoose.Types.ObjectId(chapterInfo?._id);
+        const localId = new mongoose.Types.ObjectId(chapterInfo?.localId);
+        const regionId = new mongoose.Types.ObjectId(chapterInfo?.regionId);
+        const nationId = new mongoose.Types.ObjectId(chapterInfo?.nationId);
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    let pipeline: any = [];
-    pipeline.push({ $match: { eventType: sort } });
+        let pipeline: any = [];
+        pipeline.push({ $match: { eventType: sort } });
 
-    // Filter by hierarchy
-    if (sort === "chapter") pipeline.push({ $match: { chapterId } });
-    if (sort === "region") pipeline.push({ $match: { regionId } });
-    if (sort === "local") pipeline.push({ $match: { localId } });
-    if (sort === "nation") pipeline.push({ $match: { nationId } });
+        // Filter by hierarchy
+        if (sort === "chapter") pipeline.push({ $match: { chapterId } });
+        if (sort === "region") pipeline.push({ $match: { regionId } });
+        if (sort === "local") pipeline.push({ $match: { localId } });
+        if (sort === "nation") pipeline.push({ $match: { nationId } });
 
-    // Audience filter
-    pipeline.push({
-        $match: {
-            $or: [{ audienceType: "all" }, { attendees: { $in: [userObjectId] } }],
-        },
-    });
-
-    // RSVP / upcoming filter
-    if (filter === "rsvp") pipeline.push({ $match: { rsvp: { $in: [userObjectId] } } });
-    if (filter === "upcoming") pipeline.push({ $match: { status: "upcoming" } });
-
-    // ✅ Date filter: Convert Flutter UTC timestamp to IST day, then filter in UTC
-    if (date) {
-        const inputDateUTC = new Date(date);
-
-        // IST offset in minutes (+5:30)
-        const ISTOffset = 330; 
-        const inputDateIST = new Date(inputDateUTC.getTime() + ISTOffset * 60 * 1000);
-
-        // Compute UTC start/end of that IST day
-        const startOfDayUTC = new Date(Date.UTC(
-            inputDateIST.getUTCFullYear(),
-            inputDateIST.getUTCMonth(),
-            inputDateIST.getUTCDate(),
-            0, 0, 0, 0
-        ));
-        const endOfDayUTC = new Date(Date.UTC(
-            inputDateIST.getUTCFullYear(),
-            inputDateIST.getUTCMonth(),
-            inputDateIST.getUTCDate(),
-            23, 59, 59, 999
-        ));
-
+        // Audience filter
         pipeline.push({
             $match: {
-                date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
+                $or: [{ audienceType: "all" }, { attendees: { $in: [userObjectId] } }],
             },
         });
+
+        // RSVP / upcoming filter
+        if (filter === "rsvp") pipeline.push({ $match: { rsvp: { $in: [userObjectId] } } });
+        if (filter === "upcoming") pipeline.push({ $match: { status: "upcoming" } });
+
+        // ✅ Date filter: Convert Flutter UTC timestamp to IST day, then filter in UTC
+        if (date) {
+            const inputDateUTC = new Date(date);
+
+            // IST offset in minutes (+5:30)
+            const ISTOffset = 330;
+            const inputDateIST = new Date(inputDateUTC.getTime() + ISTOffset * 60 * 1000);
+
+            // Compute UTC start/end of that IST day
+            const startOfDayUTC = new Date(
+                Date.UTC(inputDateIST.getUTCFullYear(), inputDateIST.getUTCMonth(), inputDateIST.getUTCDate(), 0, 0, 0, 0)
+            );
+            const endOfDayUTC = new Date(
+                Date.UTC(inputDateIST.getUTCFullYear(), inputDateIST.getUTCMonth(), inputDateIST.getUTCDate(), 23, 59, 59, 999)
+            );
+
+            pipeline.push({
+                $match: {
+                    date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
+                },
+            });
+        }
+
+        // Add 'registered' field
+        pipeline.push({
+            $addFields: {
+                registered: { $in: [userObjectId, "$rsvp"] },
+            },
+        });
+
+        const res = await Event.aggregate(pipeline);
+        console.log(res);
+        return res;
     }
-
-    // Add 'registered' field
-    pipeline.push({
-        $addFields: {
-            registered: { $in: [userObjectId, "$rsvp"] },
-        },
-    });
-
-    const res = await Event.aggregate(pipeline);
-    console.log(res);
-    return res;
-}
-
 
     async findEventByDate(date: string): Promise<any> {
         const dateObj = new Date(date);
@@ -129,17 +115,13 @@ export class EventRepository extends BaseRepository<IEvent> {
         return res[0] || null;
     }
 
-  async userParticipatedEvent(userId: string): Promise<any> {
-  const userObjectId = new mongoose.Types.ObjectId(userId);
+    async userParticipatedEvent(userId: string): Promise<any> {
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
-  const events = await Event.find({
-    $or: [
-      { rsvp: userObjectId },
-      { attendees: userObjectId },
-      {audienceType:'all'}
-    ]
-  });
+        const events = await Event.find({
+            $or: [{ rsvp: userObjectId }, { attendees: userObjectId }, { audienceType: "all" }],
+        });
 
-  return events;
-}
+        return events;
+    }
 }
