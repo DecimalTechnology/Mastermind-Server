@@ -91,9 +91,9 @@ class ProfileRepository {
                     },
                     {
                         $lookup: {
-                            from: "profiles", // Collection name
-                            localField: "_id", // User `_id`
-                            foreignField: "userId", // Profile's `userId`
+                            from: "profiles",
+                            localField: "_id",
+                            foreignField: "userId",
                             as: "profileData",
                         },
                     },
@@ -114,6 +114,7 @@ class ProfileRepository {
                         },
                     },
                 ]);
+                console.log(result);
                 return result;
             }
             catch (error) {

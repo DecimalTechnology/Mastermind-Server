@@ -70,9 +70,9 @@ export class ProfileRepository {
                 },
                 {
                     $lookup: {
-                        from: "profiles", // Collection name
-                        localField: "_id", // User `_id`
-                        foreignField: "userId", // Profile's `userId`
+                        from: "profiles",
+                        localField: "_id",
+                        foreignField: "userId", 
                         as: "profileData",
                     },
                 },
@@ -94,6 +94,8 @@ export class ProfileRepository {
                     },
                 },
             ]);
+
+            console.log(result)
             return result;
         } catch (error) {
             console.log("Error while finding user by Id in the profile repository");
@@ -101,7 +103,7 @@ export class ProfileRepository {
         }
     }
 
-    async findProfileBy_id(profileId: string): Promise<IProfile | null> {
+    async findProfileBy_id(profileId: string): Promise<any | null> {
         try {
             const res = await Profile.aggregate([
                 {

@@ -173,6 +173,8 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
     }
 
     async getUpcomingAndNextMeeting(userId: string) {
+        const nowUtc = new Date(new Date().toISOString());
+
         const nextMeeting = await AccountablitySlip.find({
           userId: new mongoose.Types.ObjectId(userId),
           date: { $gte: new Date() }, // compare with UTC date

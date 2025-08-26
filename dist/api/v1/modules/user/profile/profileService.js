@@ -123,8 +123,10 @@ class ProfileService {
                         connectionStatus = "not_connected";
                     }
                 }
+                const chapter = yield this.chapterRepository.findById(res.chapter);
+                console.log(chapter);
                 // Attach connection status to the profile response
-                return Object.assign(Object.assign({}, res), { connectionStatus });
+                return Object.assign(Object.assign({}, res), { connectionStatus, chapter: chapter === null || chapter === void 0 ? void 0 : chapter.name });
             }
             catch (error) {
                 console.log("Error while while finding profie by _id");

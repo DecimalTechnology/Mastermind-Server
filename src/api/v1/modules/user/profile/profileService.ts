@@ -100,8 +100,10 @@ export class ProfileService {
                 }
             }
 
+            const chapter = await this.chapterRepository.findById(res.chapter as any);
+            console.log(chapter)
             // Attach connection status to the profile response
-            return { ...res, connectionStatus };
+            return { ...res, connectionStatus,chapter:chapter?.name };
         } catch (error) {
             console.log("Error while while finding profie by _id");
             throw error;

@@ -8,8 +8,7 @@ export class AccountabilitySliService{
     }
 
     async createAccountablity(data:IAccountablity):Promise<IAccountablity>{
-        const newData = {...data,date:new Date(data?.date)}
-        return await this.accountabilityRepository.create(newData);
+        return await this.accountabilityRepository.create(data);
     }
     async getAllAccountablity(userId:string):Promise<IAccountablity[]>{
         return await this.accountabilityRepository.findAllAccountability(userId);
