@@ -24,6 +24,20 @@ export class AuthRepository {
             throw error;
         }
     }
+    async findByEmailOrPhoneNumber(email: string): Promise<IUser | null> {
+        try {
+            return await User.findOne({ email: email }).lean();
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findByPhoneNumber(phoneNumber: number): Promise<IUser | null> {
+        try {
+            return await User.findOne({ phonenumber:phoneNumber }).lean();
+        } catch (error) {
+            throw error;
+        }
+    }
 
     async deleteUserById(userId: any) {
         try {
@@ -35,6 +49,20 @@ export class AuthRepository {
     async updatePassword(password: string, userId: string): Promise<UpdateWriteOpResult> {
         try {
             return await User.updateOne({ _id: userId }, { $set: { password: password } });
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findUserById(userId:string): Promise<any> {
+        try {
+            return await User.findById(userId)
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findAllUsersByChapterId(chapterId:string): Promise<any> {
+        try {
+            return await User.find({chapterId:chapterId})
         } catch (error) {
             throw error;
         }

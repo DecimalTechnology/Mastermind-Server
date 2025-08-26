@@ -4,7 +4,7 @@ import authRouter from "./api/v1/modules/user/auth/authRoutes";
 import { errorHandler } from "./middewares.ts/errorHandler";
 import cookieParser from 'cookie-parser'
 import profileRouter from "./api/v1/modules/user/profile/profileRoutes";
-import { printBody } from "./middewares.ts/bodyLogger";
+import morgan from 'morgan'
 import dotenv from 'dotenv';
 import { corsConfig } from "./config/corsConfig";
 import userRouter from "./api/v1/modules/admin/auth/authRoutes";
@@ -16,6 +16,10 @@ import eventRouter from "./api/v1/modules/admin/event/eventRouter";
 import userEventRouter from './api/v1/modules/user/event/eventRouter'
 import testMonialRouter from "./api/v1/modules/user/testimonial/testimonialRoutes";
 import tycbRouter from "./api/v1/modules/user/TYCB/TYCBRoutes";
+import accountabilityRouter from "./api/v1/modules/user/accountabilitySlip/accountablitySlipRouter";
+import memberRouter from "./api/v1/modules/admin/member/memberRoutes";
+import visionBoardRouter from "./api/v1/modules/user/visionBoard/visionBoardRouter";
+
 
 
 dotenv.config()
@@ -23,6 +27,7 @@ const app = express();
 app.use(express.json());
 app.use(corsConfig());
 app.use(cookieParser())
+app.use(morgan("dev")); 
 // app.use(printBody)
 
 // Version 1
@@ -33,7 +38,11 @@ app.use(`/${version}/auth`, authRouter);
 app.use(`/${version}/profile`, profileRouter)
 app.use(`/${version}/events`, userEventRouter)
 app.use(`/${version}/testimonial`, testMonialRouter)
-app.use(`/${version}/tycb`, tycbRouter)
+app.use(`/${version}/tycb`, tycbRouter);
+app.use(`/${version}/accountability`,accountabilityRouter);
+app.use(`/${version}/visionboard`,visionBoardRouter);
+
+
 
 // Admin Routes
 app.use(`/${version}/admin/auth`, userRouter);
@@ -42,6 +51,7 @@ app.use(`/${version}/admin/chapter`,chapterRouter)
 app.use(`/${version}/admin/region`,regionRouter)
 app.use(`/${version}/admin/local`,localRouter);
 app.use(`/${version}/admin/event`,eventRouter)
+app.use(`/${version}/admin/member`,memberRouter)
 
 // Error handler
 app.use(errorHandler);

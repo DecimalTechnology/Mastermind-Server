@@ -5,9 +5,16 @@ import { IProfile } from "../../../../../interfaces/models/IProfile";
 import { uploadImageToCloudinary } from "../../../../../utils/v1/cloudinary/uploadToCloudinary";
 import { ProfileRepository } from "./profileRepository";
 import { ChapterRepository } from "../../admin/chapter/chapterRepository";
+import { UserRepository } from "../../shared/repositories/userRepository";
+import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
 
 export class ProfileService {
-    constructor(private profileRepository: ProfileRepository, private chapterRepository: ChapterRepository) {}
+    constructor(
+        private profileRepository: ProfileRepository,
+        private chapterRepository: ChapterRepository,
+        private userRepository: UserRepository,
+        private accountabilityRepository: AccountablityRepository
+    ) {}
 
     async getProfile(userId: string): Promise<Record<string, any> | null> {
         try {
@@ -30,12 +37,13 @@ export class ProfileService {
             throw error;
         }
     }
-    async updateProfile(profileData: IProfile, userId: string): Promise<IProfile | null> {
+    async updateProfile(profileData: IProfile, userId: string): Promise<any | null> {
         try {
-            const industries = profileData.industries.split(",");
+            const industries = profileData.industries;
             profileData.industries = industries;
             const { image, ...newProfileData } = profileData;
-            return await this.profileRepository.updateProfile(newProfileData, userId);
+            await this.profileRepository.updateProfile(userId, newProfileData);
+            return this.getProfile(userId);
         } catch (error) {
             console.log("Error while updating profile");
             throw error;
@@ -92,8 +100,10 @@ export class ProfileService {
                 }
             }
 
+            const chapter = await this.chapterRepository.findById(res.chapter as any);
+            console.log(chapter)
             // Attach connection status to the profile response
-            return { ...res, connectionStatus };
+            return { ...res, connectionStatus,chapter:chapter?.name };
         } catch (error) {
             console.log("Error while while finding profie by _id");
             throw error;
@@ -205,4 +215,44 @@ export class ProfileService {
             throw error;
         }
     }
+
+    async getHomeProfile(userId: string): Promise<any> {
+        try {
+            const user = await this.userRepository.findById(userId);
+            if (!user) throw new NotFoundError("User not found");
+    
+            const profile = await this.profileRepository.findProfileByUserId(userId);
+            if (!profile) throw new NotFoundError("Profile not found");
+    
+            if (!user.chapter) throw new NotFoundError("Chapter not found");
+            const chapter = await this.chapterRepository.findChapter(user.chapter.toString());
+    
+            const connections = await this.profileRepository.findConnectionByUserId(userId);
+    
+            const allMeetings = await this.accountabilityRepository.findAllThisWeekMeetings(userId);
+    
+            const userInfo = {
+                name: profile?.name,
+                email: user?.email,
+                image: profile?.image,
+                memberSince: profile?.memberSince,
+                chapter: chapter?.name,
+                region: chapter?.regionId?.name,
+            };
+    
+            let nextMeeting = null;
+            const meetings = await this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
+            if (Array.isArray(meetings) && meetings.length > 0) {
+                nextMeeting = meetings[0];
+            }
+    
+            const totalConnections = Array.isArray(connections) && connections.length > 0 ? connections[0].connections : 0;
+    
+            return { userInfo, nextMeeting, connections: totalConnections, weeklyMeetings: allMeetings };
+        } catch (error) {
+            console.error("Error in getHomeProfile:", error);
+            throw error;
+        }
+    }
+    
 }

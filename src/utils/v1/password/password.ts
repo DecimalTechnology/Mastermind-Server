@@ -21,7 +21,7 @@ export const comparePassword = async (normalPassword: string, encryptedPassword:
          
           return await bcrypt.compare(normalPassword, encryptedPassword);
      } catch (error) {
-        throw new BadRequestError("Error while comparing password")
           console.log(error);
+        throw new BadRequestError("Error while comparing password")
      }
 };

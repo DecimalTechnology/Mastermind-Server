@@ -53,7 +53,7 @@ export class AuthController {
                     maxAge: REFRESH_TOKEN_MAX_AGE,
                     secure: true,
                 })
-                .json({ success: true, message: "Admin verification successfull", data: response?.adminData });
+                .json({ success: true, message: "Admin verification successfull", data: response });
         } catch (error) {
             next(error);
         }

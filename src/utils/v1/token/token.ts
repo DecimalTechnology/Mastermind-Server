@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose';
 export const generateAccessToken = (payload:any) => {
   
-    const token = jwt.sign({ data: payload }, `${process.env.JWT_SECRET}`, { expiresIn:`10h`});
+    const token = jwt.sign({ data: payload }, `${process.env.JWT_SECRET}`, { expiresIn:`30d`});
     return token;
 };
  

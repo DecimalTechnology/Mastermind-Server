@@ -33,7 +33,25 @@ export class ChapterService {
     async getChaperById(chapterId: string): Promise<IUser[]> {
         return await this.chapterRepository.findChapterDetailsById(chapterId);
     }
-    async getAllUsersByLevel(level: string, levelId: string,search:string): Promise<IUser[]> {
-        return await this.chapterRepository.findAllUsersByLevel(level, levelId,search);
+    async getAllUsersByLevel(level: string, levelId: string, search: string): Promise<IUser[]> {
+        return await this.chapterRepository.findAllUsersByLevel(level, levelId, search);
+    }
+    async getAllMembersByChapterId(chapterId: string, query: any): Promise<IUser[]> {
+        return await this.userRepository.findMembersByChapterId(chapterId, query);
+    }
+    async blockUser(userId: string): Promise<IUser> {
+        return await this.userRepository.blockUser(userId);
+    }
+    async unblockUser(userId: string): Promise<IUser> {
+        return await this.userRepository.unblockUser(userId);
+    }
+    async getChapterById(chapterId: string): Promise<any> {
+        return await this.chapterRepository.findChapterByChapterId(chapterId);
+    }
+    async findMembers(adminId: string,query:any): Promise<IUser[]> {
+        return await this.chapterRepository.findMembers(adminId,query);
+    }
+    async getProfile(adminId: string,): Promise<IUser[]> {
+        return await this.chapterRepository.getProfile(adminId)
     }
 }

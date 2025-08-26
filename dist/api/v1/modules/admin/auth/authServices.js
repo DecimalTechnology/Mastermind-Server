@@ -11,13 +11,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const customErrors_1 = require("../../../../../constants/customErrors");
+const htmlGenerator_1 = require("../../../../../utils/v1/mail/htmlGenerator");
 const sendEmail_1 = require("../../../../../utils/v1/mail/sendEmail");
 const generateRandomPassword_1 = require("../../../../../utils/v1/password/generateRandomPassword");
 const password_1 = require("../../../../../utils/v1/password/password");
 const token_1 = require("../../../../../utils/v1/token/token");
 class AuthService {
-    constructor(authRepository) {
+    constructor(authRepository, profileRepository) {
         this.authRepository = authRepository;
+        this.profileRepository = profileRepository;
     }
     // Get all users from the database
     getAllUsers() {
@@ -57,8 +59,9 @@ class AuthService {
       Best regards,
       The MasterMind Team
     `;
+                const html = (0, htmlGenerator_1.generateEmailHtml)(user === null || user === void 0 ? void 0 : user.name, password);
                 // Send the email to the user
-                const isMailSend = yield (0, sendEmail_1.sendLinkToEmail)(user.email, message);
+                const isMailSend = yield (0, sendEmail_1.sendLinkToEmail)(user.email, "", html);
                 if (!isMailSend)
                     throw new customErrors_1.BadRequestError("Failed to send password to email");
                 // Hash the password
@@ -83,8 +86,9 @@ class AuthService {
         return __awaiter(this, arguments, void 0, function* ({ email, password }) {
             try {
                 const admin = yield this.authRepository.findByEmail(email);
-                if ((admin === null || admin === void 0 ? void 0 : admin.role) == 'member')
+                if ((admin === null || admin === void 0 ? void 0 : admin.role) == "member")
                     throw new customErrors_1.UnAuthorizedError("Permission denied. No admin roles found");
+                const profile = yield this.profileRepository.findProfileByUserId(admin === null || admin === void 0 ? void 0 : admin._id);
                 if (!admin)
                     throw new customErrors_1.UnAuthorizedError("Invalid email or password");
                 const isPasswordValid = yield (0, password_1.comparePassword)(password, admin.password);
@@ -94,8 +98,7 @@ class AuthService {
                 const refreshToken = (0, token_1.generateRefreshToken)({ userId: admin === null || admin === void 0 ? void 0 : admin._id, role: admin === null || admin === void 0 ? void 0 : admin.role });
                 admin.password = null;
                 const adminData = yield this.authRepository.findAdmin(admin === null || admin === void 0 ? void 0 : admin._id, admin === null || admin === void 0 ? void 0 : admin.role);
-                console.log(adminData, "", admin);
-                return { adminData: adminData[0], accessToken, refreshToken };
+                return { adminData: adminData[0], accessToken, refreshToken, image: profile === null || profile === void 0 ? void 0 : profile.image };
             }
             catch (error) {
                 throw error;
