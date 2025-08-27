@@ -21,7 +21,6 @@ export class ChapterController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getAllChapters(req: Request, res: Response, next: NextFunction): Promise<void> {
         const { search, localId } = req.query;
-       
 
         const result = await this.chapterService.getAllChapters(search as string, localId as string);
         res.status(OK).json({ success: true, message: "", data: result });
@@ -48,10 +47,10 @@ export class ChapterController {
     // @route  GET v1/admin/users
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getChapterById(req: Request, res: Response, next: NextFunction): Promise<void> {
-         const chapterId =  req.params.id;
-         
-         const result = await this.chapterService.getChapterById(chapterId as string);
-         res.status(OK).json({ success: true, message: "", data: result });
+        const chapterId = req.params.id;
+
+        const result = await this.chapterService.getChapterById(chapterId as string);
+        res.status(OK).json({ success: true, message: "", data: result });
     }
     // @desc   Get all members inside a chapter
     // @route  GET v1/admin/members/:id
@@ -84,20 +83,17 @@ export class ChapterController {
     // @route  GET v1/admin/members
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async findMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
-        
         const adminId = req.adminId;
-        
-        const result = await this.chapterService.findMembers(adminId as string,req?.query);
+
+        const result = await this.chapterService.findMembers(adminId as string, req?.query);
         res.status(OK).json({ success: true, message: "", data: result });
     }
     // @desc   Get admin profile
     // @route  GET v1/admin/chapter/profile
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
-        
         const adminId = req.adminId;
-        
-        
+
         const result = await this.chapterService.getProfile(adminId as string);
         res.status(OK).json({ success: true, message: "", data: result });
     }

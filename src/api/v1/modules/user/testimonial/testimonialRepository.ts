@@ -114,7 +114,8 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     name: "$userData.name",
                     email: "$userData.email",
                     image: "$profileData.image",
-                    company:"$profileData.company"
+                    company:"$profileData.company",
+                    createdAt:1
                 },
             },
         ]);
@@ -153,7 +154,8 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     name: "$userData.name",
                     email: "$userData.email",
                     image: "$profileData.image",
-                    company:"$profileData.company"
+                    company:"$profileData.company",
+                    createdAt:1
                 },
             },
         ]);

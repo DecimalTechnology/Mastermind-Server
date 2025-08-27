@@ -55,7 +55,7 @@ import s3 from "../../../../config/s3Config";
 import dotenv from "dotenv";
 
 
-console.log("🚀 AWS_BUCKET_NAME is:", process.env.AWS_BUCKET_NAME);
+
 const uploadMediaS3 = multer({
 
   
