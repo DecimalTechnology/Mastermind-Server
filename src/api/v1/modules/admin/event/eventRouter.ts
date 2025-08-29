@@ -51,7 +51,7 @@ eventRouter.post(
     uploadPdfS3.single("file"),
     asyncHandler(controller.createChapterEventReport.bind(controller))
 );
-eventRouter.post("/", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.createEvent.bind(controller)));
+eventRouter.post("/", adminAuth, roleAuth(...coreTeamAccess), uploadImageS3.fields([{name:"image"}]), asyncHandler(controller.createEvent.bind(controller)));
 eventRouter.get("/chapter/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getAllEvents.bind(controller)));
 eventRouter.get(
     "/attendees/:id",

@@ -24,7 +24,8 @@ export class EventController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
         eventSchema.parse(req.body);
-        const image =  (req.file as any).location;
+        const images =  (req.files as any).image
+        const image = images[0].location;
         if(!image) throw new BadRequestError("Image is required")
         const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
 
