@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 import { IEvent } from "../../../../../interfaces/models/IEvent";
 import Event from "../../../../../models/eventModel";
-import User from "../../../../../models/userModel";
 import { BaseRepository } from "../../shared/repositories/baseRepository";
-import { BadRequestError, ConflictError, NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
 
 export class EventRepository extends BaseRepository<IEvent> {
     constructor() {
@@ -20,51 +19,47 @@ export class EventRepository extends BaseRepository<IEvent> {
         let pipeline: any = [];
         pipeline.push({ $match: { eventType: sort } });
 
-        if (sort == "chapter") {
-            pipeline.push({ $match: { chapterId: chapterId } });
-        }
-        if (sort == "region") {
-            pipeline.push({ $match: { regionId: regionId } });
-        }
-        if (sort == "local") {
-            pipeline.push({ $match: { localId: localId } });
-        }
-        if (sort == "nation") {
-            pipeline.push({ $match: { nationId: nationId } }); // ✅ Fixed: was using localId mistakenly before
-        }
+        // Filter by hierarchy
+        if (sort === "chapter") pipeline.push({ $match: { chapterId } });
+        if (sort === "region") pipeline.push({ $match: { regionId } });
+        if (sort === "local") pipeline.push({ $match: { localId } });
+        if (sort === "nation") pipeline.push({ $match: { nationId } });
 
+        // Audience filter
         pipeline.push({
             $match: {
                 $or: [{ audienceType: "all" }, { attendees: { $in: [userObjectId] } }],
             },
         });
 
-        if (filter == "rsvp") {
-            pipeline.push({ $match: { rsvp: { $in: [userObjectId] } } });
-        }
-        if (filter == "upcoming") {
-            pipeline.push({ $match: { status: "upcoming" } });
-        }
+        // RSVP / upcoming filter
+        if (filter === "rsvp") pipeline.push({ $match: { rsvp: { $in: [userObjectId] } } });
+        if (filter === "upcoming") pipeline.push({ $match: { status: "upcoming" } });
 
+        // ✅ Date filter: Convert Flutter UTC timestamp to IST day, then filter in UTC
         if (date) {
-            const inputDate = new Date(date);
-            const startOfDay = new Date(inputDate);
-            startOfDay.setUTCHours(0, 0, 0, 0);
+            const inputDateUTC = new Date(date);
 
-            const endOfDay = new Date(inputDate);
-            endOfDay.setUTCHours(23, 59, 59, 999);
+            // IST offset in minutes (+5:30)
+            const ISTOffset = 330;
+            const inputDateIST = new Date(inputDateUTC.getTime() + ISTOffset * 60 * 1000);
+
+            // Compute UTC start/end of that IST day
+            const startOfDayUTC = new Date(
+                Date.UTC(inputDateIST.getUTCFullYear(), inputDateIST.getUTCMonth(), inputDateIST.getUTCDate(), 0, 0, 0, 0)
+            );
+            const endOfDayUTC = new Date(
+                Date.UTC(inputDateIST.getUTCFullYear(), inputDateIST.getUTCMonth(), inputDateIST.getUTCDate(), 23, 59, 59, 999)
+            );
 
             pipeline.push({
                 $match: {
-                    date: {
-                        $gte: startOfDay,
-                        $lte: endOfDay,
-                    },
+                    date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
                 },
             });
         }
 
-        // ✅ Add 'registered' field: true if userId in rsvp array
+        // Add 'registered' field
         pipeline.push({
             $addFields: {
                 registered: { $in: [userObjectId, "$rsvp"] },
@@ -72,7 +67,7 @@ export class EventRepository extends BaseRepository<IEvent> {
         });
 
         const res = await Event.aggregate(pipeline);
-       
+        console.log(res);
         return res;
     }
 
@@ -103,22 +98,30 @@ export class EventRepository extends BaseRepository<IEvent> {
         return await Event.findByIdAndUpdate(eventId, { $pull: { rsvp: userId } }, { new: true });
     }
 
-async getEventByEventId(eventId: string, userId: string): Promise<IEvent | null> {
+    async getEventByEventId(eventId: string, userId: string): Promise<IEvent | null> {
+        const objectId = new mongoose.Types.ObjectId(eventId);
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    const objectId = new mongoose.Types.ObjectId(eventId);
-    const userObjectId = new mongoose.Types.ObjectId(userId);
+        const res = await Event.aggregate([
+            { $match: { _id: objectId } },
+            {
+                $addFields: {
+                    registered: { $in: [userObjectId, "$rsvp"] },
+                },
+            },
+        ]);
+        if (!res[0]) throw new NotFoundError("Event not found");
 
-    const res = await Event.aggregate([
-        { $match: { _id: objectId } },
-        {
-            $addFields: {
-                registered: { $in: [userObjectId, "$rsvp"] }
-            }
-        }
-    ]);
-    if(!res[0]) throw new NotFoundError("Event not found")
+        return res[0] || null;
+    }
 
-    return res[0] || null; 
-}
+    async userParticipatedEvent(userId: string): Promise<any> {
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
+        const events = await Event.find({
+            $or: [{ rsvp: userObjectId }, { attendees: userObjectId }, { audienceType: "all" }],
+        });
+
+        return events;
+    }
 }

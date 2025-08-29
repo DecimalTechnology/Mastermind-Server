@@ -32,7 +32,7 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     localField: "toUser",
                     foreignField: "userId",
                     as: "profileInfo",
-                    pipeline: [{ $project: { image: 1, _id: 0,company:1} }],
+                    pipeline: [{ $project: { image: 1, _id: 0, company: 1 } }],
                 },
             },
             { $unwind: { path: "$profileInfo", preserveNullAndEmptyArrays: true } },
@@ -44,7 +44,7 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     message: 1, // or whatever fields you want from Testimonial
                     name: "$userInfo.name",
                     email: "$userInfo.email",
-                    company:"$profileInfo.company",
+                    company: "$profileInfo.company",
                     image: "$profileInfo.image",
                     createdAt: 1,
                 },
@@ -102,7 +102,7 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     localField: "fromUser", // ✅ fixed typo: fromuser ➔ fromUser
                     foreignField: "userId",
                     as: "profileData",
-                    pipeline: [{ $project: { image: 1, _id: 0 ,company:1} }],
+                    pipeline: [{ $project: { image: 1, _id: 0, company: 1 } }],
                 },
             },
             { $unwind: { path: "$profileData", preserveNullAndEmptyArrays: true } },
@@ -114,13 +114,14 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     name: "$userData.name",
                     email: "$userData.email",
                     image: "$profileData.image",
-                    company:"$profileData.company"
+                    company: "$profileData.company",
+                    createdAt: 1,
                 },
             },
         ]);
     }
     async findAllTestimonialRequest(userId: string): Promise<ITestimonial[]> {
-        return await AskTestimonial.aggregate([
+        const res = await AskTestimonial.aggregate([
             {
                 $match: { toUser: new mongoose.Types.ObjectId(userId) },
             },
@@ -141,7 +142,7 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     localField: "fromUser",
                     foreignField: "userId",
                     as: "profileData",
-                    pipeline: [{ $project: { image: 1, _id: 0 ,company:1} }],
+                    pipeline: [{ $project: { image: 1, _id: 0, company: 1 } }],
                 },
             },
             { $unwind: { path: "$profileData", preserveNullAndEmptyArrays: true } },
@@ -153,9 +154,12 @@ export class TestimonialRepository extends BaseRepository<ITestimonial> {
                     name: "$userData.name",
                     email: "$userData.email",
                     image: "$profileData.image",
-                    company:"$profileData.company"
+                    company: "$profileData.company",
+                    createdAt: 1,
                 },
             },
         ]);
+
+        return res;
     }
 }

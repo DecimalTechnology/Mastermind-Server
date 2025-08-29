@@ -22,6 +22,8 @@ const authService = new authService_1.AuthService(authRepository, nationReposito
 const controller = new authController_1.AuthController(authService);
 // PWA 
 authRouter.post("/register", (req, res, next) => controller.registration(req, res, next));
+authRouter.post("/send-otp", (req, res, next) => controller.sendOtp(req, res, next));
+authRouter.post("/verify-otp", (req, res, next) => controller.verifyOtp(req, res, next));
 authRouter.post('/signin', (req, res, next) => controller.userLogin(req, res, next));
 authRouter.patch('/password/reset', authenticate_1.authenticate, (req, res, next) => controller.resetPassword(req, res, next));
 authRouter.post('/password/forget', (req, res, next) => controller.forgetPassword(req, res, next));
@@ -30,4 +32,5 @@ authRouter.get('/nations', (req, res, next) => controller.getAllNations(req, res
 authRouter.get('/regions', (req, res, next) => controller.getAllRegions(req, res, next));
 authRouter.get('/locals', (req, res, next) => controller.getAllLocals(req, res, next));
 authRouter.get('/chapters', (req, res, next) => controller.getAllChapters(req, res, next));
+authRouter.get('/chapter/users', authenticate_1.authenticate, (req, res, next) => controller.getAllUsers(req, res, next));
 exports.default = authRouter;

@@ -28,9 +28,11 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const customErrors_1 = require("../../../../../constants/customErrors");
 const uploadToCloudinary_1 = require("../../../../../utils/v1/cloudinary/uploadToCloudinary");
 class ProfileService {
-    constructor(profileRepository, chapterRepository) {
+    constructor(profileRepository, chapterRepository, userRepository, accountabilityRepository) {
         this.profileRepository = profileRepository;
         this.chapterRepository = chapterRepository;
+        this.userRepository = userRepository;
+        this.accountabilityRepository = accountabilityRepository;
     }
     getProfile(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -52,10 +54,11 @@ class ProfileService {
     updateProfile(profileData, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const industries = profileData.industries.split(",");
+                const industries = profileData.industries;
                 profileData.industries = industries;
                 const { image } = profileData, newProfileData = __rest(profileData, ["image"]);
-                return yield this.profileRepository.updateProfile(newProfileData, userId);
+                yield this.profileRepository.updateProfile(userId, newProfileData);
+                return this.getProfile(userId);
             }
             catch (error) {
                 console.log("Error while updating profile");
@@ -120,8 +123,10 @@ class ProfileService {
                         connectionStatus = "not_connected";
                     }
                 }
+                const chapter = yield this.chapterRepository.findById(res.chapter);
+                console.log(chapter);
                 // Attach connection status to the profile response
-                return Object.assign(Object.assign({}, res), { connectionStatus });
+                return Object.assign(Object.assign({}, res), { connectionStatus, chapter: chapter === null || chapter === void 0 ? void 0 : chapter.name });
             }
             catch (error) {
                 console.log("Error while while finding profie by _id");
@@ -253,6 +258,48 @@ class ProfileService {
             }
             catch (error) {
                 console.log("Error: get sent requests");
+                throw error;
+            }
+        });
+    }
+    getHomeProfile(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const user = yield this.userRepository.findById(userId);
+                if (!user)
+                    throw new customErrors_1.NotFoundError("User not found");
+                const profile = yield this.profileRepository.findProfileByUserId(userId);
+                if (!profile)
+                    throw new customErrors_1.NotFoundError("Profile not found");
+                if (!user.chapter)
+                    throw new customErrors_1.NotFoundError("Chapter not found");
+                const chapter = yield this.chapterRepository.findChapter(user.chapter.toString());
+                const connections = yield this.profileRepository.findConnectionByUserId(userId);
+                const allMeetings = yield this.accountabilityRepository.findAllThisWeekMeetings(userId);
+                const userInfo = {
+                    name: profile === null || profile === void 0 ? void 0 : profile.name,
+                    email: user === null || user === void 0 ? void 0 : user.email,
+                    image: profile === null || profile === void 0 ? void 0 : profile.image,
+                    memberSince: profile === null || profile === void 0 ? void 0 : profile.memberSince,
+                    chapter: chapter === null || chapter === void 0 ? void 0 : chapter.name,
+                    region: (_a = chapter === null || chapter === void 0 ? void 0 : chapter.regionId) === null || _a === void 0 ? void 0 : _a.name,
+                };
+                let nextMeeting = null;
+                const nextMeetingArr = yield this.accountabilityRepository.findNextMeeting(userId);
+                console.log(nextMeetingArr);
+                if (nextMeetingArr.length !== 0) {
+                    nextMeeting = nextMeetingArr[0];
+                }
+                const meetings = yield this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
+                if (Array.isArray(meetings) && meetings.length > 0) {
+                    nextMeeting = meetings[0];
+                }
+                const totalConnections = Array.isArray(connections) && connections.length > 0 ? connections[0].connections : 0;
+                return { userInfo, nextMeeting, connections: totalConnections, weeklyMeetings: allMeetings };
+            }
+            catch (error) {
+                console.error("Error in getHomeProfile:", error);
                 throw error;
             }
         });

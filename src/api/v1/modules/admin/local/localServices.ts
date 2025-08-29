@@ -1,11 +1,12 @@
 import { ConflictError } from "../../../../../constants/customErrors";
 import { UserRole } from "../../../../../enums/common";
 import { IUser } from "../../../../../interfaces/models/IUser";
+import { ReportRepository } from "../../shared/repositories/reportRepository";
 import { UserRepository } from "../../shared/repositories/userRepository";
 import { LocalRepository } from "./localRepository";
 
 export class LocalServices {
-    constructor(private localRepository: LocalRepository, private userResository: UserRepository) {}
+    constructor(private localRepository: LocalRepository, private userResository: UserRepository,private reportRepository:ReportRepository) {}
 
     async getAllUsers(search: string): Promise<IUser[]> {
         return await this.localRepository.findAllUsersBySerachQuery(search as string);
@@ -28,5 +29,11 @@ export class LocalServices {
 
     async findLocalById(chapterId: string): Promise<any> {
         return await this.localRepository.findById(chapterId as string);
+    }
+    async findAllReports(adminId: string,query:any): Promise<any> {
+        return await this.reportRepository.findAllReportsForLocalAdmin(adminId as string,query);
+    }
+    async getLocalDetails(adminId: string): Promise<any> {
+        return await this.localRepository.findLocalDetails(adminId as string);
     }
 }

@@ -67,7 +67,7 @@ class AuthController {
                     sameSite: "none",
                     maxAge: REFRESH_TOKEN_MAX_AGE,
                     secure: true,
-                }).json({ success: true, message: "Admin verification successfull", data: response === null || response === void 0 ? void 0 : response.adminData });
+                }).json({ success: true, message: "Admin verification successfull", data: response });
             }
             catch (error) {
                 next(error);

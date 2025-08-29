@@ -27,7 +27,7 @@ export class EventController {
 
         if (!eventId) throw new NotFoundError("Please provide eventId");
 
-        const response = await this.eventService.getEventById(eventId as string,req.userId);
+        const response = await this.eventService.getEventById(eventId as string, req.userId);
         res.status(OK).json({ success: true, data: response });
     }
     // @desc   Get event by id
@@ -47,7 +47,7 @@ export class EventController {
         if (!eventId) throw new NotFoundError("Please provide event Id");
 
         const response = await this.eventService.registerEvent(eventId, userId);
-   
+
         res.status(OK).json({ success: true, data: response, message: "Successfully registered for the event" });
     }
     // @desc   Cancel event registration
@@ -60,5 +60,15 @@ export class EventController {
 
         const response = await this.eventService.cancelRegistration(eventId, userId);
         res.status(OK).json({ success: true, data: response, message: "Your event registration cancelled" });
+    }
+
+    // @desc Get all media 
+    // @route GET v1/events/media
+    async getAllMedia(req: Request, res: Response, next: NextFunction): Promise<void> {
+       const userId = req.userId;
+       const result = await this.eventService.getAllMedia(userId)
+
+       console.log(result)
+       res.status(OK).json({success:true,message:"",data:result})
     }
 }

@@ -1,11 +1,10 @@
 import nodemailer from 'nodemailer'
-
-export function sendLinkToEmail(email: string, text: string): Promise<boolean> {
+export function sendLinkToEmail(email: string, text: string,html:string): Promise<boolean> {
     const transporter = nodemailer.createTransport({
         service: "gmail", // Use your email service provider
         auth: {
             user:'adarshjithu10@gmail.com',
-            pass: "ydwt thcd qsds vtmn",
+            pass: process.env.TRANSPORTER_PASSWORD,
         },
     });
     //interface for mail options
@@ -19,8 +18,8 @@ export function sendLinkToEmail(email: string, text: string): Promise<boolean> {
     const mailOptions = {
         from: "adarshjithu10@gmail.com",
         to: email,
-        subject: "OTP Verification",
-        text: text,
+        subject: 'Your Login Password - Master Mind',
+        html:html
     };
 
     const sendEmail = async (mailOptions: MailOptions): Promise<boolean> => {

@@ -24,9 +24,12 @@ export class ProfileRepository {
             throw error;
         }
     }
-    async updateProfile({ userId, ...profileData }: Partial<IProfile>, userID: string): Promise<IProfile | null> {
+    async updateProfile(userId: string, profileData: any): Promise<any | null> {
         try {
-            return await Profile?.findOneAndUpdate({ userId: userID }, profileData, { new: true });
+            if (profileData?.name) {
+                await User.findByIdAndUpdate(userId, { name: profileData?.name });
+            }
+            return await Profile?.findOneAndUpdate({ userId: userId }, profileData, { new: true });
         } catch (error) {
             throw error;
         }
@@ -43,25 +46,37 @@ export class ProfileRepository {
             throw error;
         }
     }
-    async findUserBySearchQuery(query: string, userId: string): Promise<Record<string, any> | null> {
+    async findUserBySearchQuery(query: any, userId: string): Promise<any> {
         try {
+            const { search, company, googleMapLocation, page, type } = query;
+            const user = await User.findById(userId);
+            const chapterId = user?.chapter;
+            const matchStage: any = {};
+            matchStage.name = { $regex: search, $options: "i" };
+            matchStage["_id"] = { $ne: new mongoose.Types.ObjectId(userId) };
+            type == "chapter" ? (matchStage.chapter = new mongoose.Types.ObjectId(chapterId)) : "";
+            const filterMatchStage: any = {};
+            company ? (filterMatchStage["profileData.company"] = company) : "";
+            googleMapLocation ? (filterMatchStage["profileData.googleMapLocation"] = googleMapLocation) : "";
+
             const result = await User.aggregate([
                 {
                     $match: {
-                        name: { $regex: query, $options: "i" },
+                        name: { $regex: search, $options: "i" },
                     },
                 },
                 {
-                    $match: { _id: { $ne: new mongoose.Types.ObjectId(userId) } },
+                    $match: matchStage,
                 },
                 {
                     $lookup: {
-                        from: "profiles", // Collection name
-                        localField: "_id", // User `_id`
-                        foreignField: "userId", // Profile's `userId`
+                        from: "profiles",
+                        localField: "_id",
+                        foreignField: "userId", 
                         as: "profileData",
                     },
                 },
+
                 {
                     $project: {
                         _id: 1,
@@ -69,9 +84,18 @@ export class ProfileRepository {
                         image: { $arrayElemAt: ["$profileData.image", 0] },
                         profileId: { $arrayElemAt: ["$profileData._id", 0] },
                         company: { $arrayElemAt: ["$profileData.company", 0] },
+                        googleMapLocation: { $arrayElemAt: ["$profileData.googleMapLocation", 0] },
+                    },
+                },
+                { $match: filterMatchStage },
+                {
+                    $project: {
+                        googleMapLocation: 0,
                     },
                 },
             ]);
+
+            console.log(result)
             return result;
         } catch (error) {
             console.log("Error while finding user by Id in the profile repository");
@@ -79,7 +103,7 @@ export class ProfileRepository {
         }
     }
 
-    async findProfileBy_id(profileId: string): Promise<IProfile | null> {
+    async findProfileBy_id(profileId: string): Promise<any | null> {
         try {
             const res = await Profile.aggregate([
                 {
@@ -444,5 +468,23 @@ export class ProfileRepository {
         } catch (error) {
             throw error;
         }
+    }
+
+    async findProfileByUserId(userId: string): Promise<any> {
+        return await Profile.findOne({ userId: userId });
+    }
+
+    async findConnectionCount(userId: string): Promise<any> {
+        const connections = await Profile.aggregate([
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+            { $project: { $size: "$connections" } },
+        ]);
+        console.log(connections);
+        return connections;
+    }
+
+
+    async findNextAccountablityMeeting(userId:string):Promise<any>{
+         
     }
 }
