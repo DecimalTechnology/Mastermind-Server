@@ -84,7 +84,7 @@ class UserRepository extends baseRepository_1.BaseRepository {
             const pendingCount = yield userModel_1.default.aggregate([{ $match: { chapter: new mongoose_1.default.Types.ObjectId(chapterId), isVerified: false } }]);
             const users = yield userModel_1.default.aggregate(pipeline);
             const totalPage = yield userModel_1.default.find({ chapter: chapterId });
-            return { users: users, pendingCount: pendingCount.length, totalPage: totalPage };
+            return { users: users, pendingCount: pendingCount.length, totalPage: totalPage.length };
         });
     }
     blockUser(userId) {

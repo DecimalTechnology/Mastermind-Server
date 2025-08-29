@@ -3,6 +3,7 @@ import { AuthService } from "./authService";
 import { BadRequestError, EmptyRequestBodyError, NotFoundError } from "../../../../../constants/customErrors";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 import { userRegistrationSchema } from "../../../../../validations/user/registerValidation";
+import mongoose from "mongoose";
 const { OK, CREATED } = STATUS_CODES;
 export class AuthController {
     constructor(private authService: AuthService) {}
@@ -180,6 +181,7 @@ export class AuthController {
     async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {    
             const userId = req.userId;
+            if(!mongoose.Types.ObjectId.isValid(userId)) throw new BadRequestError("Invalid user Id")
             const response = await this.authService.getAllUsersBySameChapter(userId);
             res.status(OK).json({ success: true, message: "", data: response });
         } catch (error) {

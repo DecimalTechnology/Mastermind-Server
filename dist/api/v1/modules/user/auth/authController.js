@@ -8,11 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const customErrors_1 = require("../../../../../constants/customErrors");
 const statusCodes_1 = require("../../../../../constants/statusCodes");
 const registerValidation_1 = require("../../../../../validations/user/registerValidation");
+const mongoose_1 = __importDefault(require("mongoose"));
 const { OK, CREATED } = statusCodes_1.STATUS_CODES;
 class AuthController {
     constructor(authService) {
@@ -212,6 +216,8 @@ class AuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = req.userId;
+                if (!mongoose_1.default.Types.ObjectId.isValid(userId))
+                    throw new customErrors_1.BadRequestError("Invalid user Id");
                 const response = yield this.authService.getAllUsersBySameChapter(userId);
                 res.status(OK).json({ success: true, message: "", data: response });
             }

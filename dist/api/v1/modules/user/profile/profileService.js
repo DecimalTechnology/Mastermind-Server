@@ -286,6 +286,11 @@ class ProfileService {
                     region: (_a = chapter === null || chapter === void 0 ? void 0 : chapter.regionId) === null || _a === void 0 ? void 0 : _a.name,
                 };
                 let nextMeeting = null;
+                const nextMeetingArr = yield this.accountabilityRepository.findNextMeeting(userId);
+                console.log(nextMeetingArr);
+                if (nextMeetingArr.length !== 0) {
+                    nextMeeting = nextMeetingArr[0];
+                }
                 const meetings = yield this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
                 if (Array.isArray(meetings) && meetings.length > 0) {
                     nextMeeting = meetings[0];

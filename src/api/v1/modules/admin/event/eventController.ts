@@ -24,10 +24,12 @@ export class EventController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
         eventSchema.parse(req.body);
+        const image =  (req.file as any).location;
+        if(!image) throw new BadRequestError("Image is required")
         const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
 
       
-        const result = await this.eventServices.createEvent(data, req.files, req.adminId as string);
+        const result = await this.eventServices.createEvent(data, req.files, req.adminId as string,image);
         res.status(OK).json({ success: true, message: "New event created successfully", data: result });
     }
     // @desc   Get all the events

@@ -17,7 +17,4 @@ accountabilityRouter.get("/:id",authenticate,asyncHandler(controller.getSlipById
 accountabilityRouter.put("/:id",authenticate,asyncHandler(controller.updateAccountabilitySlip.bind(controller)))
 accountabilityRouter.delete("/:id",authenticate,asyncHandler(controller.deleteAccountabilitySlip.bind(controller)))
 
-
-
-
 export default accountabilityRouter;

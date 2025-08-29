@@ -33,11 +33,8 @@ export class AuthService {
             const phoneNumberExists = await this.authRepository.findByPhoneNumber(phoneNumber);
             // If exists throw new error
 
-           
             if (emailExists) throw new ConflictError("The email already exists");
             if (phoneNumberExists) throw new ConflictError("The phonenumber  already exists");
-
-            
 
             const newUserData = { ...userData, phonenumber: phoneNumber, role: UserRole.MEMBER, password: "" };
 
@@ -194,10 +191,9 @@ export class AuthService {
     }
 
     async getAllUsersBySameChapter(userId: string): Promise<any> {
+        const user = await this.authRepository.findUserById(userId);
+        const users = await this.authRepository.findAllUsersByChapterId(user?.chapterId);
 
-            const user =  await this.authRepository.findUserById(userId);
-            const users = await this.authRepository.findAllUsersByChapterId(user?.chapterId);
-
-           return users
+        return users;
     }
 }

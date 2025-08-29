@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { ChapterService } from "./chapterService";
 import { chapterSchema } from "../../../../../validations/admin/chapter";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
-import { NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
+import mongoose from "mongoose";
 const { OK } = STATUS_CODES;
 
 export class ChapterController {
@@ -57,7 +58,7 @@ export class ChapterController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async getAllMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
         const chapterId = req.params.id;
-        if (!chapterId) throw new NotFoundError("Chapter Id required");
+        if (!chapterId || !mongoose.Types.ObjectId.isValid(chapterId)) throw new NotFoundError("Chapter Id required");
         const result = await this.chapterService.getAllMembersByChapterId(chapterId as string, req.query);
         res.status(OK).json({ success: true, message: "", data: result });
     }
@@ -95,6 +96,35 @@ export class ChapterController {
         const adminId = req.adminId;
 
         const result = await this.chapterService.getProfile(adminId as string);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Get all chapter members
+    // @route  GET v1/admin/chapter/members/:chapterId;
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async getAllChapterMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { chapterId } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(chapterId)) throw new BadRequestError("Invalid chapter Id ");
+        const result = await this.chapterService.getAllChapterMembers(chapterId);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    // @desc   Create meeting
+    // @route  POST v1/admin/chapter/meeting
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+    async createMeeting(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { members, place, datetime } = req.body;
+        if (members.length == 0) throw new BadRequestError("Atleast one member is required");
+        if (!place) throw new BadRequestError("Place is required");
+        if (!datetime) throw new BadRequestError("Date and time is required");
+        const result = await this.chapterService.createMeeting({ members, place, date: datetime, userId: req.adminId });
+        res.status(OK).json({ success: true, message: "New meeting successfully created", data: result });
+    }
+    // @desc   Get all  meeting
+    // @route  GET v1/admin/chapter/meeting
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+
+    async getAllMeeting(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const adminId = req.adminId;
+        const result = await this.chapterService.getAllMeeting(adminId, req.query);
         res.status(OK).json({ success: true, message: "", data: result });
     }
 }

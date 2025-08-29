@@ -241,6 +241,12 @@ export class ProfileService {
             };
     
             let nextMeeting = null;
+
+            const nextMeetingArr = await this.accountabilityRepository.findNextMeeting(userId);
+            console.log(nextMeetingArr)
+            if(nextMeetingArr.length!==0){
+                nextMeeting=nextMeetingArr[0]
+            }
             const meetings = await this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
             if (Array.isArray(meetings) && meetings.length > 0) {
                 nextMeeting = meetings[0];

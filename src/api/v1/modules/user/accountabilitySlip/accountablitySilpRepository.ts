@@ -165,7 +165,8 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
         endOfWeek.setHours(23, 59, 59, 999);
 
         const meetings = await AccountablitySlip.find({
-            userId: new mongoose.Types.ObjectId(userId),
+            $or: [{ userId: new mongoose.Types.ObjectId(userId) }, { members: { $in: new mongoose.Types.ObjectId(userId) } }],
+
             date: { $gte: startOfWeek, $lte: endOfWeek },
         }).sort({ date: 1 });
 
@@ -176,16 +177,29 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
         const nowUtc = new Date(new Date().toISOString());
 
         const nextMeeting = await AccountablitySlip.find({
-          userId: new mongoose.Types.ObjectId(userId),
-          date: { $gte: new Date() }, // compare with UTC date
+            userId: new mongoose.Types.ObjectId(userId),
+            date: { $gte: new Date() }, // compare with UTC date
         })
-          .sort({ date: 1 }) // get earliest upcoming meeting
-          .exec();
-      console.log(nextMeeting)
+            .sort({ date: 1 }) // get earliest upcoming meeting
+            .exec();
+        console.log(nextMeeting);
         return nextMeeting;
-     
     }
 
+    async getAllMeetingByAdminId(pipeline: any): Promise<IAccountablity[] | []> {
+        return await AccountablitySlip.aggregate(pipeline);
+    }
 
-
+    async findNextMeeting(userId: string): Promise<IAccountablity[]> {
+        return await AccountablitySlip.aggregate([
+            {
+                $match: {
+                    $or: [{ userId: new mongoose.Types.ObjectId(userId) }, { members: { $in: [new mongoose.Types.ObjectId(userId)] } }],
+                    date: { $gt: new Date() },
+                },
+            },
+            { $sort: { date: 1 } }, // ascending to get nearest future meeting
+            { $limit: 1 },
+        ]);
+    }
 }

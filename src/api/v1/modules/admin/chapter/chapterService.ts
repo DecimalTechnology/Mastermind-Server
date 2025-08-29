@@ -1,15 +1,23 @@
+import mongoose from "mongoose";
 import { NotFoundError } from "../../../../../constants/customErrors";
 import { UserRole } from "../../../../../enums/common";
+import { IAccountablity } from "../../../../../interfaces/models/IAccountablity";
 import { IChapter } from "../../../../../interfaces/models/IChaper";
 import { ILocal } from "../../../../../interfaces/models/ILocal";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import User from "../../../../../models/userModel";
 import { UserRepository } from "../../shared/repositories/userRepository";
+import { AccountablityRepository } from "../../user/accountabilitySlip/accountablitySilpRepository";
 import { LocalRepository } from "../local/localRepository";
 import { ChapterRepository } from "./chapterRepository";
 
 export class ChapterService {
-    constructor(private chapterRepository: ChapterRepository, private userRepository: UserRepository, private localRepository: LocalRepository) {}
+    constructor(
+        private chapterRepository: ChapterRepository,
+        private userRepository: UserRepository,
+        private localRepository: LocalRepository,
+        private accountabilityRepository: AccountablityRepository
+    ) {}
 
     async createChapter(data: IChapter): Promise<any> {
         const coreTeam = data?.coreTeam;
@@ -48,10 +56,65 @@ export class ChapterService {
     async getChapterById(chapterId: string): Promise<any> {
         return await this.chapterRepository.findChapterByChapterId(chapterId);
     }
-    async findMembers(adminId: string,query:any): Promise<IUser[]> {
-        return await this.chapterRepository.findMembers(adminId,query);
+    async findMembers(adminId: string, query: any): Promise<IUser[]> {
+        return await this.chapterRepository.findMembers(adminId, query);
     }
-    async getProfile(adminId: string,): Promise<IUser[]> {
-        return await this.chapterRepository.getProfile(adminId)
+    async getProfile(adminId: string): Promise<IUser[]> {
+        return await this.chapterRepository.getProfile(adminId);
+    }
+
+    async getAllChapterMembers(chapterId: string): Promise<IChapter[]> {
+        const chapter = await this.chapterRepository.findById(chapterId);
+        if (!chapter) throw new NotFoundError("Chapter not found");
+        return await this.chapterRepository.findAllMembersOfChapter(chapterId);
+    }
+
+    async createMeeting(meetingDate: any): Promise<IAccountablity | null> {
+        return await this.accountabilityRepository.create(meetingDate);
+    }
+
+    async getAllMeeting(adminId: string, query: any): Promise<IAccountablity[] | []> {
+        const { search, page = 1, status, limit = 10, date } = query;
+
+        const pipeline: any[] = [];
+        const matchStage: any = {
+            $or: [{ userId: new mongoose.Types.ObjectId(adminId) }, { members: { $in: [new mongoose.Types.ObjectId(adminId)] } }],
+        };
+
+        // Search by place
+        if (search) {
+            matchStage.place = { $regex: search, $options: "i" };
+        }
+
+        // Status filter
+        if (status === "upcoming") {
+            matchStage.date = { $gte: new Date() };
+        }
+        if (status === "ended") {
+            matchStage.date = { $lte: new Date() };
+        }
+
+        // Date filter (specific day)
+        if (date) {
+            const start = new Date(date + "T00:00:00.000Z");
+            const end = new Date(date + "T23:59:59.999Z");
+            matchStage.date = { $gte: start, $lte: end };
+        }
+
+        pipeline.push({ $match: matchStage });
+
+        // Pagination
+        pipeline.push({ $skip: (Number(page) - 1) * Number(limit) });
+        pipeline.push({ $limit: Number(limit) });
+
+        let meetings;
+
+        if (status == "next") {
+            meetings = await this.accountabilityRepository.findNextMeeting(adminId)
+        } else {
+            meetings = await this.accountabilityRepository.getAllMeetingByAdminId(pipeline);
+        }
+
+        return meetings;
     }
 }
