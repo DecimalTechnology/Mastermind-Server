@@ -10,13 +10,17 @@ import { UserRepository } from "../../shared/repositories/userRepository";
 import { AccountablityRepository } from "../../user/accountabilitySlip/accountablitySilpRepository";
 import { LocalRepository } from "../local/localRepository";
 import { ChapterRepository } from "./chapterRepository";
+import { MediaRepository } from "../../shared/media/mediaRepository";
+import { EventRepository } from "../event/eventRepository";
 
 export class ChapterService {
     constructor(
         private chapterRepository: ChapterRepository,
         private userRepository: UserRepository,
         private localRepository: LocalRepository,
-        private accountabilityRepository: AccountablityRepository
+        private accountabilityRepository: AccountablityRepository,
+        private mediaRepository: MediaRepository,
+        private eventRepository: EventRepository
     ) {}
 
     async createChapter(data: IChapter): Promise<any> {
@@ -69,11 +73,11 @@ export class ChapterService {
         return await this.chapterRepository.findAllMembersOfChapter(chapterId);
     }
 
-    async createMeeting(meetingDate: any): Promise<IAccountablity | null> {
-        return await this.accountabilityRepository.create(meetingDate);
+    async createMeeting(meetingData: any): Promise<IAccountablity | null> {
+        return await this.accountabilityRepository.create(meetingData);
     }
 
-    async getAllMeeting(adminId: string, query: any): Promise<IAccountablity[] | []> {
+    async getAllMeeting(adminId: string, query: any): Promise<any | []> {
         const { search, page = 1, status, limit = 10, date } = query;
 
         const pipeline: any[] = [];
@@ -103,18 +107,30 @@ export class ChapterService {
 
         pipeline.push({ $match: matchStage });
 
-        // Pagination
+        //Pagination
         pipeline.push({ $skip: (Number(page) - 1) * Number(limit) });
         pipeline.push({ $limit: Number(limit) });
 
         let meetings;
 
         if (status == "next") {
-            meetings = await this.accountabilityRepository.findNextMeeting(adminId)
+            meetings = await this.accountabilityRepository.findNextMeeting(adminId);
         } else {
             meetings = await this.accountabilityRepository.getAllMeetingByAdminId(pipeline);
         }
 
-        return meetings;
+        const totalMeetingCount = await this.accountabilityRepository.countDocuments();
+
+        return { meetings, totalCount: totalMeetingCount };
+    }
+
+    async getAllMedia(chapterId: string): Promise<any> {
+        const events = await this.eventRepository.aggregate([
+            { $match: { chapterId: new mongoose.Types.ObjectId(chapterId) } },
+            { $project: { _id: 1 } },
+        ]);
+        const objectIds = events.map((i: Record<string, any>) => i?._id);
+
+        return await this.mediaRepository.getMediaByChapterId(objectIds);
     }
 }

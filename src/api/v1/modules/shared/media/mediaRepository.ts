@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import mediaModel from "../../../../../models/mediaModel";
 import { BaseRepository } from "../repositories/baseRepository";
 
@@ -11,5 +12,10 @@ export class MediaRepository extends BaseRepository<any> {
     }
     async findAllMediaWithEventIds(eventIds:string[]): Promise<any> {
         return mediaModel.find({relatedTo:{$in:eventIds}});
+    }
+
+    async getMediaByChapterId(eventIds:string):Promise<any>{
+        return await mediaModel.find({relatedTo:{$in:eventIds}});
+
     }
 }

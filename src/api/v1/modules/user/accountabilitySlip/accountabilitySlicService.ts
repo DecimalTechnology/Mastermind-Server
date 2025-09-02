@@ -26,4 +26,6 @@ export class AccountabilitySliService{
     async deleteAccountabilitySlip(slipId:string):Promise<IAccountablity|null>{
         return await this.accountabilityRepository.deleteById(slipId);
     }
+
+
 }

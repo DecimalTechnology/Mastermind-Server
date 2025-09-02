@@ -10,8 +10,8 @@ export class AccountabilityController {
     // @route POST v1/accountability
     // @access User
     async createSlip(req: Request, res: Response, next: NextFunction): Promise<void> {
+        
         req.body.userId = req.userId;
-        req.body.date = new Date()
         if (req.body.members.length == 0) throw new BadRequestError("At least 1 member is required.");
         const result = await this.accountabilityService.createAccountablity(req.body);
         res.status(OK).json({ success: true, message: "The accountablity slip has been successfully saved", data: result });
