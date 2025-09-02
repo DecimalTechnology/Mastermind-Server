@@ -9,6 +9,8 @@ import { UserRole } from "../../../../../enums/common";
 import roleAuth from "../../../../../middewares.ts/roleAuth";
 import { LocalRepository } from "../local/localRepository";
 import { AccountablityRepository } from "../../user/accountabilitySlip/accountablitySilpRepository";
+import { MediaRepository } from "../../shared/media/mediaRepository";
+import { EventRepository } from "../event/eventRepository";
 
 const chapterRouter = express.Router()
 
@@ -16,7 +18,9 @@ const userRepository = new UserRepository()
 const localRepository = new LocalRepository()
 const chapterRepository = new ChapterRepository();
 const accountablityRepository = new AccountablityRepository()
-const chapterService = new ChapterService(chapterRepository,userRepository,localRepository,accountablityRepository);
+const mediaRepository = new MediaRepository()
+const eventRepository = new EventRepository()
+const chapterService = new ChapterService(chapterRepository,userRepository,localRepository,accountablityRepository,mediaRepository,eventRepository);
 const controller = new ChapterController(chapterService);
 
 const allowedRoles = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN]
@@ -33,4 +37,5 @@ chapterRouter.get("/meeting/members/:chapterId",adminAuth,roleAuth(...coreTeamAc
 chapterRouter.post("/meeting",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.createMeeting.bind(controller)))
 chapterRouter.get("/meeting",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllMeeting.bind(controller)))
 chapterRouter.get("/:id",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getChapterById.bind(controller)));
+chapterRouter.get("/media/:chapterId",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllMedia.bind(controller)))
 export default chapterRouter;

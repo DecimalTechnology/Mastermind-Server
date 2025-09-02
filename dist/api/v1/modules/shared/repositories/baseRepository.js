@@ -66,5 +66,20 @@ class BaseRepository {
             return newData;
         });
     }
+    countDocuments() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.Model.countDocuments();
+        });
+    }
+    find(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.Model.find(query);
+        });
+    }
+    aggregate(pipeline) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.Model.aggregate(pipeline);
+        });
+    }
 }
 exports.BaseRepository = BaseRepository;

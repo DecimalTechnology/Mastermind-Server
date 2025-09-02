@@ -44,6 +44,16 @@ export class BaseRepository<T> {
     return newData;
   }
   
+ async countDocuments():Promise<any>{
+  return await this.Model.countDocuments()
+ }
 
+ async find(query:any):Promise<any>{
+      return await this.Model.find(query)
+ }
+
+ async aggregate(pipeline:any):Promise<any>{
+  return await this.Model.aggregate(pipeline)
+ }
 
 }

@@ -3,7 +3,7 @@ import { z } from "zod";
 const eventSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
-  date: z.string().datetime({ message: "Invalid date format (ISO expected)" }),
+  date: z.string().min(1,"Date is required"),
   // time: z.string().regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
   place: z.string().min(1, "Place is required"),
   location: z.string().optional(),

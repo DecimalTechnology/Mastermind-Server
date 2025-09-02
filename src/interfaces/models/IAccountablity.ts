@@ -9,4 +9,5 @@ export interface IAccountablity extends Document {
     createdAt: Date;
     updatedAt: Date;
     _id: any;
+    isDeleted:boolean;
 }
