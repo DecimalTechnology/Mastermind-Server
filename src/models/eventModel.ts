@@ -10,7 +10,7 @@ export enum EventLevel {
 
 export enum EventStatus{
     UPCOMING= 'upcoming',
-    ONGOING ='ongoing',
+    TODAY ='today',
     CANCELLED ='cancelled',
     ENDED = 'ended'
 
