@@ -13,6 +13,9 @@ const tipsService = new TipsService(tipsRepository);
 const controller = new TipsContoller(tipsService);
 
 tipsRouter.get("/",authenticate,controller.getTip);
+tipsRouter.get('/:tipsId',authenticate,controller.getTipsById);
+tipsRouter.patch('/:tipsId/like', authenticate,controller.likeTips);
+tipsRouter.patch('/:tipsId/dislike', authenticate,controller.dislikeTips);
 
 
 
