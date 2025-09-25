@@ -8,35 +8,39 @@ export enum EventLevel {
     GLOBAL = "global",
 }
 
-export enum EventStatus{
-    UPCOMING= 'upcoming',
-    TODAY ='today',
-    CANCELLED ='cancelled',
-    ENDED = 'ended'
-
+export enum EventStatus {
+    UPCOMING = "upcoming",
+    TODAY = "today",
+    CANCELLED = "cancelled",
+    ENDED = "ended",
+    ONGOING = "ongoing",
 }
 
-const eventSchema = new mongoose.Schema<IEvent>({
-    name: { type: String, required: true },
-    description: { type: String, required: true },
-    date: { type: Date, required: true },
-    // time: { type: String, required: true },
-    place: { type: String, required: true },
-    duration:{type:String},
-    image: { type: String },
-    location: { type: String },
-    createdBy:{type:mongoose.Schema.Types.ObjectId,ref:'User'},
-    audienceType: { type: String, enum: ["all", "selected"], required: true },
-    attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    eventType: { type: String, enum: Object.values(EventLevel), required: true },
-    chapterId: { type: mongoose.Schema.Types.ObjectId, ref: "Chapter" },
-    regionId: { type: mongoose.Schema.Types.ObjectId, ref: "Region" },
-    nationId: { type: mongoose.Schema.Types.ObjectId, ref: "Nation" },                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-    localId:{type:mongoose.Schema.Types.ObjectId,ref:"Local"},
-    status:{type:String,enum:Object.values(EventStatus),default:'upcoming'},
-    customFields:{type:Schema.Types.Mixed,default:{}},
-    rsvp:[{type:mongoose.Schema.Types.ObjectId,ref:"User",defaut:[]}]
-},{timestamps:true});
+const eventSchema = new mongoose.Schema<IEvent>(
+    {
+        name: { type: String, required: true },
+        description: { type: String, required: true },
+        date: { type: Date, required: true },
+        endDate: { type: Date, required: true },
+        // time: { type: String, required: true },
+        place: { type: String, required: true },
+        duration: { type: String },
+        image: { type: String },
+        location: { type: String },
+        createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        audienceType: { type: String, enum: ["all", "selected"], required: true },
+        attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+        eventType: { type: String, enum: Object.values(EventLevel), required: true },
+        chapterId: { type: mongoose.Schema.Types.ObjectId, ref: "Chapter" },
+        regionId: { type: mongoose.Schema.Types.ObjectId, ref: "Region" },
+        nationId: { type: mongoose.Schema.Types.ObjectId, ref: "Nation" },
+        localId: { type: mongoose.Schema.Types.ObjectId, ref: "Local" },
+        status: { type: String, enum: Object.values(EventStatus), default: "upcoming" },
+        customFields: { type: Schema.Types.Mixed, default: {} },
+        rsvp: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", defaut: [] }],
+    },
+    { timestamps: true }
+);
 
-const Event  = mongoose.model<IEvent>("Event",eventSchema);
+const Event = mongoose.model<IEvent>("Event", eventSchema);
 export default Event;

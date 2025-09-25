@@ -130,3 +130,20 @@ export class EmptyRequestBodyError extends Error {
        
     }
 }
+
+
+
+
+export const BodyValidator = (schema: any, body={}) => {
+   
+    const { error } = schema.validate(body, { abortEarly: false });
+
+    if (error && error.details) {
+        const messages = error.details.map(
+            (obj: any) => obj.message.replace(/\"/g, "") // remove quotes from each message
+        );
+        const errorMessage = messages.join(", "); // join all messages into one string
+        throw new BadRequestError(errorMessage);
+    }
+    
+};

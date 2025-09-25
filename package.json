@@ -15,7 +15,7 @@
     "seed.assignLocal": "tsc && node dist/seed/assignLocal.js",
     "seed.updateAllUser": "tsc && node dist/seed/updateAllUser.js",
     "seed.profile": "tsc && node dist/seed/dummyProfileSeed.js",
-    "seed.meeting":"tsc && node dist/seed/accountability.js"
+    "seed.meeting": "tsc && node dist/seed/accountability.js"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +30,7 @@
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "ioredis": "^5.6.1",
+    "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
     "morgan": "^1.10.1",
@@ -38,6 +39,7 @@
     "node-cron": "^4.2.0",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1",
     "zod": "^3.25.57"
   },
   "devDependencies": {

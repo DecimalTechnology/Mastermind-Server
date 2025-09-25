@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EmptyRequestBodyError = exports.UnsupportedMediaTypeError = exports.PayloadTooLargeError = exports.GatewayTimeoutError = exports.NotImplementedError = exports.ConflictError = exports.ServiceUnavailableError = exports.InternalServerError = exports.MethodNotAllowedError = exports.NotFoundError = exports.ForbiddenError = exports.UnAuthorizedError = exports.BadRequestError = void 0;
+exports.BodyValidator = exports.EmptyRequestBodyError = exports.UnsupportedMediaTypeError = exports.PayloadTooLargeError = exports.GatewayTimeoutError = exports.NotImplementedError = exports.ConflictError = exports.ServiceUnavailableError = exports.InternalServerError = exports.MethodNotAllowedError = exports.NotFoundError = exports.ForbiddenError = exports.UnAuthorizedError = exports.BadRequestError = void 0;
 // Bad Request Error (400)
 class BadRequestError extends Error {
     constructor(message) {
@@ -119,3 +119,13 @@ class EmptyRequestBodyError extends Error {
     }
 }
 exports.EmptyRequestBodyError = EmptyRequestBodyError;
+const BodyValidator = (schema, body = {}) => {
+    const { error } = schema.validate(body, { abortEarly: false });
+    if (error && error.details) {
+        const messages = error.details.map((obj) => obj.message.replace(/\"/g, "") // remove quotes from each message
+        );
+        const errorMessage = messages.join(", "); // join all messages into one string
+        throw new BadRequestError(errorMessage);
+    }
+};
+exports.BodyValidator = BodyValidator;
