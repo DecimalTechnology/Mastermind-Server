@@ -14,5 +14,6 @@ const tipsService =  new TipsService(tipsRepository);
 const controller = new TipsContoller(tipsService);
 
 tipsRouter.post("/", adminAuth, roleAuth(UserRole.SUPER_ADMIN),upload.any(), controller.createTips);
+tipsRouter.get("/", adminAuth, roleAuth(UserRole.SUPER_ADMIN), controller.getTips);
 
 export default tipsRouter;

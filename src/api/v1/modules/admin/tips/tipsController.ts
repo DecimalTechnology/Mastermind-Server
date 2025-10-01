@@ -6,6 +6,7 @@ import { BodyValidator } from "../../../../../constants/customErrors";
 import { createTipsValidator } from "../../../../../validations/joi/tipsValidator";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 
+
 export class TipsContoller {
     constructor(private tipsService: TipsService) {}
 
@@ -28,4 +29,15 @@ export class TipsContoller {
             next(error);
         }
     };
+    getTips = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+           const result = await this.tipsService.getAllTips();
+           res.status(STATUS_CODES.OK).json({success:true,data:result})
+        } catch (error) {
+            next(error);
+        }
+    };
+
+
+ 
 }

@@ -10,4 +10,8 @@ export class TipsService{
       
          return await this.tipsRepository.create(data)
     }
+
+    async getAllTips():Promise<ITips[]>{
+        return await this.tipsRepository.findAll()
+    }
 }

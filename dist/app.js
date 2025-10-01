@@ -27,6 +27,8 @@ const memberRoutes_1 = __importDefault(require("./api/v1/modules/admin/member/me
 const visionBoardRouter_1 = __importDefault(require("./api/v1/modules/user/visionBoard/visionBoardRouter"));
 const tipsRoutes_1 = __importDefault(require("./api/v1/modules/admin/tips/tipsRoutes"));
 const tipsRouter_1 = __importDefault(require("./api/v1/modules/user/tips/tipsRouter"));
+const discountRouter_1 = __importDefault(require("./api/v1/modules/admin/discount/discountRouter"));
+const discountRouter_2 = __importDefault(require("./api/v1/modules/user/discount/discountRouter"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -45,6 +47,7 @@ app.use(`/${version}/tycb`, TYCBRoutes_1.default);
 app.use(`/${version}/accountability`, accountablitySlipRouter_1.default);
 app.use(`/${version}/visionboard`, visionBoardRouter_1.default);
 app.use(`/${version}/tips`, tipsRouter_1.default);
+app.use(`/${version}/discounts`, discountRouter_2.default);
 // Admin Routes
 app.use(`/${version}/admin/auth`, authRoutes_2.default);
 app.use(`/${version}/admin/nation`, route_1.default);
@@ -54,6 +57,7 @@ app.use(`/${version}/admin/local`, localRoutes_1.default);
 app.use(`/${version}/admin/event`, eventRouter_1.default);
 app.use(`/${version}/admin/member`, memberRoutes_1.default);
 app.use(`/${version}/admin/tips`, tipsRoutes_1.default);
+app.use(`/${version}/admin/discounts`, discountRouter_1.default);
 // Error handler
 app.use(errorHandler_1.errorHandler);
 exports.Server = http_1.default.createServer(app);
