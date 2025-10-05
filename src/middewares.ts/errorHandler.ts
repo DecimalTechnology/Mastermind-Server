@@ -42,7 +42,12 @@ export const errorHandler = (
             .map((e) => `${e.path.join(' > ')}: ${e.message}`)  // Format Zod errors
             .join(", ");
     }
-    console.error(`\x1b[31m${message}\x1b[0m`);
+    if(statusCode==500){
+        console.log(err)
+    }else{
+
+        console.error( `\x1b[31m${message}\x1b[0m`);
+    }
 
     // Send error response
     res.status(statusCode).json({

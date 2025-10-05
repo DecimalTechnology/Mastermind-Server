@@ -23,8 +23,9 @@ export class EventController {
     // @route  POST v1/admin/event
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        eventSchema.parse(req.body);
         console.log(req.body)
+        eventSchema.parse(req.body);
+        
         const images =  (req.files as any).image
         const image = images[0].location;
         if(!image) throw new BadRequestError("Image is required")

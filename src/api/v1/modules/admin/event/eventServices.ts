@@ -17,7 +17,7 @@ export class EventServices {
     async createEvent(eventData: IEvent, files: any, adminId: string,image:string): Promise<any> {
         
         const newEventObj = { ...eventData, image, createdBy: adminId };
-        console.log(newEventObj);
+        
         return await this.eventRepository.create(newEventObj);
     }
 

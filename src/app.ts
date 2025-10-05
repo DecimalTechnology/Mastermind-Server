@@ -19,6 +19,10 @@ import tycbRouter from "./api/v1/modules/user/TYCB/TYCBRoutes";
 import accountabilityRouter from "./api/v1/modules/user/accountabilitySlip/accountablitySlipRouter";
 import memberRouter from "./api/v1/modules/admin/member/memberRoutes";
 import visionBoardRouter from "./api/v1/modules/user/visionBoard/visionBoardRouter";
+import tipsRouter from "./api/v1/modules/admin/tips/tipsRoutes";
+import tipsUserRouter from './api/v1/modules/user/tips/tipsRouter' 
+import discountRouter from "./api/v1/modules/admin/discount/discountRouter";
+import discountUserRouter from "./api/v1/modules/user/discount/discountRouter";
 
 
 
@@ -41,6 +45,9 @@ app.use(`/${version}/testimonial`, testMonialRouter)
 app.use(`/${version}/tycb`, tycbRouter);
 app.use(`/${version}/accountability`,accountabilityRouter);
 app.use(`/${version}/visionboard`,visionBoardRouter);
+app.use(`/${version}/tips`,tipsUserRouter);
+app.use(`/${version}/discounts`,discountUserRouter);
+
 
 
 
@@ -52,6 +59,9 @@ app.use(`/${version}/admin/region`,regionRouter)
 app.use(`/${version}/admin/local`,localRouter);
 app.use(`/${version}/admin/event`,eventRouter)
 app.use(`/${version}/admin/member`,memberRouter)
+app.use(`/${version}/admin/tips`, tipsRouter);
+app.use(`/${version}/admin/discounts`, discountRouter);
+
 
 // Error handler
 app.use(errorHandler);
