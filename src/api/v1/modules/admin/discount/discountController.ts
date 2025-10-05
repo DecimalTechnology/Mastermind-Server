@@ -10,11 +10,17 @@ export class DiscountController {
     createDiscount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             BodyValidator(discountValidator, req.body);
-            const imageFile = req.file;
-            const images = await uploadImagesToS3([imageFile] as any);
-            req.body.image =  images[0];
+             console.log(req.files)
+            // const loca = (req);
+
+            // console.log(loca);
+            // const imageFile = req.file;
+            // const images = await uploadImagesToS3([imageFile] as any);
+            console.log(req.files)
+            const images = (req.files as any)?.image.map((obj: any) => obj?.location);
+             req.body.image = images[0];
             const result = await this.discountService.createDiscount(req.body);
-            res.status(STATUS_CODES.CREATED).json({success:true,message:"New discount successfully created",data:result})
+            res.status(STATUS_CODES.CREATED).json({ success: true, message: "New discount successfully created", data: result });
         } catch (error) {
             next(error);
         }
