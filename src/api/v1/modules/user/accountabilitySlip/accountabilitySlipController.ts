@@ -12,6 +12,8 @@ export class AccountabilityController {
     async createSlip(req: Request, res: Response, next: NextFunction): Promise<void> {
         
         req.body.userId = req.userId;
+
+        console.log(req.body)
         if (req.body.members.length == 0) throw new BadRequestError("At least 1 member is required.");
         const result = await this.accountabilityService.createAccountablity(req.body);
         res.status(OK).json({ success: true, message: "The accountablity slip has been successfully saved", data: result });
