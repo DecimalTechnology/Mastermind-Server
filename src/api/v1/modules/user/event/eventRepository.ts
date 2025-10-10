@@ -67,7 +67,7 @@ export class EventRepository extends BaseRepository<IEvent> {
         });
 
         const res = await Event.aggregate(pipeline);
-        console.log(res);
+       
         return res;
     }
 
