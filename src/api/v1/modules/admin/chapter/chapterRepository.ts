@@ -13,9 +13,9 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         super(Chapter);
     }
 
-    async findAllChapters(search: string): Promise<any> {
+    async findAllChapters(search: string, localId: string): Promise<any> {
         const res = await Chapter.aggregate([
-            { $match: { name: { $regex: search, $options: "i" } } },
+            { $match: { name: { $regex: search, $options: "i" }, localId: new mongoose.Types.ObjectId(localId) } },
             {
                 $lookup: {
                     from: "users",
@@ -141,10 +141,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
     }
     async findAllUsersByLevel(level: string, levelId: string, search: string): Promise<any> {
         if (level == "chapter") {
-            return await User.aggregate([
-                { $match: { chapter: new mongoose.Types.ObjectId(levelId) } },
-                { $match: { name: { $regex: search, $options: "i" } } },
-            ]);
+            return await User.aggregate([{ $match: { chapter: new mongoose.Types.ObjectId(levelId) } }, { $match: { name: { $regex: search, $options: "i" } } }]);
         }
 
         if (level == "region") {
@@ -171,14 +168,13 @@ export class ChapterRepository extends BaseRepository<IChapter> {
     }
 
     async findChapterByChapterId(chapterId: string): Promise<any> {
-        const result = await Promise.all([
-            Chapter.findById(chapterId).populate("regionId").populate("nationId").populate("localId").populate("createdBy"),
-            User.find({ "manage.chapter": new mongoose.Types.ObjectId(chapterId) }),
-            User.countDocuments({ chapter: chapterId }),
-            Event.countDocuments({ chapterId: chapterId }),
-        ]);
+        const chapter = await Chapter.findById(chapterId).populate("regionId").populate("nationId").populate("localId").populate("createdBy");
+        const user = await User.find({ "manage.chapter": new mongoose.Types.ObjectId(chapterId) });
+        const totalUsers = await User.countDocuments({ chapter: chapterId });
+        const totalEvents = await Event.countDocuments({ chapterId: chapterId });
+        const coreTeams = await User.find({ _id: { $in: chapter?.coreTeam } });
 
-        return result;
+        return { chapter, user, totalUsers, totalEvents, coreTeams };
     }
 
     async findMembers(adminId: string, query: any): Promise<any> {
@@ -196,7 +192,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         type == "admin" ? (matchStage.role = "core_team_admin") : "";
         type == "all" ? (matchStage.role = { $in: ["core_team_admin", "member"] }) : "";
 
-        console.log(search, page);
+        
         const result = await User.aggregate([{ $match: matchStage }, { $project: { password: 0 } }]);
 
         return result;
@@ -212,8 +208,8 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         return { user, chapter, profile };
     }
 
-    async findAllMembersOfChapter(chapterId:string):Promise<any>{
-        const users =  await User.find({chapter:new mongoose.Types.ObjectId(chapterId)});
+    async findAllMembersOfChapter(chapterId: string): Promise<any> {
+        const users = await User.find({ chapter: new mongoose.Types.ObjectId(chapterId) });
         return users;
     }
 }

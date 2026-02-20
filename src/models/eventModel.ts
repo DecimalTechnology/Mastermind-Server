@@ -20,7 +20,7 @@ const eventSchema = new mongoose.Schema<IEvent>(
     {
         name: { type: String, required: true },
         description: { type: String, required: true },
-        date: { type: Date, required: true },
+        startDate: { type: Date, required: true },
         endDate: { type: Date, required: true },
         // time: { type: String, required: true },
         place: { type: String, required: true },

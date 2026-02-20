@@ -23,7 +23,7 @@ class BaseRepository {
     searchBySearchQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.Model.find({
-                name: { $regex: query, $options: 'i' }
+                name: { $regex: query, $options: "i" },
             });
         });
     }
@@ -79,6 +79,14 @@ class BaseRepository {
     aggregate(pipeline) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.Model.aggregate(pipeline);
+        });
+    }
+    findByFilter(filter, limit, skip) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.Model.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit);
         });
     }
 }

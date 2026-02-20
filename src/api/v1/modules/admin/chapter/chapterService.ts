@@ -20,7 +20,7 @@ export class ChapterService {
         private localRepository: LocalRepository,
         private accountabilityRepository: AccountablityRepository,
         private mediaRepository: MediaRepository,
-        private eventRepository: EventRepository
+        private eventRepository: EventRepository,
     ) {}
 
     async createChapter(data: IChapter): Promise<any> {
@@ -34,8 +34,8 @@ export class ChapterService {
     }
 
     async getAllChapters(search: string, localId: string): Promise<{ local: ILocal | null; chapters: IChapter[] }> {
-        const allChapters = await this.chapterRepository.findAllChapters(search as string);
         const localData = await this.localRepository.findById(localId);
+        const allChapters = await this.chapterRepository.findAllChapters(search as string, localData?._id as string);
         return { local: localData, chapters: allChapters };
     }
 
@@ -125,10 +125,7 @@ export class ChapterService {
     }
 
     async getAllMedia(chapterId: string): Promise<any> {
-        const events = await this.eventRepository.aggregate([
-            { $match: { chapterId: new mongoose.Types.ObjectId(chapterId) } },
-            { $project: { _id: 1 } },
-        ]);
+        const events = await this.eventRepository.aggregate([{ $match: { chapterId: new mongoose.Types.ObjectId(chapterId) } }, { $project: { _id: 1 } }]);
         const objectIds = events.map((i: Record<string, any>) => i?._id);
 
         return await this.mediaRepository.getMediaByChapterId(objectIds);

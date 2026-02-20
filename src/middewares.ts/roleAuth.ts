@@ -5,14 +5,14 @@ import { UnAuthorizedError } from "../constants/customErrors";
 
 const roleAuth = (...allowedRoles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
+        const role = req?.role;
         try {
-            const role = req?.role;
-           
             if (!role || !allowedRoles.includes(role)) {
                 throw new UnAuthorizedError("Unauthorized: Role not permitted");
             }
             next();
         } catch (error) {
+           
             throw error;
         }
     };
