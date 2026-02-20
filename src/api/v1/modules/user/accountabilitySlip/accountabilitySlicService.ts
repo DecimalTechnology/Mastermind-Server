@@ -11,6 +11,9 @@ export class AccountabilitySliService {
     async getAllAccountablity(userId: string): Promise<IAccountablity[]> {
         return await this.accountabilityRepository.findAllAccountability(userId);
     }
+
+
+    
     async getSlipById(slipId: string): Promise<IAccountablity | null> {
         const slip = await this.accountabilityRepository.findById(slipId);
         if (!slip) throw new NotFoundError("The slip is not found");

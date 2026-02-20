@@ -23,16 +23,13 @@ export class EventController {
     // @route  POST v1/admin/event
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        console.log(req.body)
         eventSchema.parse(req.body);
-        
-        const images =  (req.files as any).image
+        const images = (req.files as any).image;
         const image = images[0].location;
-        if(!image) throw new BadRequestError("Image is required")
+        if (!image) throw new BadRequestError("Image is required");
         const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
 
-      
-        const result = await this.eventServices.createEvent(data, req.files, req.adminId as string,image);
+        const result = await this.eventServices.createEvent(data, req.files, req.adminId as string, image);
         res.status(OK).json({ success: true, message: "New event created successfully", data: result });
     }
     // @desc   Get all the events
@@ -50,6 +47,7 @@ export class EventController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async updateEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
         const eventId = req.params.id;
+        console.log(req.body);
         const data = { ...req.body, customFields: JSON.parse(req.body.customFields) };
         if (!eventId) throw new NotFoundError("The event Id not found");
         const result = await this.eventServices.updateEvent(eventId, data, req.files);

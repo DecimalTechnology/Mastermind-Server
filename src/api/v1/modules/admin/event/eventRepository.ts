@@ -31,6 +31,7 @@ export class EventRepository extends BaseRepository<IEvent> {
     }
 
     async getAllEvents(chapterId: string, query: any): Promise<any> {
+        console.log(chapterId)
         const page = parseInt(query?.page) || 0;
 
         const matchStage: any = {
@@ -66,10 +67,11 @@ export class EventRepository extends BaseRepository<IEvent> {
             { $skip: page * 10 },
             { $limit: 10 },
         ]);
-
+        const eventss = await Event.find({chapterId:new mongoose.Types.ObjectId(chapterId)})
+        console.log(eventss)
         // Count total documents after filters
         const totalPage = await Event.countDocuments(matchStage);
-
+          console.log(events)
         return { events, totalPage };
     }
 

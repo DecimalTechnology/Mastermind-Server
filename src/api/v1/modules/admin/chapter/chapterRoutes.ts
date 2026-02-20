@@ -23,7 +23,7 @@ const eventRepository = new EventRepository()
 const chapterService = new ChapterService(chapterRepository,userRepository,localRepository,accountablityRepository,mediaRepository,eventRepository);
 const controller = new ChapterController(chapterService);
 
-const allowedRoles = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN]
+const allowedRoles = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN,UserRole.NATIONAL_ADMIN]
 const coreTeamAccess = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN,UserRole.CORE_TEAM_ADMIN,UserRole.CHAPTER_ADMIN]
 
 chapterRouter.post('/',adminAuth,roleAuth(...allowedRoles),asyncHandler(controller.createChapter.bind(controller)))

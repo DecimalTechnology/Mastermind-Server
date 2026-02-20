@@ -5,7 +5,7 @@ export interface IEvent extends Document {
     _id:any
   name: string;
   description: string;
-  date: Date;
+  startDate: Date;
   time: string;
   endDate:any;
   place: string;

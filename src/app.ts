@@ -23,6 +23,7 @@ import tipsRouter from "./api/v1/modules/admin/tips/tipsRoutes";
 import tipsUserRouter from './api/v1/modules/user/tips/tipsRouter' 
 import discountRouter from "./api/v1/modules/admin/discount/discountRouter";
 import discountUserRouter from "./api/v1/modules/user/discount/discountRouter";
+import meetingRoutes from "./api/v1/modules/admin/meeting/meetingRoutes";
 
 
 
@@ -61,6 +62,7 @@ app.use(`/${version}/admin/event`,eventRouter)
 app.use(`/${version}/admin/member`,memberRouter)
 app.use(`/${version}/admin/tips`, tipsRouter);
 app.use(`/${version}/admin/discounts`, discountRouter);
+app.use(`/${version}/admin/meeting`, meetingRoutes);
 
 
 // Error handler
