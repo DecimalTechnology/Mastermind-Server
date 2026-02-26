@@ -10,6 +10,8 @@ export class EventRepository extends BaseRepository<IEvent> {
     }
 
     async findEventsByFilter(sort: string, filter: string, chapterInfo: any, userId: string, date: string): Promise<IEvent[]> {
+        
+        
         const chapterId = new mongoose.Types.ObjectId(chapterInfo?._id);
         const localId = new mongoose.Types.ObjectId(chapterInfo?.localId);
         const regionId = new mongoose.Types.ObjectId(chapterInfo?.regionId);
@@ -25,7 +27,7 @@ export class EventRepository extends BaseRepository<IEvent> {
         if (sort === "local") pipeline.push({ $match: { localId } });
         if (sort === "nation") pipeline.push({ $match: { nationId } });
 
-        // Audience filter
+        //Audience filter
         pipeline.push({
             $match: {
                 $or: [{ audienceType: "all" }, { attendees: { $in: [userObjectId] } }],
@@ -38,27 +40,23 @@ export class EventRepository extends BaseRepository<IEvent> {
 
         // ✅ Date filter: Convert Flutter UTC timestamp to IST day, then filter in UTC
         if (date) {
-            const inputDateUTC = new Date(date);
+            const selectedDate = new Date(date);
 
-            // IST offset in minutes (+5:30)
-            const ISTOffset = 330;
-            const inputDateIST = new Date(inputDateUTC.getTime() + ISTOffset * 60 * 1000);
+            const startOfDay = new Date(selectedDate);
+            startOfDay.setUTCHours(0, 0, 0, 0);
 
-            // Compute UTC start/end of that IST day
-            const startOfDayUTC = new Date(
-                Date.UTC(inputDateIST.getUTCFullYear(), inputDateIST.getUTCMonth(), inputDateIST.getUTCDate(), 0, 0, 0, 0)
-            );
-            const endOfDayUTC = new Date(
-                Date.UTC(inputDateIST.getUTCFullYear(), inputDateIST.getUTCMonth(), inputDateIST.getUTCDate(), 23, 59, 59, 999)
-            );
+            const endOfDay = new Date(selectedDate);
+            endOfDay.setUTCHours(23, 59, 59, 999);
 
             pipeline.push({
                 $match: {
-                    date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
+                    startDate: { $lte: endOfDay },
+                    endDate: { $gte: startOfDay },
                 },
             });
         }
-
+        const inputDate = new Date(date);
+      
         // Add 'registered' field
         pipeline.push({
             $addFields: {
@@ -123,5 +121,39 @@ export class EventRepository extends BaseRepository<IEvent> {
         });
 
         return events;
+    }
+
+    async getWeeklyEvents(user: any, chapter: any) {
+        const now = new Date();
+
+        // Start of the week (Monday)
+        const day = now.getDay();
+        const diffToMonday = day === 0 ? 6 : day - 1;
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - diffToMonday);
+        weekStart.setHours(0, 0, 0, 0);
+
+        // End of the week (Sunday)
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+
+        // Return events overlapping this week
+
+        const chapterId = chapter?._id;
+        const localId = chapter?.localId;
+        const regionId = chapter?.regionId;
+        const nationId = chapter?.nationId;
+
+        return await Event.find({
+            $or: [
+                { chapterId: new mongoose.Types.ObjectId(chapterId) },
+                { localId: new mongoose.Types.ObjectId(localId) },
+                { regionId: new mongoose.Types.ObjectId(regionId) },
+                { nationId: new mongoose.Types.ObjectId(nationId) },
+            ],
+            startDate: { $lte: weekEnd },
+            endDate: { $gte: weekStart },
+        });
     }
 }

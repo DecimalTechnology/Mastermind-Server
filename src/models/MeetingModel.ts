@@ -29,7 +29,8 @@ const meetingSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         refPath: 'meetingType'   
-    }
+    },
+    customFields:[]
 },{timestamps:true});
 
 export default mongoose.model("Meeting", meetingSchema);

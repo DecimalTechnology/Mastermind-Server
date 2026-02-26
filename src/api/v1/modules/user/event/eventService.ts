@@ -26,10 +26,10 @@ export class EventService {
         const chapterInfo = await this.chapterRepository.findById(chapterId || "");
 
         const events =  await this.eventRepository.findEventsByFilter(sort, filter, chapterInfo, userId, date as string);
-        const meetings = await this.accountabilityRepository.findAllAccountabilityByDate(userId,date);
+        const meetings = await this.accountabilityRepository.findAllAccountabilityByDate(userId,date,sort);
  
         
-        return { events, meetings };
+        return { events,meetings: meetings };
     }
 
     async getEventById(eventId: string, userId: string): Promise<IEvent | null> {

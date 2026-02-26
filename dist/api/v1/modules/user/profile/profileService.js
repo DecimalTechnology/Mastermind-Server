@@ -28,11 +28,12 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const customErrors_1 = require("../../../../../constants/customErrors");
 const uploadToCloudinary_1 = require("../../../../../utils/v1/cloudinary/uploadToCloudinary");
 class ProfileService {
-    constructor(profileRepository, chapterRepository, userRepository, accountabilityRepository) {
+    constructor(profileRepository, chapterRepository, userRepository, accountabilityRepository, eventRepository) {
         this.profileRepository = profileRepository;
         this.chapterRepository = chapterRepository;
         this.userRepository = userRepository;
         this.accountabilityRepository = accountabilityRepository;
+        this.eventRepository = eventRepository;
     }
     getProfile(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -137,10 +138,7 @@ class ProfileService {
     connectUser(senderId, receiverId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const connection = yield this.profileRepository.findConnectionsDataByArray([
-                    new mongoose_1.default.Types.ObjectId(senderId),
-                    new mongoose_1.default.Types.ObjectId(receiverId),
-                ]);
+                const connection = yield this.profileRepository.findConnectionsDataByArray([new mongoose_1.default.Types.ObjectId(senderId), new mongoose_1.default.Types.ObjectId(receiverId)]);
                 const senderDataIndex = connection.findIndex((obj) => (obj === null || obj === void 0 ? void 0 : obj.userId) == senderId);
                 const receiverDataIndex = connection.findIndex((obj) => (obj === null || obj === void 0 ? void 0 : obj.userId) == receiverId);
                 if (senderDataIndex < 0) {
@@ -275,8 +273,7 @@ class ProfileService {
                 if (!user.chapter)
                     throw new customErrors_1.NotFoundError("Chapter not found");
                 const chapter = yield this.chapterRepository.findChapter(user.chapter.toString());
-                const connections = yield this.profileRepository.findConnectionByUserId(userId);
-                const allMeetings = yield this.accountabilityRepository.findAllThisWeekMeetings(userId);
+                const accountabilities = yield this.accountabilityRepository.findAllThisWeekMeetings(userId);
                 const userInfo = {
                     name: profile === null || profile === void 0 ? void 0 : profile.name,
                     email: user === null || user === void 0 ? void 0 : user.email,
@@ -285,18 +282,11 @@ class ProfileService {
                     chapter: chapter === null || chapter === void 0 ? void 0 : chapter.name,
                     region: (_a = chapter === null || chapter === void 0 ? void 0 : chapter.regionId) === null || _a === void 0 ? void 0 : _a.name,
                 };
-                let nextMeeting = null;
-                const nextMeetingArr = yield this.accountabilityRepository.findNextMeeting(userId);
-                console.log(nextMeetingArr);
-                if (nextMeetingArr.length !== 0) {
-                    nextMeeting = nextMeetingArr[0];
-                }
-                const meetings = yield this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
-                if (Array.isArray(meetings) && meetings.length > 0) {
-                    nextMeeting = meetings[0];
-                }
-                const totalConnections = Array.isArray(connections) && connections.length > 0 ? connections[0].connections : 0;
-                return { userInfo, nextMeeting, connections: totalConnections, weeklyMeetings: allMeetings };
+                let nextMeeting = yield this.accountabilityRepository.findNextMeeting(user);
+                // const weeklyMeetings = await
+                let totalWeeklyMeetings = yield this.accountabilityRepository.findWeeklyMeetings(user);
+                const events = yield this.eventRepository.getWeeklyEvents(user, chapter);
+                return { userInfo, nextMeeting, accountabilityCount: accountabilities.length, weeklyMeetingsCount: totalWeeklyMeetings.length, totalEvents: events.length };
             }
             catch (error) {
                 console.error("Error in getHomeProfile:", error);

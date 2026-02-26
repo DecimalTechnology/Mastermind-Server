@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import { IAccountablity } from "../../../../../interfaces/models/IAccountablity";
 import AccountablitySlip from "../../../../../models/accountabilitySlip";
 import { BaseRepository } from "../../shared/repositories/baseRepository";
+import User from "../../../../../models/userModel";
+import { Chapter } from "../../../../../models/chapterModal";
+import MeetingModel from "../../../../../models/MeetingModel";
+import { FilterRuleName } from "@aws-sdk/client-s3";
 
 export class AccountablityRepository extends BaseRepository<IAccountablity> {
     constructor() {
@@ -113,30 +117,56 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
         return res;
     }
 
-    async findAllAccountabilityByDate(userId: string, date?: string): Promise<IAccountablity[]> {
-        // If no date is provided, use today
-        const queryDate = date ? new Date(date) : new Date();
+    async findAllAccountabilityByDate(userId: string, date: string, sort: string): Promise<any> {
+        const user: any = await User.findById(userId);
+        
+        const chapterId = user?.chapter;
 
-        // Set start and end of the day
-        const startOfDay = new Date(queryDate);
+        const chapter = await Chapter.findById(chapterId);
+
+        const localId = chapter?.localId;
+        const regionId = chapter?.regionId;
+        const nationId = chapter?.nationId; // ⚠️ you had mistake here earlier
+    
+        let filter: any = {};
+
+        if (sort === "chapter") {
+            filter.referenceId = chapterId;
+        }
+
+        if (sort === "local") {
+            filter.referenceId = localId;
+        }
+
+        if (sort === "region") {
+            filter.referenceId = regionId;
+        }
+
+        if (sort === "nation") {
+            filter.referenceId = nationId;
+        }
+
+        // Convert incoming date string to Date object
+        const selectedDate = new Date(date);
+
+        // Reset time to match only date
+        const startOfDay = new Date(selectedDate);
         startOfDay.setHours(0, 0, 0, 0);
 
-        const endOfDay = new Date(queryDate);
+        const endOfDay = new Date(selectedDate);
         endOfDay.setHours(23, 59, 59, 999);
 
-        const res = await AccountablitySlip.aggregate([
-            {
-                $match: {
-                    userId: new mongoose.Types.ObjectId(userId),
-                    date: {
-                        $gte: startOfDay,
-                        $lte: endOfDay,
-                    },
-                },
+       // Add date filter for array field
+        filter.dates = {
+            $elemMatch: {
+                $gte: startOfDay,
+                $lte: endOfDay,
             },
-        ]);
+        };
 
-        return res;
+        const meeting = await MeetingModel.find(filter);
+       
+        return meeting;
     }
 
     async findAllNextMeeting(userId: string): Promise<IAccountablity | null> {
@@ -190,19 +220,55 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
         return await AccountablitySlip.aggregate(pipeline);
     }
 
-    async findNextMeeting(userId: string): Promise<IAccountablity[]> {
-        return await AccountablitySlip.aggregate([
-            {
-                $match: {
-                    $or: [{ userId: new mongoose.Types.ObjectId(userId) }, { members: { $in: [new mongoose.Types.ObjectId(userId)] } }],
-                    date: { $gt: new Date() },
-                },
-            },
-            { $sort: { date: 1 } }, // ascending to get nearest future meeting
-            { $limit: 1 },
-        ]);
+    async findNextMeeting(user: any): Promise<any> {
+        const chapterId = user?.chapter;
+
+        const chapter = await Chapter.findById(chapterId);
+
+        const localId = chapter?.localId;
+        const regionId = chapter?.regionId;
+        const nationId = chapter?.nationId;
+
+        const findArr = [new mongoose.Types.ObjectId(chapterId), new mongoose.Types.ObjectId(localId), new mongoose.Types.ObjectId(regionId), new mongoose.Types.ObjectId(nationId)];
+
+        const meeting = await MeetingModel.find({ referenceId: { $in: findArr } })
+            .sort({ "dates.0": 1 })
+            .limit(1);
+
+        return meeting[0];
     }
 
+    async findWeeklyMeetings(user: any): Promise<any> {
+        const chapterId = user?.chapter;
 
-    
+        const chapter = await Chapter.findById(chapterId);
+
+        const findArr = [
+            new mongoose.Types.ObjectId(chapterId),
+            new mongoose.Types.ObjectId(chapter?.localId),
+            new mongoose.Types.ObjectId(chapter?.regionId),
+            new mongoose.Types.ObjectId(chapter?.nationId),
+        ];
+
+        const now = new Date();
+
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+        const meetings = await MeetingModel.find({
+            referenceId: { $in: findArr },
+            dates: {
+                $elemMatch: {
+                    $gte: startOfWeek,
+                    $lt: endOfWeek,
+                },
+            },
+        }).sort({ "dates.0": 1 });
+
+        return meetings;
+    }
 }

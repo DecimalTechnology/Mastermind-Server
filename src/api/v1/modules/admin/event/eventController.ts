@@ -25,8 +25,9 @@ export class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
         eventSchema.parse(req.body);
         const images = (req.files as any).image;
-        const image = images[0].location;
-        if (!image) throw new BadRequestError("Image is required");
+       
+        const image = images?images[0].location:'';
+       
         const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
 
         const result = await this.eventServices.createEvent(data, req.files, req.adminId as string, image);

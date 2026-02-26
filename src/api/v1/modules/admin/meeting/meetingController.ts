@@ -8,28 +8,48 @@ export class MeetingController {
     constructor() {}
 
     createMeeting = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { dates, meetingType, location } = req.body;
-            if (!["Local", "Region", "Nation", "Chapter"].includes(meetingType)) throw new BadRequestError("Invalid meeting type");
+  try {
 
-            if (!location) throw new BadRequestError("Location is required");
+    const { dates, meetingType, location } = req.body;
 
-            if (dates.length == 0) throw new BadRequestError("Provide atlest one date");
-            const userId = req.adminId;
+    if (!["Local", "Region", "Nation", "Chapter"].includes(meetingType))
+      throw new BadRequestError("Invalid meeting type");
 
-            const user: any = await User.findById(userId);
+    if (!location)
+      throw new BadRequestError("Location is required");
 
-            if (!user) throw new NotFoundError("User not found");
+    if (!dates || dates.length === 0)
+      throw new BadRequestError("Provide at least one date");
 
-            const Id = Object.values(user.manage)[0];
-            console.log({ ...req.body, createdBy: user?._id, Id });
-            const newMeeting = await MeetingModel.create({ ...req.body, createdBy: user?._id, referenceId: Id });
-            res.status(STATUS_CODES.CREATED).json({ success: true, data: newMeeting });
-        } catch (error) {
-            next(error);
-        }
-    };
+    const userId = req.adminId;
 
+    const user: any = await User.findById(userId);
+    if (!user)
+      throw new NotFoundError("User not found");
+
+    const Id = Object.values(user.manage)[0];
+
+    // ✅ Convert to Date objects and sort ascending (nearest first)
+    const sortedDates = dates
+      .map((d: string) => new Date(d))
+      .sort((a: Date, b: Date) => a.getTime() - b.getTime());
+
+    const newMeeting = await MeetingModel.create({
+      ...req.body,
+      dates: sortedDates,
+      createdBy: user._id,
+      referenceId: Id,
+    });
+
+    res.status(STATUS_CODES.CREATED).json({
+      success: true,
+      data: newMeeting
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
 
 
 

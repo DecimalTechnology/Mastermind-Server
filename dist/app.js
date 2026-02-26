@@ -30,6 +30,7 @@ const tipsRouter_1 = __importDefault(require("./api/v1/modules/user/tips/tipsRou
 const discountRouter_1 = __importDefault(require("./api/v1/modules/admin/discount/discountRouter"));
 const discountRouter_2 = __importDefault(require("./api/v1/modules/user/discount/discountRouter"));
 const meetingRoutes_1 = __importDefault(require("./api/v1/modules/admin/meeting/meetingRoutes"));
+const meetingRoutes_2 = __importDefault(require("./api/v1/modules/user/meeting/meetingRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -49,6 +50,7 @@ app.use(`/${version}/accountability`, accountablitySlipRouter_1.default);
 app.use(`/${version}/visionboard`, visionBoardRouter_1.default);
 app.use(`/${version}/tips`, tipsRouter_1.default);
 app.use(`/${version}/discounts`, discountRouter_2.default);
+app.use(`/${version}/meetings`, meetingRoutes_2.default);
 // Admin Routes
 app.use(`/${version}/admin/auth`, authRoutes_2.default);
 app.use(`/${version}/admin/nation`, route_1.default);
