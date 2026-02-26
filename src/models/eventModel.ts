@@ -25,7 +25,7 @@ const eventSchema = new mongoose.Schema<IEvent>(
         // time: { type: String, required: true },
         place: { type: String, required: true },
         duration: { type: String },
-        image: { type: String },
+        image: { type: String ,default:""},
         location: { type: String },
         createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         audienceType: { type: String, enum: ["all", "selected"], required: true },

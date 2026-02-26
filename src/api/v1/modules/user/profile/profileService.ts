@@ -7,13 +7,15 @@ import { ProfileRepository } from "./profileRepository";
 import { ChapterRepository } from "../../admin/chapter/chapterRepository";
 import { UserRepository } from "../../shared/repositories/userRepository";
 import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
+import { EventRepository } from "../event/eventRepository";
 
 export class ProfileService {
     constructor(
         private profileRepository: ProfileRepository,
         private chapterRepository: ChapterRepository,
         private userRepository: UserRepository,
-        private accountabilityRepository: AccountablityRepository
+        private accountabilityRepository: AccountablityRepository,
+        private eventRepository:EventRepository
     ) {}
 
     async getProfile(userId: string): Promise<Record<string, any> | null> {
@@ -101,9 +103,9 @@ export class ProfileService {
             }
 
             const chapter = await this.chapterRepository.findById(res.chapter as any);
-            console.log(chapter)
+            console.log(chapter);
             // Attach connection status to the profile response
-            return { ...res, connectionStatus,chapter:chapter?.name };
+            return { ...res, connectionStatus, chapter: chapter?.name };
         } catch (error) {
             console.log("Error while while finding profie by _id");
             throw error;
@@ -111,10 +113,7 @@ export class ProfileService {
     }
     async connectUser(senderId: string, receiverId: string): Promise<any> {
         try {
-            const connection = await this.profileRepository.findConnectionsDataByArray([
-                new mongoose.Types.ObjectId(senderId),
-                new mongoose.Types.ObjectId(receiverId),
-            ]);
+            const connection = await this.profileRepository.findConnectionsDataByArray([new mongoose.Types.ObjectId(senderId), new mongoose.Types.ObjectId(receiverId)]);
 
             const senderDataIndex = connection.findIndex((obj: any) => obj?.userId == senderId);
             const receiverDataIndex = connection.findIndex((obj: any) => obj?.userId == receiverId);
@@ -220,17 +219,15 @@ export class ProfileService {
         try {
             const user = await this.userRepository.findById(userId);
             if (!user) throw new NotFoundError("User not found");
-    
+
             const profile = await this.profileRepository.findProfileByUserId(userId);
             if (!profile) throw new NotFoundError("Profile not found");
-    
+
             if (!user.chapter) throw new NotFoundError("Chapter not found");
             const chapter = await this.chapterRepository.findChapter(user.chapter.toString());
-    
-            const connections = await this.profileRepository.findConnectionByUserId(userId);
-    
-            const allMeetings = await this.accountabilityRepository.findAllThisWeekMeetings(userId);
-    
+
+            const accountabilities = await this.accountabilityRepository.findAllThisWeekMeetings(userId);
+
             const userInfo = {
                 name: profile?.name,
                 email: user?.email,
@@ -239,26 +236,20 @@ export class ProfileService {
                 chapter: chapter?.name,
                 region: chapter?.regionId?.name,
             };
-    
-            let nextMeeting = null;
 
-            const nextMeetingArr = await this.accountabilityRepository.findNextMeeting(userId);
-            console.log(nextMeetingArr)
-            if(nextMeetingArr.length!==0){
-                nextMeeting=nextMeetingArr[0]
-            }
-            const meetings = await this.accountabilityRepository.getUpcomingAndNextMeeting(userId);
-            if (Array.isArray(meetings) && meetings.length > 0) {
-                nextMeeting = meetings[0];
-            }
-    
-            const totalConnections = Array.isArray(connections) && connections.length > 0 ? connections[0].connections : 0;
-    
-            return { userInfo, nextMeeting, connections: totalConnections, weeklyMeetings: allMeetings };
+            let nextMeeting = await this.accountabilityRepository.findNextMeeting(user);
+
+            // const weeklyMeetings = await
+
+
+            let totalWeeklyMeetings = await this.accountabilityRepository.findWeeklyMeetings(user)
+             
+            const events = await this.eventRepository.getWeeklyEvents(user,chapter);
+
+            return { userInfo, nextMeeting, accountabilityCount: accountabilities.length,weeklyMeetingsCount:totalWeeklyMeetings.length,totalEvents:events.length };
         } catch (error) {
             console.error("Error in getHomeProfile:", error);
             throw error;
         }
     }
-    
 }

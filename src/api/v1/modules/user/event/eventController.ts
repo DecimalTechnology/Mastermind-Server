@@ -12,11 +12,12 @@ export class EventController {
     // @access User
     async getAllEvents(req: Request, res: Response, next: NextFunction): Promise<void> {
         const userId = req.userId;
-        const { sort, filter, date } = req.query;
+        const { sort, filter, date="" } = req.query;
 
         if (!sort || !filter) throw new NotFoundError("Please provide filter and sort as query params");
 
         const response = await this.eventService.getAllEvents(sort as string, filter as string, userId as string, date as string);
+         console.log(response)
         res.status(OK).json({ success: true, data: response });
     }
     // @desc   Get event by id

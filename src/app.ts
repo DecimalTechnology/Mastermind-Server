@@ -24,6 +24,7 @@ import tipsUserRouter from './api/v1/modules/user/tips/tipsRouter'
 import discountRouter from "./api/v1/modules/admin/discount/discountRouter";
 import discountUserRouter from "./api/v1/modules/user/discount/discountRouter";
 import meetingRoutes from "./api/v1/modules/admin/meeting/meetingRoutes";
+import userMeetingRoutes from "./api/v1/modules/user/meeting/meetingRoutes";
 
 
 
@@ -48,6 +49,7 @@ app.use(`/${version}/accountability`,accountabilityRouter);
 app.use(`/${version}/visionboard`,visionBoardRouter);
 app.use(`/${version}/tips`,tipsUserRouter);
 app.use(`/${version}/discounts`,discountUserRouter);
+app.use(`/${version}/meetings`,userMeetingRoutes);
 
 
 

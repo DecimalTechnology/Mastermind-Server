@@ -7,19 +7,21 @@ import upload from "../../../../../middewares.ts/upload";
 import { ChapterRepository } from "../../admin/chapter/chapterRepository";
 import { UserRepository } from "../../shared/repositories/userRepository";
 import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
+import { EventRepository } from "../event/eventRepository";
 
 
 const profileRouter = express.Router();
 const profileRepository = new ProfileRepository();
 const chapterRepository = new ChapterRepository();
 const accountablityRepository = new AccountablityRepository();
+const eventRepository = new EventRepository()
 const userRepository = new UserRepository();
-const profileService = new ProfileService(profileRepository, chapterRepository,userRepository,accountablityRepository);
+const profileService = new ProfileService(profileRepository, chapterRepository,userRepository,accountablityRepository,eventRepository);
 const controller = new ProfileController(profileService);
 
 
 profileRouter.put("/", authenticate, (req, res, next) => controller.updateProfile(req, res, next));
-profileRouter.get("/home",authenticate, (req, res, next) => controller.getHomeProfile(req, res, next));
+profileRouter.get("/home", authenticate,(req, res, next) => controller.getHomeProfile(req, res, next));
 profileRouter.get("/", authenticate, (req, res, next) => controller.getProfile(req, res, next));
 profileRouter.patch("/profile-picture", upload.any(), authenticate, (req, res, next) => controller.updateProfilePicture(req, res, next));
 profileRouter.post("/search", authenticate, (req, res, next) => controller.searchProfile(req, res, next));
