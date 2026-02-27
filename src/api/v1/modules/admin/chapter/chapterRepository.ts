@@ -7,6 +7,8 @@ import User from "../../../../../models/userModel";
 import { BaseRepository } from "../../shared/repositories/baseRepository";
 import Event from "../../../../../models/eventModel";
 import Profile from "../../../../../models/profileModel";
+import MeetingModel from "../../../../../models/MeetingModel";
+import AccountablitySlip from "../../../../../models/accountabilitySlip";
 
 export class ChapterRepository extends BaseRepository<IChapter> {
     constructor() {
@@ -168,17 +170,49 @@ export class ChapterRepository extends BaseRepository<IChapter> {
     }
 
     async findChapterByChapterId(chapterId: string): Promise<any> {
-        const chapter = await Chapter.findById(chapterId).populate("regionId").populate("nationId").populate("localId").populate("createdBy");
-        const user = await User.find({ "manage.chapter": new mongoose.Types.ObjectId(chapterId) });
-        const totalUsers = await User.countDocuments({ chapter: chapterId });
-        const totalEvents = await Event.countDocuments({ chapterId: chapterId });
-        const coreTeams = await User.find({ _id: { $in: chapter?.coreTeam } });
+        const chapterObjectId = new mongoose.Types.ObjectId(chapterId);
 
-        return { chapter, user, totalUsers, totalEvents, coreTeams };
+        // 1️⃣ Run independent queries in parallel
+        const [chapter, managedUsers, totalUsers, totalEvents, totalMeetings, chapterUserIds] = await Promise.all([
+            Chapter.findById(chapterId).populate("regionId").populate("nationId").populate("localId").populate("createdBy"),
+
+            User.find({ "manage.chapter": chapterObjectId }),
+
+            User.countDocuments({ chapter: chapterId }),
+
+            Event.countDocuments({ chapterId }),
+
+            MeetingModel.countDocuments({ referenceId: chapterObjectId }),
+
+            User.find({ chapter: chapterId }).distinct("_id"), // 🔥 better than select("_id")
+        ]);
+
+        // 2️⃣ Core team (depends on chapter)
+        const coreTeams = chapter?.coreTeam?.length ? await User.find({ _id: { $in: chapter.coreTeam } }) : [];
+
+        // 3️⃣ Total Accountabilities
+        const totalAccountabilities = await AccountablitySlip.countDocuments({
+            userId: { $in: chapterUserIds },
+        });
+
+        return {
+            chapter,
+            user: managedUsers,
+            totalUsers,
+            totalEvents,
+            coreTeams,
+            totalMeetings,
+            totalAccountabilities,
+        };
     }
 
     async findMembers(adminId: string, query: any): Promise<any> {
-        const { page, type, search } = query;
+        const { page = 1, type, search } = query;
+
+      
+
+        const limit = 10;
+        const skip = (Number(page) - 1) * limit;
 
         const user = await User.findById(adminId);
 
@@ -190,12 +224,25 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         type == "member" ? (matchStage.role = "member") : "";
 
         type == "admin" ? (matchStage.role = "core_team_admin") : "";
+
+        if (type == "admin") {
+            matchStage.role = "core_team_admin";
+            matchStage["manage.chapter"] = new mongoose.Types.ObjectId(user?.chapter);
+        }
+
         type == "all" ? (matchStage.role = { $in: ["core_team_admin", "member"] }) : "";
 
-        
-        const result = await User.aggregate([{ $match: matchStage }, { $project: { password: 0 } }]);
+        const result = await User.aggregate([{ $match: matchStage }, { $project: { password: 0 } }, { $skip: skip }, { $limit: limit }]);
 
-        return result;
+        // ✅ count with same filter
+        const totalCount = await User.countDocuments(matchStage);
+
+        return {
+            data: result,
+            totalCount,
+            currentPage: Number(page),
+            totalPages: Math.ceil(totalCount / limit),
+        };
     }
 
     async getProfile(adminId: string): Promise<any> {

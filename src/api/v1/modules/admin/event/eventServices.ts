@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import { NotFoundError } from "../../../../../constants/customErrors";
 import { IEvent } from "../../../../../interfaces/models/IEvent";
 import { IReport } from "../../../../../interfaces/models/IReport";
 import { IUser } from "../../../../../interfaces/models/IUser";
+import Event from "../../../../../models/eventModel";
 import { deleteImageFromCloudinary } from "../../../../../utils/v1/cloudinary/deleteImageFromCloudinary";
 import { uploadPdfToCloudinary } from "../../../../../utils/v1/cloudinary/uploadPdf";
 import { uploadImageToCloudinary } from "../../../../../utils/v1/cloudinary/uploadToCloudinary";
@@ -10,14 +12,18 @@ import { ReportRepository } from "../../shared/repositories/reportRepository";
 import { EventRepository } from "./eventRepository";
 
 export class EventServices {
-    constructor(private eventRepository: EventRepository, private reportRepository: ReportRepository, private medialRepository: MediaRepository) {}
+    constructor(
+        private eventRepository: EventRepository,
+        private reportRepository: ReportRepository,
+        private medialRepository: MediaRepository,
+    ) {}
     async getAllUsersByLevel(level: string, levelId: string, search: string): Promise<IUser[]> {
         return await this.eventRepository.findAllUsersByLevel(level, levelId, search);
     }
-    async createEvent(eventData: IEvent, files: any, adminId: string,image:string): Promise<any> {
-        console.log(image)
+    async createEvent(eventData: IEvent, files: any, adminId: string, image: string): Promise<any> {
+        console.log(image);
         const newEventObj = { ...eventData, image, createdBy: adminId };
-        
+
         return await this.eventRepository.create(newEventObj);
     }
 
@@ -57,7 +63,6 @@ export class EventServices {
         return event;
     }
     async createChapterEventReport(reportData: IReport, pdf: any): Promise<any> {
-       
         const data = { ...reportData, file: pdf };
         return await this.reportRepository.createReport(data);
     }
@@ -91,5 +96,9 @@ export class EventServices {
 
     async getAllMedia(relatedTo: string): Promise<any> {
         return await this.medialRepository.findRelatedId(relatedTo);
+    }
+    async getAllEventsForCalender(chapterId: string): Promise<any> {
+        const events = await Event.find({ chapterId: new mongoose.Types.ObjectId(chapterId) }, { startDate: 1, endDate: 1, name: 1 });
+        return events;
     }
 }

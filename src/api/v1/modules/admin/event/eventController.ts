@@ -151,4 +151,15 @@ export class EventController {
         const result = await this.eventServices.getAllMedia(eventId);
         res.status(OK).json({ success: true, message: "", data: result });
     }
+    async getAllEventsForCalender(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const {chapterId} = req.params;
+      
+        if(!chapterId||!mongoose.Types.ObjectId.isValid(chapterId)){ throw new BadRequestError("Invalid ChapterId")};
+        const result  = await this.eventServices.getAllEventsForCalender(chapterId as string);
+
+        res.status(OK).json({success:true,data:result})
+          
+    }
+
+    
 }
