@@ -62,7 +62,7 @@ class UserRepository extends baseRepository_1.BaseRepository {
     }
     findMembersByChapterId(chapterId, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { search = "", status } = query;
+            const { search = "", status, page } = query;
             const matchStage = {
                 chapter: new mongoose_1.default.Types.ObjectId(chapterId),
             };
@@ -80,11 +80,11 @@ class UserRepository extends baseRepository_1.BaseRepository {
             else if (status === "Blocked") {
                 matchStage.isBlocked = true;
             }
-            const pipeline = [{ $match: matchStage }, { $sort: { _id: -1 } }];
+            const pipeline = [{ $match: matchStage }, { $sort: { _id: -1 } }, { $skip: (Number(page) - 1) * 10 }, { $limit: 10 }];
             const pendingCount = yield userModel_1.default.aggregate([{ $match: { chapter: new mongoose_1.default.Types.ObjectId(chapterId), isVerified: false } }]);
             const users = yield userModel_1.default.aggregate(pipeline);
-            const totalPage = yield userModel_1.default.find({ chapter: chapterId });
-            return { users: users, pendingCount: pendingCount.length, totalPage: totalPage.length };
+            const totalPage = yield userModel_1.default.countDocuments(matchStage);
+            return { users: users, pendingCount: pendingCount.length, totalPage: totalPage };
         });
     }
     blockUser(userId) {

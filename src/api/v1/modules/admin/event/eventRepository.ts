@@ -31,7 +31,7 @@ export class EventRepository extends BaseRepository<IEvent> {
     }
 
     async getAllEvents(chapterId: string, query: any): Promise<any> {
-        console.log(chapterId)
+        
         const page = parseInt(query?.page) || 0;
 
         const matchStage: any = {

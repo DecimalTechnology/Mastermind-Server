@@ -51,6 +51,7 @@ export class ChapterController {
         const chapterId = req.params.id;
 
         const result = await this.chapterService.getChapterById(chapterId as string);
+       
         res.status(OK).json({ success: true, message: "", data: result });
     }
     // @desc   Get all members inside a chapter

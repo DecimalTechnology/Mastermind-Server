@@ -71,4 +71,5 @@ eventRouter.patch("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), 
 eventRouter.post("/cancel/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.cancelEvent.bind(controller)));
 eventRouter.put("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.updateEvent.bind(controller)));
 eventRouter.get("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getEventById.bind(controller)));
+eventRouter.get("/chapter/:chapterId/calender/events",adminAuth,roleAuth(...coreTeamAccess),asyncHandler( controller.getAllEventsForCalender.bind(controller)))
 export default eventRouter;
