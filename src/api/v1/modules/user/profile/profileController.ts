@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ProfileService } from "./profileService";
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
-import { EmptyRequestBodyError, NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, EmptyRequestBodyError, NotFoundError } from "../../../../../constants/customErrors";
 
 const { OK, CREATED } = STATUS_CODES;
 export class ProfileController {
@@ -173,4 +173,27 @@ export class ProfileController {
             next(error);
         }
     }
+    async getWeeklyReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId  = req.userId;
+            const response = await this.profileService.getHomeProfile(userId as string);
+            res.status(OK).json({ success: true, message: " ", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+    async weeklyReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId  = req.userId;
+            const {filter} = req.query;
+            if(!['upcoming','past'].includes(filter as string)) throw new BadRequestError("Invalid filter, filter must be upcoming or past")
+            const response = await this.profileService.weeklyReport(userId as string,filter as string);
+            res.status(OK).json({ success: true, message: " ", data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
+
+
+

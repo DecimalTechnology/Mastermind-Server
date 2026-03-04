@@ -3,6 +3,7 @@ import { MemberService } from "./memberService";
 import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
 
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
+import mongoose from "mongoose";
 const { OK } = STATUS_CODES;
 export class MemberController {
     constructor(private memberService: MemberService) {}
@@ -56,6 +57,14 @@ export class MemberController {
         if (!id) throw new BadRequestError("Hierarchy Id is required");
 
         const result = await this.memberService.getAllMembers(type as string, id as string);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    async getMemberById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const {memberId} = req.params;
+        
+        if(!memberId||!mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+
+        const result = await this.memberService.getMemberById(memberId as string);
         res.status(OK).json({ success: true, message: "", data: result });
     }
 }

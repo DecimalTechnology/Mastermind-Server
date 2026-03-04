@@ -82,4 +82,10 @@ export class MemberService {
 
         return result||[]
     }
+    async getMemberById(memberId:string): Promise<any> {
+       
+       const member = await User.findOne({_id:new mongoose.Types.ObjectId(memberId)},{password:0});
+       if(!member) throw new NotFoundError("Member not found");
+       return member;
+    } 
 }

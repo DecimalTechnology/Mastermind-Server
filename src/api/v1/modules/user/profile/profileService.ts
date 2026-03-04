@@ -1,5 +1,5 @@
 import mongoose, { ConnectionStates } from "mongoose";
-import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, NotFoundError, UnAuthorizedError } from "../../../../../constants/customErrors";
 import { IConnections } from "../../../../../interfaces/models/IConnection";
 import { IProfile } from "../../../../../interfaces/models/IProfile";
 import { uploadImageToCloudinary } from "../../../../../utils/v1/cloudinary/uploadToCloudinary";
@@ -8,6 +8,10 @@ import { ChapterRepository } from "../../admin/chapter/chapterRepository";
 import { UserRepository } from "../../shared/repositories/userRepository";
 import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
 import { EventRepository } from "../event/eventRepository";
+import Event from "../../../../../models/eventModel";
+import User from "../../../../../models/userModel";
+import MeetingModel from "../../../../../models/MeetingModel";
+import AccountablitySlip from "../../../../../models/accountabilitySlip";
 
 export class ProfileService {
     constructor(
@@ -15,7 +19,7 @@ export class ProfileService {
         private chapterRepository: ChapterRepository,
         private userRepository: UserRepository,
         private accountabilityRepository: AccountablityRepository,
-        private eventRepository:EventRepository
+        private eventRepository: EventRepository,
     ) {}
 
     async getProfile(userId: string): Promise<Record<string, any> | null> {
@@ -241,14 +245,53 @@ export class ProfileService {
 
             // const weeklyMeetings = await
 
+            let totalWeeklyMeetings = await this.accountabilityRepository.findWeeklyMeetings(user);
 
-            let totalWeeklyMeetings = await this.accountabilityRepository.findWeeklyMeetings(user)
-             
-            const events = await this.eventRepository.getWeeklyEvents(user,chapter);
+            const events = await this.eventRepository.getWeeklyEvents(user, chapter);
 
-            return { userInfo, nextMeeting, accountabilityCount: accountabilities.length,weeklyMeetingsCount:totalWeeklyMeetings.length,totalEvents:events.length };
+            return { userInfo, nextMeeting, accountabilityCount: accountabilities.length, weeklyMeetingsCount: totalWeeklyMeetings.length, totalEvents: events.length };
         } catch (error) {
             console.error("Error in getHomeProfile:", error);
+            throw error;
+        }
+    }
+
+    async weeklyReport(userId: string, filter: string): Promise<any> {
+        try {
+            const user = await User.findById(userId);
+            if (!user) throw new UnAuthorizedError("User not found");
+
+            const chapterId = new mongoose.Types.ObjectId(user.chapter);
+            const userObjectId = new mongoose.Types.ObjectId(userId);
+
+            const statusValue = filter === "upcoming" ? "upcoming" : "ended";
+
+            // 🔹 Events
+            const events = await Event.find({
+                chapterId,
+                status: statusValue,
+                $or: [{ eventType: "all" }, { attendees: userObjectId }],
+            });
+
+            // 🔹 Meetings
+            const meetings = await MeetingModel.find({
+                referenceId: chapterId,
+                status: statusValue,
+            });
+
+            // 🔹 Accountabilities (FIXED)
+            const accountabilities = await AccountablitySlip.find({
+                date: filter === "upcoming" ? { $gte: new Date() } : { $lt: new Date() },
+                $or: [{ userId: userObjectId }, { members: userObjectId }],
+            });
+
+            return {
+                events,
+                meetings,
+                accountabilities,
+            };
+        } catch (error) {
+            console.error("Error in weeklyReport:", error);
             throw error;
         }
     }

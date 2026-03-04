@@ -27,6 +27,10 @@ exports.ProfileService = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const customErrors_1 = require("../../../../../constants/customErrors");
 const uploadToCloudinary_1 = require("../../../../../utils/v1/cloudinary/uploadToCloudinary");
+const eventModel_1 = __importDefault(require("../../../../../models/eventModel"));
+const userModel_1 = __importDefault(require("../../../../../models/userModel"));
+const MeetingModel_1 = __importDefault(require("../../../../../models/MeetingModel"));
+const accountabilitySlip_1 = __importDefault(require("../../../../../models/accountabilitySlip"));
 class ProfileService {
     constructor(profileRepository, chapterRepository, userRepository, accountabilityRepository, eventRepository) {
         this.profileRepository = profileRepository;
@@ -290,6 +294,43 @@ class ProfileService {
             }
             catch (error) {
                 console.error("Error in getHomeProfile:", error);
+                throw error;
+            }
+        });
+    }
+    weeklyReport(userId, filter) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield userModel_1.default.findById(userId);
+                if (!user)
+                    throw new customErrors_1.UnAuthorizedError("User not found");
+                const chapterId = new mongoose_1.default.Types.ObjectId(user.chapter);
+                const userObjectId = new mongoose_1.default.Types.ObjectId(userId);
+                const statusValue = filter === "upcoming" ? "upcoming" : "ended";
+                // 🔹 Events
+                const events = yield eventModel_1.default.find({
+                    chapterId,
+                    status: statusValue,
+                    $or: [{ eventType: "all" }, { attendees: userObjectId }],
+                });
+                // 🔹 Meetings
+                const meetings = yield MeetingModel_1.default.find({
+                    referenceId: chapterId,
+                    status: statusValue,
+                });
+                // 🔹 Accountabilities (FIXED)
+                const accountabilities = yield accountabilitySlip_1.default.find({
+                    date: filter === "upcoming" ? { $gte: new Date() } : { $lt: new Date() },
+                    $or: [{ userId: userObjectId }, { members: userObjectId }],
+                });
+                return {
+                    events,
+                    meetings,
+                    accountabilities,
+                };
+            }
+            catch (error) {
+                console.error("Error in weeklyReport:", error);
                 throw error;
             }
         });

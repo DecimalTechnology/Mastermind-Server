@@ -17,7 +17,7 @@ export class MeetingController {
         try {
 
             
-            const { type, date } = req.query;
+            const { type, date ,filter} = req.query;
             const userId = req.userId;
 
             const user = await User.findById(userId);
@@ -53,6 +53,10 @@ export class MeetingController {
                     },
                 };
             }
+
+            if(filter=="Upcoming") query.status=='Upcoming';
+            if(filter=="Ended") query.status=='Ended';
+            if(filter=="Next") query.status=='Next';
 
             const meetings = await MeetingModel.find(query);
 

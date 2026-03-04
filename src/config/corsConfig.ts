@@ -8,7 +8,8 @@ export const corsConfig = () => {
             "http://127.0.0.1:5500",
             "http://localhost:3001",
             "http://localhost:3000",
-            "https://mm-web-ten.vercel.app"
+            "https://mm-web-ten.vercel.app",
+            "https://mastermind-admin-ten.vercel.app"
         ],
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         allowedHeaders: ["Content-Type", "Authorization"],

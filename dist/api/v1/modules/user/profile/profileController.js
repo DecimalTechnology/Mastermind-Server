@@ -230,5 +230,32 @@ class ProfileController {
             }
         });
     }
+    getWeeklyReport(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = req.userId;
+                const response = yield this.profileService.getHomeProfile(userId);
+                res.status(OK).json({ success: true, message: " ", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    weeklyReport(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = req.userId;
+                const { filter } = req.query;
+                if (!['upcoming', 'past'].includes(filter))
+                    throw new customErrors_1.BadRequestError("Invalid filter, filter must be upcoming or past");
+                const response = yield this.profileService.weeklyReport(userId, filter);
+                res.status(OK).json({ success: true, message: " ", data: response });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
 }
 exports.ProfileController = ProfileController;
