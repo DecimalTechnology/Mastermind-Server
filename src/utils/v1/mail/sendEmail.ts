@@ -18,7 +18,7 @@ export function sendLinkToEmail(email: string, text: string,html:string): Promis
     const mailOptions = {
         from: "adarshjithu10@gmail.com",
         to: email,
-        subject: 'Your Login Password - Master Mind',
+        subject: 'From Oxygen Mastermind',
         html:html
     };
 
