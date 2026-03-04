@@ -231,7 +231,7 @@ export class AccountablityRepository extends BaseRepository<IAccountablity> {
 
         const findArr = [new mongoose.Types.ObjectId(chapterId), new mongoose.Types.ObjectId(localId), new mongoose.Types.ObjectId(regionId), new mongoose.Types.ObjectId(nationId)];
 
-        const meeting = await MeetingModel.find({ referenceId: { $in: findArr } })
+        const meeting = await MeetingModel.find({ referenceId: { $in: findArr },status:"Next" })
             .sort({ "dates.0": 1 })
             .limit(1);
 

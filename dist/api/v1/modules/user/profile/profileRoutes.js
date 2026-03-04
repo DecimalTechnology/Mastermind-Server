@@ -23,6 +23,7 @@ const profileService = new profileService_1.ProfileService(profileRepository, ch
 const controller = new profileController_1.ProfileController(profileService);
 profileRouter.put("/", authenticate_1.authenticate, (req, res, next) => controller.updateProfile(req, res, next));
 profileRouter.get("/home", authenticate_1.authenticate, (req, res, next) => controller.getHomeProfile(req, res, next));
+profileRouter.get("/home/weekly-report", authenticate_1.authenticate, (req, res, next) => controller.weeklyReport(req, res, next));
 profileRouter.get("/", authenticate_1.authenticate, (req, res, next) => controller.getProfile(req, res, next));
 profileRouter.patch("/profile-picture", upload_1.default.any(), authenticate_1.authenticate, (req, res, next) => controller.updateProfilePicture(req, res, next));
 profileRouter.post("/search", authenticate_1.authenticate, (req, res, next) => controller.searchProfile(req, res, next));

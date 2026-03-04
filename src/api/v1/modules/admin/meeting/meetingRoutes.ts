@@ -13,5 +13,8 @@ const access = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMI
 meetingRoutes.post("/",adminAuth,roleAuth(...access),meetingController.createMeeting);
 meetingRoutes.get("/",adminAuth,roleAuth(...access),meetingController.getAllMeeting);
 meetingRoutes.put("/:meetingId",adminAuth,roleAuth(...access),meetingController.updateMeetings);
+meetingRoutes.delete("/:meetingId",adminAuth,roleAuth(...access),meetingController.deleteMeeting);
+meetingRoutes.get('/:meetingId',adminAuth,roleAuth(...access),meetingController.getMeetingById)
+meetingRoutes.put('/:meetingId/attendence',adminAuth,roleAuth(...access),meetingController.saveAttendence)
 
 export default meetingRoutes;

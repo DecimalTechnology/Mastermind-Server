@@ -22,6 +22,7 @@ const controller = new ProfileController(profileService);
 
 profileRouter.put("/", authenticate, (req, res, next) => controller.updateProfile(req, res, next));
 profileRouter.get("/home", authenticate,(req, res, next) => controller.getHomeProfile(req, res, next));
+profileRouter.get("/home/weekly-report", authenticate,(req, res, next) => controller.weeklyReport(req, res, next));
 profileRouter.get("/", authenticate, (req, res, next) => controller.getProfile(req, res, next));
 profileRouter.patch("/profile-picture", upload.any(), authenticate, (req, res, next) => controller.updateProfilePicture(req, res, next));
 profileRouter.post("/search", authenticate, (req, res, next) => controller.searchProfile(req, res, next));

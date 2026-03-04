@@ -22,5 +22,7 @@ memberRouter.patch('/unblock/:id',adminAuth,roleAuth(...access),asyncHandler(con
 memberRouter.patch('/accept/:id',adminAuth,roleAuth(...access),asyncHandler(controller.acceptUser.bind(controller)))
 memberRouter.patch('/reject/:id',adminAuth,roleAuth(...access),asyncHandler(controller.rejectMember.bind(controller)))
 memberRouter.patch('/reject/:id',adminAuth,roleAuth(...access),asyncHandler(controller.rejectMember.bind(controller)))
-memberRouter.get('/all',adminAuth,roleAuth(...access),asyncHandler(controller.getAllMembers.bind(controller)))
+memberRouter.get('/all',adminAuth,roleAuth(...access),asyncHandler(controller.getAllMembers.bind(controller)));
+memberRouter.get('/all',adminAuth,roleAuth(...access),asyncHandler(controller.getAllMembers.bind(controller)));
+memberRouter.get('/history/:memberId',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberById.bind(controller)));
 export default memberRouter;
