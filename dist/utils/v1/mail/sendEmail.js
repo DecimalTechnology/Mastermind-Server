@@ -25,7 +25,7 @@ function sendLinkToEmail(email, text, html) {
     const mailOptions = {
         from: "adarshjithu10@gmail.com",
         to: email,
-        subject: 'Your Login Password - Master Mind',
+        subject: 'From Oxygen Mastermind',
         html: html
     };
     const sendEmail = (mailOptions) => __awaiter(this, void 0, void 0, function* () {
