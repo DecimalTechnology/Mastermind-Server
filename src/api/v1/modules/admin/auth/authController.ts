@@ -84,4 +84,28 @@ export class AuthController {
             next(error);
         }
     }
+   async adminLogout(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+
+        res
+            .clearCookie("mastermind_admin_access_token", {
+                httpOnly: true,
+                sameSite: "none",
+                secure: true,
+            })
+            .clearCookie("mastermind_admin_refresh_token", {
+                httpOnly: true,
+                sameSite: "none",
+                secure: true,
+            })
+            .status(OK)
+            .json({
+                success: true,
+                message: "Admin logged out successfully",
+            });
+
+    } catch (error) {
+        next(error);
+    }
+}
 }

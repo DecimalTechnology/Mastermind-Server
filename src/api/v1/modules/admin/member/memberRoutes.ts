@@ -8,11 +8,13 @@ import roleAuth from "../../../../../middewares.ts/roleAuth";
 import { UserRole } from "../../../../../enums/common";
 import asyncHandler from "../../../../../validations/asyncHandler";
 import { ProfileRepository } from "../../user/profile/profileRepository";
+import { AccountablityRepository } from "../../user/accountabilitySlip/accountablitySilpRepository";
 
 const memberRouter = express.Router();
 const memberRepository = new MemberRepository();
 const userRepository = new UserRepository();
 const profileRepository = new ProfileRepository()
+const accountabilityRepository = new AccountablityRepository();
 const memberService = new MemberService(memberRepository, userRepository,profileRepository);
 const controller = new MemberController(memberService);
 const access = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN,UserRole.CORE_TEAM_ADMIN]
@@ -25,4 +27,5 @@ memberRouter.patch('/reject/:id',adminAuth,roleAuth(...access),asyncHandler(cont
 memberRouter.get('/all',adminAuth,roleAuth(...access),asyncHandler(controller.getAllMembers.bind(controller)));
 memberRouter.get('/all',adminAuth,roleAuth(...access),asyncHandler(controller.getAllMembers.bind(controller)));
 memberRouter.get('/history/:memberId',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberById.bind(controller)));
+memberRouter.get('/history/:memberId/accountability',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberAccountabilityHistory.bind(controller)));
 export default memberRouter;

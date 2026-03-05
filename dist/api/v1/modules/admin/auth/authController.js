@@ -101,5 +101,30 @@ class AuthController {
             }
         });
     }
+    adminLogout(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                res
+                    .clearCookie("mastermind_admin_access_token", {
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true,
+                })
+                    .clearCookie("mastermind_admin_refresh_token", {
+                    httpOnly: true,
+                    sameSite: "none",
+                    secure: true,
+                })
+                    .status(OK)
+                    .json({
+                    success: true,
+                    message: "Admin logged out successfully",
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
 }
 exports.AuthController = AuthController;

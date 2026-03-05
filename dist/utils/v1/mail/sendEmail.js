@@ -14,30 +14,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendLinkToEmail = sendLinkToEmail;
 const nodemailer_1 = __importDefault(require("nodemailer"));
+// GODADDY_WEBMAIL_HOST = "mail.oxygenmastermind.com"
+// GODADDY_WEBMAIL_USERNAME = "support@oxygenmastermind.com"
+// GODADDY_WEBMAIL_PASSWORD = "ufBX[t_4t~u+"
+// GODADDY_WEBMAIL_FROM ='"Oxygen Mastermind" <support@oxygenmastermind.com>'
 function sendLinkToEmail(email, text, html) {
     const transporter = nodemailer_1.default.createTransport({
-        service: "gmail", // Use your email service provider
+        host: `${process.env.GODADDY_WEBMAIL_HOST}`,
+        port: 465,
+        secure: true,
         auth: {
-            user: 'adarshjithu10@gmail.com',
-            pass: process.env.TRANSPORTER_PASSWORD,
+            user: `${process.env.GODADDY_WEBMAIL_USERNAME}`,
+            pass: `${process.env.GODADDY_WEBMAIL_PASSWORD}`,
         },
     });
     const mailOptions = {
-        from: "adarshjithu10@gmail.com",
+        from: `${process.env.GODADDY_WEBMAIL_FROM}`,
         to: email,
-        subject: 'From Oxygen Mastermind',
-        html: html
+        subject: "From Oxygen Mastermind",
+        text: text,
+        html: html,
     };
     const sendEmail = (mailOptions) => __awaiter(this, void 0, void 0, function* () {
         try {
             yield transporter.sendMail(mailOptions);
-            console.log("Mail Send to ", mailOptions.to);
-            //if otp success return true;
+            console.log("Mail Sent to", mailOptions.to);
             return true;
         }
         catch (error) {
             console.error("Error sending email:", error);
-            //if otp fails return false;
             return false;
         }
     });
