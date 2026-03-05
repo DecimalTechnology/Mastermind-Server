@@ -14,6 +14,7 @@ const profileRepository = new profileRepository_1.ProfileRepository();
 const authService = new authServices_1.AuthService(authRepository, profileRepository);
 const controller = new authController_1.AuthController(authService);
 authRouter.post("/login", (req, res, next) => controller.adminLogin(req, res, next));
+authRouter.post("/logout", (req, res, next) => controller.adminLogout(req, res, next));
 authRouter.post("/refresh_token", (req, res, next) => controller.refreshToken(req, res, next));
 authRouter.get("/users", (req, res, next) => controller.getAllUsers(req, res, next));
 authRouter.get("/users", (req, res, next) => controller.getAllUsers(req, res, next));

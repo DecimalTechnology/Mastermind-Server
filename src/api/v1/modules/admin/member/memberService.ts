@@ -10,6 +10,7 @@ import { UserRepository } from "../../shared/repositories/userRepository";
 import { ProfileRepository } from "../../user/profile/profileRepository";
 import { MemberRepository } from "./memberRepository";
 import { Chapter } from "../../../../../models/chapterModal";
+import AccountablitySlip from "../../../../../models/accountabilitySlip";
 
 export class MemberService {
     constructor(
@@ -75,17 +76,38 @@ export class MemberService {
             const chapterObjectIds = chapters?.map((obj: any) => {
                 return obj?._id;
             });
-             
+
             result = await User.find({ chapter: { $in: chapterObjectIds } });
-           
         }
 
-        return result||[]
+        return result || [];
     }
-    async getMemberById(memberId:string): Promise<any> {
-       
-       const member = await User.findOne({_id:new mongoose.Types.ObjectId(memberId)},{password:0});
-       if(!member) throw new NotFoundError("Member not found");
-       return member;
-    } 
+    async getMemberById(memberId: string): Promise<any> {
+        const member = await User.findOne({ _id: new mongoose.Types.ObjectId(memberId) }, { password: 0 });
+        if (!member) throw new NotFoundError("Member not found");
+        return member;
+    }
+    async getMemberAccountablityHistory(memberId: string): Promise<any> {
+        const userObjectId = new mongoose.Types.ObjectId(memberId);
+        const user = await User.findById(userObjectId,{password:0});
+        if(!user) throw new NotFoundError("User not found")
+        const [givenAccountability, receivedAccountability] = await Promise.all([
+            AccountablitySlip.find({
+                userId: userObjectId,
+                isDeleted: false,
+            }).populate("members", "name _id"),
+
+            AccountablitySlip.find({
+                members: userObjectId,
+                isDeleted: false,
+            }).populate("members", "name _id"),
+            
+        ]);
+
+        return {
+            givenAccountability,
+            receivedAccountability,
+            user
+        };
+    }
 }

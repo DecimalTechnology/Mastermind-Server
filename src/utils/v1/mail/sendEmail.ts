@@ -1,13 +1,23 @@
-import nodemailer from 'nodemailer'
-export function sendLinkToEmail(email: string, text: string,html:string): Promise<boolean> {
+import nodemailer from "nodemailer";
+
+// GODADDY_WEBMAIL_HOST = "mail.oxygenmastermind.com"
+// GODADDY_WEBMAIL_USERNAME = "support@oxygenmastermind.com"
+// GODADDY_WEBMAIL_PASSWORD = "ufBX[t_4t~u+"
+// GODADDY_WEBMAIL_FROM ='"Oxygen Mastermind" <support@oxygenmastermind.com>'
+
+export function sendLinkToEmail(email: string, text: string, html: string): Promise<boolean> {
+    
+
     const transporter = nodemailer.createTransport({
-        service: "gmail", // Use your email service provider
+        host: `${process.env.GODADDY_WEBMAIL_HOST}`,
+        port: 465,
+        secure: true,
         auth: {
-            user:'adarshjithu10@gmail.com',
-            pass: process.env.TRANSPORTER_PASSWORD,
+            user: `${process.env.GODADDY_WEBMAIL_USERNAME}`,
+            pass: `${process.env.GODADDY_WEBMAIL_PASSWORD}`,
         },
     });
-    //interface for mail options
+
     interface MailOptions {
         from: string;
         to: string;
@@ -15,25 +25,26 @@ export function sendLinkToEmail(email: string, text: string,html:string): Promis
         text?: string;
         html?: string;
     }
-    const mailOptions = {
-        from: "adarshjithu10@gmail.com",
+
+    const mailOptions: MailOptions = {
+        from: `${process.env.GODADDY_WEBMAIL_FROM}`,
         to: email,
-        subject: 'From Oxygen Mastermind',
-        html:html
+        subject: "From Oxygen Mastermind",
+        text: text,
+        html: html,
     };
 
     const sendEmail = async (mailOptions: MailOptions): Promise<boolean> => {
         try {
             await transporter.sendMail(mailOptions);
 
-            console.log("Mail Send to ", mailOptions.to);
-            //if otp success return true;
+            console.log("Mail Sent to", mailOptions.to);
             return true;
         } catch (error) {
             console.error("Error sending email:", error);
-            //if otp fails return false;
             return false;
         }
     };
+
     return sendEmail(mailOptions);
 }

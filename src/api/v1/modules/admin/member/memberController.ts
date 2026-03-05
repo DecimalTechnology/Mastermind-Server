@@ -67,4 +67,13 @@ export class MemberController {
         const result = await this.memberService.getMemberById(memberId as string);
         res.status(OK).json({ success: true, message: "", data: result });
     }
+    async getMemberAccountabilityHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+        
+        const {memberId} = req.params;
+        
+        if(!memberId||!mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+
+        const result = await this.memberService.getMemberAccountablityHistory("684d5950ad184a226552277a" as string);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
 }
