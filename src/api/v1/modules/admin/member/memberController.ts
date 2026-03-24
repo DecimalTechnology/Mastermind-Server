@@ -4,6 +4,7 @@ import { BadRequestError, NotFoundError } from "../../../../../constants/customE
 
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 import mongoose from "mongoose";
+import User from "../../../../../models/userModel";
 const { OK } = STATUS_CODES;
 export class MemberController {
     constructor(private memberService: MemberService) {}
@@ -50,7 +51,7 @@ export class MemberController {
 
     async getAllMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
         const { type, page = 1, id } = req.query as any;
-        if (!["chapter", "region", "local", "nation"].includes(type)) {             
+        if (!["chapter", "region", "local", "nation"].includes(type)) {
             throw new BadRequestError("Invalid Hierarchy type");
         }
 
@@ -60,20 +61,47 @@ export class MemberController {
         res.status(OK).json({ success: true, message: "", data: result });
     }
     async getMemberById(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const {memberId} = req.params;
-        
-        if(!memberId||!mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+        const { memberId } = req.params;
+
+        if (!memberId || !mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
 
         const result = await this.memberService.getMemberById(memberId as string);
         res.status(OK).json({ success: true, message: "", data: result });
     }
     async getMemberAccountabilityHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
-        
-        const {memberId} = req.params;
-        
-        if(!memberId||!mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+        const { memberId } = req.params;
 
-        const result = await this.memberService.getMemberAccountablityHistory("684d5950ad184a226552277a" as string);
+        if (!memberId || !mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+
+        const result = await this.memberService.getMemberAccountablityHistory(memberId as string);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+    async getMemeberMeetingDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { memberId } = req.params;
+
+        if (!memberId || !mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+
+        const result = await this.memberService.getMemberMeetingDetails(memberId as string);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+
+
+    async getMemberEventDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { memberId } = req.params;
+       
+        if (!memberId || !mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+
+        const result = await this.memberService.getMemberEventDetails(memberId as string);
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
+
+
+    async getMemberConnectionDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { memberId } = req.params;
+       
+        if (!memberId || !mongoose.Types.ObjectId.isValid(memberId)) throw new BadRequestError("Member not found");
+
+        const result = await this.memberService.getMemberConnectionDetails(memberId as string);
         res.status(OK).json({ success: true, message: "", data: result });
     }
 }

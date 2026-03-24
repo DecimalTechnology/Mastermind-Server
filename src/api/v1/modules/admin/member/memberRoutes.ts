@@ -28,4 +28,7 @@ memberRouter.get('/all',adminAuth,roleAuth(...access),asyncHandler(controller.ge
 memberRouter.get('/all',adminAuth,roleAuth(...access),asyncHandler(controller.getAllMembers.bind(controller)));
 memberRouter.get('/history/:memberId',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberById.bind(controller)));
 memberRouter.get('/history/:memberId/accountability',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberAccountabilityHistory.bind(controller)));
+memberRouter.get('/history/:memberId/meetings',adminAuth,roleAuth(...access),asyncHandler(controller.getMemeberMeetingDetails.bind(controller)));
+memberRouter.get('/history/:memberId/events',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberEventDetails.bind(controller)));
+memberRouter.get('/history/:memberId/connections',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberConnectionDetails.bind(controller)));
 export default memberRouter;
