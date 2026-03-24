@@ -32,7 +32,7 @@ export const sendOtpHtml = (otp: string) => {
   return `
     <h3>Your One-Time Password (OTP) -Oxygen Mastermind</h3>
     <p>Hello,</p>
-    <p>Your OTP for verifying your identity on <strong>Oxygen MasterMind</strong> is:</p>
+    <p>Your OTP for verifying your identity on <strong>Oxygen Mastermind</strong> is:</p>
     <p style="font-size: 22px; font-weight: bold; color: #1E88E5;">🔐 ${otp}</p>
     <p>This OTP is valid for a limited time and can only be used once.</p>
     <p>Please do not share this code with anyone.</p>

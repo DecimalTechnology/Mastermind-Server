@@ -11,6 +11,8 @@ import { ProfileRepository } from "../../user/profile/profileRepository";
 import { MemberRepository } from "./memberRepository";
 import { Chapter } from "../../../../../models/chapterModal";
 import AccountablitySlip from "../../../../../models/accountabilitySlip";
+import MeetingModel from "../../../../../models/MeetingModel";
+import Event from "../../../../../models/eventModel";
 
 export class MemberService {
     constructor(
@@ -89,8 +91,8 @@ export class MemberService {
     }
     async getMemberAccountablityHistory(memberId: string): Promise<any> {
         const userObjectId = new mongoose.Types.ObjectId(memberId);
-        const user = await User.findById(userObjectId,{password:0});
-        if(!user) throw new NotFoundError("User not found")
+        const user = await User.findById(userObjectId, { password: 0 });
+        if (!user) throw new NotFoundError("User not found");
         const [givenAccountability, receivedAccountability] = await Promise.all([
             AccountablitySlip.find({
                 userId: userObjectId,
@@ -101,13 +103,58 @@ export class MemberService {
                 members: userObjectId,
                 isDeleted: false,
             }).populate("members", "name _id"),
-            
         ]);
 
         return {
             givenAccountability,
             receivedAccountability,
-            user
+            user,
         };
+    }
+    async getMemberMeetingDetails(memberId: string): Promise<any> {
+        const memberObjectId = new mongoose.Types.ObjectId(memberId);
+        const user = await User.findById(memberObjectId);
+        if (!user) throw new NotFoundError("User not found");
+        const totalMeeting = await MeetingModel.countDocuments({ referenceId: new mongoose.Types.ObjectId(user?.chapter) });
+
+        const attendedMeetings = await MeetingModel.find({ participants: memberObjectId, referenceId: new mongoose.Types.ObjectId(user?.chapter) }, { _id: 1, location: 1 }).lean();
+
+        return { totalMeeting, attendedMeetings };
+    }
+    async getMemberEventDetails(memberId: string): Promise<any> {
+        const memberObjectId = new mongoose.Types.ObjectId(memberId);
+
+        const user: any = await User.findById(memberObjectId);
+        if (!user) throw new NotFoundError("User not found");
+
+        const chapterId = user?.chapter;
+        
+
+        const [totalEvents, registeredEvents, invitedEvents] = await Promise.all([
+            Event.find({ chapterId: chapterId }, { name: 1, _id: 1 }).lean(),
+            Event.find({ chapterId: chapterId, rsvp: memberObjectId }, { name: 1, _id: 1 }).lean(),
+            Event.find({ eventType: "all", chapterId: chapterId, attendees: memberObjectId }, { name: 1, _id: 1 }).lean(),
+        ]);
+
+        return { totalEvents, invitedEvents, registeredEvents };
+    }
+
+    
+    async getMemberConnectionDetails(memberId: string): Promise<any> {
+        const memberObjectId = new mongoose.Types.ObjectId(memberId);
+
+        const user: any = await User.findById(memberObjectId);
+        if (!user) throw new NotFoundError("User not found");
+
+        const chapterId = user?.chapter;
+        
+
+        const [totalEvents, registeredEvents, invitedEvents] = await Promise.all([
+            Event.find({ chapterId: chapterId }, { name: 1, _id: 1 }).lean(),
+            Event.find({ chapterId: chapterId, rsvp: memberObjectId }, { name: 1, _id: 1 }).lean(),
+            Event.find({ eventType: "all", chapterId: chapterId, attendees: memberObjectId }, { name: 1, _id: 1 }).lean(),
+        ]);
+
+        return { totalEvents, invitedEvents, registeredEvents };
     }
 }
