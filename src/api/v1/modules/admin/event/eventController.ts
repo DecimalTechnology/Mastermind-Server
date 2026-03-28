@@ -25,11 +25,11 @@ export class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
         eventSchema.parse(req.body);
         const images = (req.files as any).image;
-       
-        const image = images?images[0].location:'';
-       
-        const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
 
+        const image = images ? images[0].location : "";
+
+        const data = { ...req.body, attendees: JSON.parse(req.body.attendees), customFields: JSON.parse(req.body.customFields) };
+        console.log(data);
         const result = await this.eventServices.createEvent(data, req.files, req.adminId as string, image);
         res.status(OK).json({ success: true, message: "New event created successfully", data: result });
     }
@@ -48,10 +48,14 @@ export class EventController {
     // @access Super_admin, National_admin, Regional_admin, Local_admin
     async updateEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
         const eventId = req.params.id;
-        console.log(req.body);
-        const data = { ...req.body, customFields: JSON.parse(req.body.customFields) };
-        if (!eventId) throw new NotFoundError("The event Id not found");
-        const result = await this.eventServices.updateEvent(eventId, data, req.files);
+        const images = (req.files as any).image;
+         
+         const image = images ? images[0].location : "";
+         
+         const data = { ...req.body, customFields: JSON.parse(req.body.customFields) };
+         if (!eventId) throw new NotFoundError("The event Id not found");
+         
+        const result = await this.eventServices.updateEvent(eventId, data, image);
         res.status(OK).json({ success: true, message: "Event updated successfully", data: result });
     }
     // @desc   Get all rsvp list
@@ -152,14 +156,13 @@ export class EventController {
         res.status(OK).json({ success: true, message: "", data: result });
     }
     async getAllEventsForCalender(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const {chapterId} = req.params;
-      
-        if(!chapterId||!mongoose.Types.ObjectId.isValid(chapterId)){ throw new BadRequestError("Invalid ChapterId")};
-        const result  = await this.eventServices.getAllEventsForCalender(chapterId as string);
+        const { chapterId } = req.params;
 
-        res.status(OK).json({success:true,data:result})
-          
+        if (!chapterId || !mongoose.Types.ObjectId.isValid(chapterId)) {
+            throw new BadRequestError("Invalid ChapterId");
+        }
+        const result = await this.eventServices.getAllEventsForCalender(chapterId as string);
+
+        res.status(OK).json({ success: true, data: result });
     }
-
-    
 }

@@ -20,6 +20,11 @@ class BaseRepository {
             return this.Model.findById(id);
         });
     }
+    findByIdAndDelete(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.Model.findByIdAndDelete(id);
+        });
+    }
     searchBySearchQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.Model.find({

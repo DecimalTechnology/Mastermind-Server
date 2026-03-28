@@ -8,6 +8,7 @@ import { ChapterRepository } from "../../admin/chapter/chapterRepository";
 import { UserRepository } from "../../shared/repositories/userRepository";
 import { AccountablityRepository } from "../accountabilitySlip/accountablitySilpRepository";
 import { EventRepository } from "../event/eventRepository";
+import uploadMediaS3 from "../../../../../utils/v1/s3/image/uploadImageS3";
 
 
 const profileRouter = express.Router();
@@ -24,7 +25,7 @@ profileRouter.put("/", authenticate, (req, res, next) => controller.updateProfil
 profileRouter.get("/home", authenticate,(req, res, next) => controller.getHomeProfile(req, res, next));
 profileRouter.get("/home/weekly-report", authenticate,(req, res, next) => controller.weeklyReport(req, res, next));
 profileRouter.get("/", authenticate, (req, res, next) => controller.getProfile(req, res, next));
-profileRouter.patch("/profile-picture", upload.any(), authenticate, (req, res, next) => controller.updateProfilePicture(req, res, next));
+profileRouter.patch("/profile-picture",uploadMediaS3.fields([{ name: "image" }]), authenticate, (req, res, next) => controller.updateProfilePicture(req, res, next));
 profileRouter.post("/search", authenticate, (req, res, next) => controller.searchProfile(req, res, next));
 profileRouter.post("/connect", authenticate, (req, res, next) => controller.connectUser(req, res, next));
 profileRouter.patch("/connect/accept", authenticate, (req, res, next) => controller.acceptConnection(req, res, next));

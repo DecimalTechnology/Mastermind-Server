@@ -221,7 +221,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         matchStage.chapter = new mongoose.Types.ObjectId(user?.manage?.chapter);
         matchStage.name = { $regex: search, $options: "i" };
 
-        type == "member" ? (matchStage.role = "member") : "";
+        //type == "member" ? (matchStage.role = "member") : "";
 
         type == "admin" ? (matchStage.role = "core_team_admin") : "";
 
@@ -230,7 +230,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
             matchStage["manage.chapter"] = new mongoose.Types.ObjectId(user?.chapter);
         }
 
-        type == "all" ? (matchStage.role = { $in: ["core_team_admin", "member"] }) : "";
+        //type == "all" ? (matchStage.role = { $in: ["core_team_admin", "member"] }) : "";
 
         const result = await User.aggregate([{ $match: matchStage }, { $project: { password: 0 } }, { $skip: skip }, { $limit: limit }]);
 

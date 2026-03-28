@@ -12,7 +12,6 @@ export class ProfileController {
     // @access User
     async updateProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            
             if (!req.body || Object.keys(req.body).length == 0) throw new EmptyRequestBodyError();
             const result = await this.profileService.updateProfile(req.body, req.userId);
             res.status(OK).json({ success: true, message: "Profile datas succesfully updated", data: result });
@@ -37,7 +36,12 @@ export class ProfileController {
     // @access User
     async updateProfilePicture(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const response = await this.profileService.updateProfilePicture(req.userId, req.files);
+            const images = (req.files as any).image;
+              console.log(images)
+            const image = images ? images[0].location : "";
+            console.log(image)
+            const response = await this.profileService.updateProfilePicture(req.userId, image);
+
             res.status(OK).json({ success: true, message: "Profile picture updated successfully", data: response });
         } catch (error) {
             next(error);
@@ -49,9 +53,9 @@ export class ProfileController {
     async searchProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { search, type, page } = req.query;
-            const filter ={...req.body,search,type,page};
+            const filter = { ...req.body, search, type, page };
             if (!req.query.search) throw new NotFoundError("Search query not provided");
-            const response = await this.profileService.searchProfile(filter,req.userId);
+            const response = await this.profileService.searchProfile(filter, req.userId);
             res.status(OK).json({ success: true, message: "", data: response });
         } catch (error) {
             next(error);
@@ -166,7 +170,7 @@ export class ProfileController {
     // @access User
     async getHomeProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId  = req.userId;
+            const userId = req.userId;
             const response = await this.profileService.getHomeProfile(userId as string);
             res.status(OK).json({ success: true, message: " ", data: response });
         } catch (error) {
@@ -175,7 +179,7 @@ export class ProfileController {
     }
     async getWeeklyReport(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId  = req.userId;
+            const userId = req.userId;
             const response = await this.profileService.getHomeProfile(userId as string);
             res.status(OK).json({ success: true, message: " ", data: response });
         } catch (error) {
@@ -184,16 +188,13 @@ export class ProfileController {
     }
     async weeklyReport(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId  = req.userId;
-            const {filter} = req.query;
-            if(!['upcoming','past'].includes(filter as string)) throw new BadRequestError("Invalid filter, filter must be upcoming or past")
-            const response = await this.profileService.weeklyReport(userId as string,filter as string);
+            const userId = req.userId;
+            const { filter } = req.query;
+            if (!["upcoming", "past"].includes(filter as string)) throw new BadRequestError("Invalid filter, filter must be upcoming or past");
+            const response = await this.profileService.weeklyReport(userId as string, filter as string);
             res.status(OK).json({ success: true, message: " ", data: response });
         } catch (error) {
             next(error);
         }
     }
 }
-
-
-

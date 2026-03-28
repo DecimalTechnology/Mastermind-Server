@@ -26,7 +26,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProfileService = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const customErrors_1 = require("../../../../../constants/customErrors");
-const uploadToCloudinary_1 = require("../../../../../utils/v1/cloudinary/uploadToCloudinary");
 const eventModel_1 = __importDefault(require("../../../../../models/eventModel"));
 const userModel_1 = __importDefault(require("../../../../../models/userModel"));
 const MeetingModel_1 = __importDefault(require("../../../../../models/MeetingModel"));
@@ -71,13 +70,11 @@ class ProfileService {
             }
         });
     }
-    updateProfilePicture(userId, files) {
+    updateProfilePicture(userId, image) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const images = yield (0, uploadToCloudinary_1.uploadImageToCloudinary)(files);
-                if (!(images === null || images === void 0 ? void 0 : images.success))
+                if (!image)
                     throw new customErrors_1.BadRequestError("Profile picture failed to update");
-                const image = images === null || images === void 0 ? void 0 : images.results[0].url;
                 const result = yield this.profileRepository.updateProfileImage(userId, image);
                 if (!result)
                     throw new customErrors_1.BadRequestError("Something went wrong, Profile picture failed to update");

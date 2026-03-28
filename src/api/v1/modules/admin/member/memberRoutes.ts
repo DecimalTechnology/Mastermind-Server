@@ -8,16 +8,16 @@ import roleAuth from "../../../../../middewares.ts/roleAuth";
 import { UserRole } from "../../../../../enums/common";
 import asyncHandler from "../../../../../validations/asyncHandler";
 import { ProfileRepository } from "../../user/profile/profileRepository";
-import { AccountablityRepository } from "../../user/accountabilitySlip/accountablitySilpRepository";
+
 
 const memberRouter = express.Router();
 const memberRepository = new MemberRepository();
 const userRepository = new UserRepository();
 const profileRepository = new ProfileRepository()
-const accountabilityRepository = new AccountablityRepository();
 const memberService = new MemberService(memberRepository, userRepository,profileRepository);
 const controller = new MemberController(memberService);
 const access = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN,UserRole.CORE_TEAM_ADMIN]
+
 
 memberRouter.patch('/block/:id',adminAuth,roleAuth(...access),asyncHandler(controller.blockMember.bind(controller)))
 memberRouter.patch('/unblock/:id',adminAuth,roleAuth(...access),asyncHandler(controller.unblockMember.bind(controller)))
@@ -31,4 +31,5 @@ memberRouter.get('/history/:memberId/accountability',adminAuth,roleAuth(...acces
 memberRouter.get('/history/:memberId/meetings',adminAuth,roleAuth(...access),asyncHandler(controller.getMemeberMeetingDetails.bind(controller)));
 memberRouter.get('/history/:memberId/events',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberEventDetails.bind(controller)));
 memberRouter.get('/history/:memberId/connections',adminAuth,roleAuth(...access),asyncHandler(controller.getMemberConnectionDetails.bind(controller)));
+
 export default memberRouter;

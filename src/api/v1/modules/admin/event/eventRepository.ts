@@ -10,10 +10,7 @@ export class EventRepository extends BaseRepository<IEvent> {
     }
     async findAllUsersByLevel(level: string, levelId: string, search: string): Promise<any> {
         if (level == "chapter") {
-            return await User.aggregate([
-                { $match: { chapter: new mongoose.Types.ObjectId(levelId) } },
-                { $match: { name: { $regex: search, $options: "i" }, role: "member" } },
-            ]);
+            return await User.aggregate([{ $match: { chapter: new mongoose.Types.ObjectId(levelId) } }, { $match: { name: { $regex: search, $options: "i" }, role: "member" } }]);
         }
 
         if (level == "region") {
@@ -31,47 +28,41 @@ export class EventRepository extends BaseRepository<IEvent> {
     }
 
     async getAllEvents(chapterId: string, query: any): Promise<any> {
-        
         const page = parseInt(query?.page) || 0;
 
         const matchStage: any = {
             chapterId: new mongoose.Types.ObjectId(chapterId),
         };
 
-        // Filter by status if provided
+        // 🔹 Filter by status
         if (query.status && query.status !== "all") {
             matchStage.status = query.status;
         }
 
-        // Filter by exact date if provided
+        // 🔹 Filter by date (BETWEEN startDate and endDate)
         if (query.date) {
-            const date = new Date(query.date);
-            const nextDay = new Date(date);
-            nextDay.setDate(nextDay.getDate() + 1);
+            const selectedDate = new Date(query.date);
 
-            matchStage.date = {
-                $gte: date,
-                $lt: nextDay,
-            };
+            matchStage.startDate = { $lte: selectedDate };
+            matchStage.endDate = { $gte: selectedDate };
         }
 
-        // Text search if provided
+        // 🔹 Search filter
         if (query.search) {
             matchStage.$or = [{ name: { $regex: query.search, $options: "i" } }, { description: { $regex: query.search, $options: "i" } }];
         }
 
-        // Aggregation pipeline
+        // 🔹 Aggregation
         const events = await Event.aggregate([
             { $match: matchStage },
-            { $sort: { date: -1 } }, // Latest first
+            { $sort: { startDate: -1 } }, // sort by startDate instead of old date
             { $skip: page * 10 },
             { $limit: 10 },
         ]);
-        const eventss = await Event.find({chapterId:new mongoose.Types.ObjectId(chapterId)})
-        console.log(eventss)
-        // Count total documents after filters
+
+        // 🔹 Total count for pagination
         const totalPage = await Event.countDocuments(matchStage);
-          console.log(events)
+
         return { events, totalPage };
     }
 
