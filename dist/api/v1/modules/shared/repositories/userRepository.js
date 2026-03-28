@@ -69,7 +69,7 @@ class UserRepository extends baseRepository_1.BaseRepository {
             if (search) {
                 matchStage.name = { $regex: search, $options: "i" };
             }
-            matchStage.role = "member";
+            //matchStage.role = "member";
             if (status === "Pending") {
                 matchStage.isVerified = false;
             }

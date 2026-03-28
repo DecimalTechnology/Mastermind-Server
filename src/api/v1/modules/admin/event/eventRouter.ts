@@ -67,9 +67,9 @@ eventRouter.get(
     asyncHandler(controller.getAllAttendeesList.bind(controller))
 );
 eventRouter.get("/rsvp/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.findAllRsvpUsersList.bind(controller)));
-eventRouter.patch("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.eventParialUpdate.bind(controller)));
-eventRouter.post("/cancel/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.cancelEvent.bind(controller)));
-eventRouter.put("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.updateEvent.bind(controller)));
-eventRouter.get("/:id", adminAuth, roleAuth(...coreTeamAccess), upload.any(), asyncHandler(controller.getEventById.bind(controller)));
+eventRouter.patch("/:id", adminAuth, roleAuth(...coreTeamAccess), asyncHandler(controller.eventParialUpdate.bind(controller)));
+eventRouter.post("/cancel/:id", adminAuth, roleAuth(...coreTeamAccess), asyncHandler(controller.cancelEvent.bind(controller)));
+eventRouter.put("/:id", adminAuth, roleAuth(...coreTeamAccess), uploadImageS3.fields([{name:"image"}]), asyncHandler(controller.updateEvent.bind(controller)));
+eventRouter.get("/:id", adminAuth, roleAuth(...coreTeamAccess), asyncHandler(controller.getEventById.bind(controller)));
 eventRouter.get("/chapter/:chapterId/calender/events",adminAuth,roleAuth(...coreTeamAccess),asyncHandler( controller.getAllEventsForCalender.bind(controller)))
 export default eventRouter;

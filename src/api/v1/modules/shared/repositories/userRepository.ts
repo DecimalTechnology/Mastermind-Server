@@ -27,7 +27,7 @@ export class UserRepository extends BaseRepository<IUser> {
         if (search) {
             matchStage.name = { $regex: search, $options: "i" };
         }
-        matchStage.role = "member";
+        //matchStage.role = "member";
 
         if (status === "Pending") {
             matchStage.isVerified = false;

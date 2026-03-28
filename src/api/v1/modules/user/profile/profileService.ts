@@ -55,11 +55,11 @@ export class ProfileService {
             throw error;
         }
     }
-    async updateProfilePicture(userId: string, files: any): Promise<any | null> {
+    async updateProfilePicture(userId: string, image: any): Promise<any | null> {
         try {
-            const images: any = await uploadImageToCloudinary(files);
-            if (!images?.success) throw new BadRequestError("Profile picture failed to update");
-            const image = images?.results[0].url;
+         
+            if (!image) throw new BadRequestError("Profile picture failed to update");
+           
             const result = await this.profileRepository.updateProfileImage(userId, image);
 
             if (!result) throw new BadRequestError("Something went wrong, Profile picture failed to update");

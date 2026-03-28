@@ -53,7 +53,11 @@ class ProfileController {
     updateProfilePicture(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.profileService.updateProfilePicture(req.userId, req.files);
+                const images = req.files.image;
+                console.log(images);
+                const image = images ? images[0].location : "";
+                console.log(image);
+                const response = yield this.profileService.updateProfilePicture(req.userId, image);
                 res.status(OK).json({ success: true, message: "Profile picture updated successfully", data: response });
             }
             catch (error) {
@@ -247,7 +251,7 @@ class ProfileController {
             try {
                 const userId = req.userId;
                 const { filter } = req.query;
-                if (!['upcoming', 'past'].includes(filter))
+                if (!["upcoming", "past"].includes(filter))
                     throw new customErrors_1.BadRequestError("Invalid filter, filter must be upcoming or past");
                 const response = yield this.profileService.weeklyReport(userId, filter);
                 res.status(OK).json({ success: true, message: " ", data: response });

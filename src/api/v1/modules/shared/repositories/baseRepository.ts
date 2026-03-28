@@ -5,6 +5,9 @@ export class BaseRepository<T> {
     async findById(id: string): Promise<T | null> {
         return this.Model.findById(id);
     }
+    async findByIdAndDelete(id: string): Promise<T | null> {
+        return this.Model.findByIdAndDelete(id);
+    }
 
     async searchBySearchQuery(query: string): Promise<any> {
         return this.Model.find({
@@ -33,6 +36,7 @@ export class BaseRepository<T> {
     }
 
     async findByIdAndUpdate(id: string, data: any): Promise<any | null> {
+ 
         return this.Model.findByIdAndUpdate(id, data, { new: true });
     }
 

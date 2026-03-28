@@ -10,6 +10,7 @@ import { uploadImageToCloudinary } from "../../../../../utils/v1/cloudinary/uplo
 import { MediaRepository } from "../../shared/media/mediaRepository";
 import { ReportRepository } from "../../shared/repositories/reportRepository";
 import { EventRepository } from "./eventRepository";
+import { deleteS3Object } from "../../../../../utils/v1/s3/image/deleteImageFromS3";
 
 export class EventServices {
     constructor(
@@ -21,7 +22,7 @@ export class EventServices {
         return await this.eventRepository.findAllUsersByLevel(level, levelId, search);
     }
     async createEvent(eventData: IEvent, files: any, adminId: string, image: string): Promise<any> {
-        console.log(image);
+      
         const newEventObj = { ...eventData, image, createdBy: adminId };
 
         return await this.eventRepository.create(newEventObj);
@@ -30,15 +31,14 @@ export class EventServices {
     async getAllEvents(chapterId: string, query: any): Promise<IEvent[]> {
         return await this.eventRepository.getAllEvents(chapterId, query);
     }
-    async updateEvent(eventId: string, data: IEvent, files: any): Promise<IEvent[]> {
-        if (files.length == 0) {
+    async updateEvent(eventId: string, data: IEvent, image: any): Promise<IEvent[]> {
+        if (!image) {
             return await this.eventRepository.findByIdAndUpdate(eventId, data);
         } else {
             const event = await this.eventRepository.findById(eventId);
             const oldImage = event?.image;
-            await deleteImageFromCloudinary(oldImage || "");
-            const images: any = await uploadImageToCloudinary(files);
-            const image = images.results[0].url;
+            await deleteS3Object(oldImage || "");
+          
             const newData = { ...data, image: image };
             return await this.eventRepository.findByIdAndUpdate(eventId, newData);
         }

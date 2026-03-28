@@ -5,4 +5,6 @@ export class DiscountRepository extends BaseRepository<IDiscount>  {
 constructor(){
     super(discountModel)
 }
+
+
 }
