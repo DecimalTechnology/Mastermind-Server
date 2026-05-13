@@ -37,6 +37,7 @@ export class AuthController {
     async adminLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const credentials = loginSchema.parse(req.body);
+           
             const response = await this.authService.adminLogin(credentials as { email: string; password: string });
             const ACCESS_TOKEN_MAX_AGE = 60 * 60 * 1000;
             const REFRESH_TOKEN_MAX_AGE = 48 * 60 * 60 * 1000;

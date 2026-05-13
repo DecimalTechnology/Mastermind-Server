@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
 import { UserRole } from "../../../../../enums/common";
 import { IAccountablity } from "../../../../../interfaces/models/IAccountablity";
 import { IChapter } from "../../../../../interfaces/models/IChaper";
@@ -131,5 +131,18 @@ export class ChapterService {
         const objectIds = events.map((i: Record<string, any>) => i?._id);
 
         return await this.mediaRepository.getMediaByChapterId(objectIds);
+    }
+
+    async getAllCoreteam(chapterId:string):Promise<any>{
+
+       const chapter = await this.chapterRepository.findById(chapterId as string);
+      
+       if(!chapter) throw new NotFoundError("Chapter not found");
+       const coreTeam =  chapter?.coreTeam;
+       if(coreTeam.length==0) throw new BadRequestError("No coreteam member found for this chapter");
+
+       const users = await this.userRepository.findCoreTeam(chapterId as string);
+     
+       return users;
     }
 }

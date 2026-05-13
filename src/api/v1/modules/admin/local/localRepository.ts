@@ -26,15 +26,45 @@ export class LocalRepository extends BaseRepository<ILocal> {
 
     async findAllLocals(search: string, regionId: string): Promise<any> {
         const res = await Local.aggregate([
-            { $match: { name: { $regex: search, $options: "i" } } },
-            { $lookup: { from: "nations", localField: "nationId", foreignField: "_id", as: "nationData" } },
-            { $lookup: { from: "regions", localField: "regionId", foreignField: "_id", as: "regionData" } },
-            { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
-            { $lookup: { from: "users", localField: "_id", foreignField: "manage.local", as: "adminData" } },
-            { $unwind: "$nationData" },
-            { $unwind: "$regionData" },
-            { $unwind: "$createdBy" },
-            { $unwind: "$adminData" },
+            {
+                $match: search ? { name: { $regex: search, $options: "i" } } : {},
+            },
+            {
+                $lookup: {
+                    from: "nations",
+                    localField: "nationId",
+                    foreignField: "_id",
+                    as: "nationData",
+                },
+            },
+            {
+                $lookup: {
+                    from: "regions",
+                    localField: "regionId",
+                    foreignField: "_id",
+                    as: "regionData",
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "createdBy",
+                    foreignField: "_id",
+                    as: "createdBy",
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "_id",
+                    foreignField: "manage.local",
+                    as: "adminData",
+                },
+            },
+            { $unwind: { path: "$nationData", preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: "$regionData", preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: "$createdBy", preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: "$adminData", preserveNullAndEmptyArrays: true } },
             {
                 $project: {
                     nation: "$nationData.name",
