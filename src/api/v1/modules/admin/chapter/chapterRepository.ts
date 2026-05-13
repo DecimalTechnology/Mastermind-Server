@@ -259,4 +259,6 @@ export class ChapterRepository extends BaseRepository<IChapter> {
         const users = await User.find({ chapter: new mongoose.Types.ObjectId(chapterId) });
         return users;
     }
+
+ 
 }

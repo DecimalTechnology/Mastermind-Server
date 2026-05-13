@@ -5,7 +5,6 @@ const customErrors_1 = require("../constants/customErrors");
 const token_1 = require("../utils/v1/token/token");
 const adminAuth = (req, res, next) => {
     const { mastermind_admin_access_token, mastermind_admin_refresh_token } = req.cookies;
-    console.log(req.cookies);
     if (!mastermind_admin_refresh_token)
         throw new customErrors_1.UnAuthorizedError("Session expired. Please login again");
     if (!(0, token_1.verifyRefreshToken)(mastermind_admin_refresh_token))

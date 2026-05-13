@@ -75,7 +75,10 @@ export class AuthService {
     // To verify and provide access to the admin
     async adminLogin({ email, password }: { email: string; password: string }): Promise<any> {
         try {
+
+            
             const admin = await this.authRepository.findByEmail(email);
+            console.log(admin)
             if (admin?.role == "member") throw new UnAuthorizedError("Permission denied. No admin roles found");
             const profile = await this.profileRepository.findProfileByUserId(admin?._id)
             if (!admin) throw new UnAuthorizedError("Invalid email or password");

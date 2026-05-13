@@ -141,4 +141,18 @@ export class ChapterController {
         const result = await this.chapterService.getAllMedia(chapterId);
         res.status(OK).json({ success: true, message: "", data: result });
     }
+    // @desc   Get all  Core team list
+    // @route  GET v1/admin/chapter/core-team
+    // @access Super_admin, National_admin, Regional_admin, Local_admin
+
+    async getAllCoreteam(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { chapterId } = req.params;
+        if (!chapterId || !mongoose.Types.ObjectId.isValid(chapterId)) {
+            throw new BadRequestError("Invalid chapterId");
+        }
+          
+        const result = await this.chapterService.getAllCoreteam(chapterId);
+      
+        res.status(OK).json({ success: true, message: "", data: result });
+    }
 }

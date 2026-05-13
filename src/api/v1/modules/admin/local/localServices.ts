@@ -13,7 +13,9 @@ export class LocalServices {
     }
 
     async getAllLocals(search: string, regionId: string): Promise<any> {
-        return await this.localRepository.findAllLocals(search as string, regionId);
+        const res  = await this.localRepository.findAllLocals(search as string, regionId);
+        return res;
+       
     }
 
     async createLocal(data: any, adminId: string, createdBy: string): Promise<any> {

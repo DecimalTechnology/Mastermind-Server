@@ -58,4 +58,12 @@ export class UserRepository extends BaseRepository<IUser> {
         
         return user;
     }
+
+    async findUsersByArrayOfObjectId(ObjectIdsArr:string[]){
+        console.log(ObjectIdsArr)
+        return await User.find({_id:{$in:ObjectIdsArr}});
+    }
+       async findCoreTeam(chapterId:string){
+            return await User?.find({'manage.chapter':new mongoose.Types.ObjectId(chapterId)}).select("-password")
+        }
 }

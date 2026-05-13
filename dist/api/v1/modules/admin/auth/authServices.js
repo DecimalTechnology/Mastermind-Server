@@ -86,6 +86,7 @@ class AuthService {
         return __awaiter(this, arguments, void 0, function* ({ email, password }) {
             try {
                 const admin = yield this.authRepository.findByEmail(email);
+                console.log(admin);
                 if ((admin === null || admin === void 0 ? void 0 : admin.role) == "member")
                     throw new customErrors_1.UnAuthorizedError("Permission denied. No admin roles found");
                 const profile = yield this.profileRepository.findProfileByUserId(admin === null || admin === void 0 ? void 0 : admin._id);

@@ -4,7 +4,7 @@ import { verifyRefreshToken, verifyToken } from "../utils/v1/token/token";
 
 export const adminAuth = (req: Request, res: Response, next: NextFunction) => {
     const { mastermind_admin_access_token, mastermind_admin_refresh_token } = req.cookies;
- console.log(req.cookies)
+
     if (!mastermind_admin_refresh_token) throw new UnAuthorizedError("Session expired. Please login again");
 
     if (!verifyRefreshToken(mastermind_admin_refresh_token)) throw new UnAuthorizedError("Session expired. Please login again");
