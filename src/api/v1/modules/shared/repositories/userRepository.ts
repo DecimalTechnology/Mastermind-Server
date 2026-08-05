@@ -16,9 +16,7 @@ export class UserRepository extends BaseRepository<IUser> {
     }
 
     async findMembersByChapterId(chapterId: string, query: any): Promise<any> {
-        const { search = "", status,page } = query;
-
-     
+        const { search = "", status, page } = query;
 
         const matchStage: any = {
             chapter: new mongoose.Types.ObjectId(chapterId),
@@ -33,37 +31,36 @@ export class UserRepository extends BaseRepository<IUser> {
             matchStage.isVerified = false;
         } else if (status === "Approved") {
             matchStage.isVerified = true;
-            matchStage.isBlocked=false
+            matchStage.isBlocked = false;
         } else if (status === "Blocked") {
             matchStage.isBlocked = true;
         }
 
-        const pipeline: any = [{ $match: matchStage }, { $sort: { _id: -1 } },{$skip:(Number(page)-1)*10},{$limit:10}];
+        const pipeline: any = [{ $match: matchStage }, { $sort: { _id: -1 } }, { $skip: (Number(page) - 1) * 10 }, { $limit: 10 }];
         const pendingCount = await User.aggregate([{ $match: { chapter: new mongoose.Types.ObjectId(chapterId), isVerified: false } }]);
         const users = await User.aggregate(pipeline);
         const totalPage = await User.countDocuments(matchStage);
-        return { users: users, pendingCount: pendingCount.length,totalPage:totalPage };
+        return { users: users, pendingCount: pendingCount.length, totalPage: totalPage };
     }
 
     async blockUser(userId: string): Promise<IUser> {
-        const user = await User.findByIdAndUpdate({ _id: userId }, { $set: { isBlocked: true } },{new:true});
+        const user = await User.findByIdAndUpdate({ _id: userId }, { $set: { isBlocked: true } }, { new: true });
         if (!user) throw new NotFoundError("User not found with this Id");
-        
 
         return user;
     }
     async unblockUser(userId: string): Promise<IUser> {
-        const user = await User.findByIdAndUpdate({ _id: userId }, { $set: { isBlocked: false } },{new:true});
+        const user = await User.findByIdAndUpdate({ _id: userId }, { $set: { isBlocked: false } }, { new: true });
         if (!user) throw new NotFoundError("User not found with this Id");
-        
+
         return user;
     }
 
-    async findUsersByArrayOfObjectId(ObjectIdsArr:string[]){
-        console.log(ObjectIdsArr)
-        return await User.find({_id:{$in:ObjectIdsArr}});
+    async findUsersByArrayOfObjectId(ObjectIdsArr: string[]) {
+        console.log(ObjectIdsArr);
+        return await User.find({ _id: { $in: ObjectIdsArr } });
     }
-       async findCoreTeam(chapterId:string){
-            return await User?.find({'manage.chapter':new mongoose.Types.ObjectId(chapterId)}).select("-password")
-        }
+    async findCoreTeam(chapterId: string) {
+        return await User?.find({ "manage.chapter": new mongoose.Types.ObjectId(chapterId) }).select("-password");
+    }
 }
