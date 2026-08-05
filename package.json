@@ -15,7 +15,9 @@
     "seed.assignLocal": "tsc && node dist/seed/assignLocal.js",
     "seed.updateAllUser": "tsc && node dist/seed/updateAllUser.js",
     "seed.profile": "tsc && node dist/seed/dummyProfileSeed.js",
-    "seed.meeting": "tsc && node dist/seed/accountability.js"
+    "seed.meeting": "tsc && node dist/seed/accountability.js",
+    "start":"node dist/index.js",
+    "build":"tsc"
   },
   "keywords": [],
   "author": "",
