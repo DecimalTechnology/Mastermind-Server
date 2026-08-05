@@ -4,6 +4,7 @@ exports.UserRole = void 0;
 var UserRole;
 (function (UserRole) {
     UserRole["SUPER_ADMIN"] = "super_admin";
+    UserRole["GLOBAL_ADMIN"] = "global_admin";
     UserRole["NATIONAL_ADMIN"] = "national_admin";
     UserRole["REGIONAL_ADMIN"] = "regional_admin";
     UserRole["LOCAL_ADMIN"] = "local_admin";

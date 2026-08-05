@@ -31,6 +31,7 @@ const discountRouter_1 = __importDefault(require("./api/v1/modules/admin/discoun
 const discountRouter_2 = __importDefault(require("./api/v1/modules/user/discount/discountRouter"));
 const meetingRoutes_1 = __importDefault(require("./api/v1/modules/admin/meeting/meetingRoutes"));
 const meetingRoutes_2 = __importDefault(require("./api/v1/modules/user/meeting/meetingRoutes"));
+const adminsRoutes_1 = __importDefault(require("./api/v1/modules/admin/admins/adminsRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -62,6 +63,7 @@ app.use(`/${version}/admin/member`, memberRoutes_1.default);
 app.use(`/${version}/admin/tips`, tipsRoutes_1.default);
 app.use(`/${version}/admin/discounts`, discountRouter_1.default);
 app.use(`/${version}/admin/meeting`, meetingRoutes_1.default);
+app.use(`/${version}/admin/admins`, adminsRoutes_1.default);
 // Error handler
 app.use(errorHandler_1.errorHandler);
 exports.Server = http_1.default.createServer(app);
