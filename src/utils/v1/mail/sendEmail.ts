@@ -8,6 +8,8 @@ import nodemailer from "nodemailer";
 export function sendLinkToEmail(email: string, text: string, html: string): Promise<boolean> {
     
 
+
+    console.log(process.env.GODADDY_WEBMAIL_HOST,process.env.GODADDY_WEBMAIL_USERNAME,process.env.GODADDY_WEBMAIL_PASSWORD,process.env.GODADDY_WEBMAIL_FROM)
     const transporter = nodemailer.createTransport({
         host: `${process.env.GODADDY_WEBMAIL_HOST}`,
         port: 465,

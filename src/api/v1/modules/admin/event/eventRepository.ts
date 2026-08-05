@@ -28,7 +28,7 @@ export class EventRepository extends BaseRepository<IEvent> {
     }
 
     async getAllEvents(chapterId: string, query: any): Promise<any> {
-        const page = parseInt(query?.page) || 0;
+        const page = parseInt(query?.page) || 1;
 
         const matchStage: any = {
             chapterId: new mongoose.Types.ObjectId(chapterId),
@@ -56,7 +56,7 @@ export class EventRepository extends BaseRepository<IEvent> {
         const events = await Event.aggregate([
             { $match: matchStage },
             { $sort: { startDate: -1 } }, // sort by startDate instead of old date
-            { $skip: page * 10 },
+            { $skip: (page - 1) * 10 },
             { $limit: 10 },
         ]);
 

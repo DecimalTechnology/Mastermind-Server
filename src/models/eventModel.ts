@@ -38,6 +38,7 @@ const eventSchema = new mongoose.Schema<IEvent>(
         status: { type: String, enum: Object.values(EventStatus), default: "upcoming" },
         customFields: { type: Schema.Types.Mixed, default: {} },
         rsvp: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", defaut: [] }],
+        attendance: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
     },
     { timestamps: true }
 );

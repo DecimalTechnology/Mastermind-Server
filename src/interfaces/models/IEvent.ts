@@ -25,4 +25,5 @@ export interface IEvent extends Document {
   customFields:any;
   createdBy:any
   rsvp:any
+  attendance?: string[];
 }

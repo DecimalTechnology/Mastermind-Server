@@ -29,7 +29,7 @@ export const updateEventStatuses = async () => {
   // 2️⃣ Mark ONGOING
   const ongoingResult = await Event.updateMany(
     {
-      status: EventStatus.TODAY,
+      status: { $in: [EventStatus.TODAY, EventStatus.UPCOMING] },
       startDate: { $lte: now },
       endDate: { $gte: now },
     },

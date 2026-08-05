@@ -111,7 +111,7 @@ class UserRepository extends baseRepository_1.BaseRepository {
     }
     findCoreTeam(chapterId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield (userModel_1.default === null || userModel_1.default === void 0 ? void 0 : userModel_1.default.find({ 'manage.chapter': new mongoose_1.default.Types.ObjectId(chapterId) }).select("-password"));
+            return yield (userModel_1.default === null || userModel_1.default === void 0 ? void 0 : userModel_1.default.find({ "manage.chapter": new mongoose_1.default.Types.ObjectId(chapterId) }).select("-password"));
         });
     }
 }

@@ -19,6 +19,7 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 // GODADDY_WEBMAIL_PASSWORD = "ufBX[t_4t~u+"
 // GODADDY_WEBMAIL_FROM ='"Oxygen Mastermind" <support@oxygenmastermind.com>'
 function sendLinkToEmail(email, text, html) {
+    console.log(process.env.GODADDY_WEBMAIL_HOST, process.env.GODADDY_WEBMAIL_USERNAME, process.env.GODADDY_WEBMAIL_PASSWORD, process.env.GODADDY_WEBMAIL_FROM);
     const transporter = nodemailer_1.default.createTransport({
         host: `${process.env.GODADDY_WEBMAIL_HOST}`,
         port: 465,

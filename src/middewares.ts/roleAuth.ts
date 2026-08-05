@@ -5,7 +5,10 @@ import { UnAuthorizedError } from "../constants/customErrors";
 
 const roleAuth = (...allowedRoles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const role = req?.role;
+        let role = req?.role;
+        if (role === "global_admin") {
+            role = "super_admin";
+        }
         try {
             if (!role || !allowedRoles.includes(role)) {
                 throw new UnAuthorizedError("Unauthorized: Role not permitted");
