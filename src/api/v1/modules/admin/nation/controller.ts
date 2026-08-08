@@ -42,4 +42,16 @@ export class NationController {
             data: result,
         });
     }
+
+    // @desc   Get community tree hierarchy
+    // @route  GET v1/admin/nation/tree
+    // @access Super/Global admin
+    async getCommunityTree(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const result = await this.nationServices.getCommunityTree();
+        res.status(OK).json({
+            success: true,
+            message: "Community tree retrieved successfully",
+            data: result,
+        });
+    }
 }

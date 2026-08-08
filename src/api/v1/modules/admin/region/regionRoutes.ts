@@ -15,7 +15,10 @@ const  controller = new RegionController(regionServices)
  
 regionRouter.get('/users',adminAuth,roleAuth(UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN),asyncHandler(controller.getAllUsers.bind(controller)))
 regionRouter.post('/',adminAuth,roleAuth(UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN),asyncHandler(controller.createRegion.bind(controller)))
-regionRouter.get('/',adminAuth,roleAuth(UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN),asyncHandler(controller.findAllRegions.bind(controller)))
+regionRouter.get('/members',adminAuth,roleAuth(UserRole.REGIONAL_ADMIN,UserRole.SUPER_ADMIN),asyncHandler(controller.getRegionMembers.bind(controller)))
+regionRouter.get('/admins',adminAuth,roleAuth(UserRole.REGIONAL_ADMIN,UserRole.SUPER_ADMIN),asyncHandler(controller.getRegionAdmins.bind(controller)))
+regionRouter.get('/info',adminAuth,roleAuth(UserRole.REGIONAL_ADMIN,UserRole.SUPER_ADMIN),asyncHandler(controller.getRegionDetails.bind(controller)))
+regionRouter.get('/local-details/:localId',adminAuth,roleAuth(UserRole.REGIONAL_ADMIN,UserRole.SUPER_ADMIN),asyncHandler(controller.getLocalDetailsByRegion.bind(controller)))
 regionRouter.get('/',adminAuth,roleAuth(UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN),asyncHandler(controller.findAllRegions.bind(controller)))
 regionRouter.get('/:id',adminAuth,roleAuth(UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN,UserRole.REGIONAL_ADMIN),asyncHandler(controller.findRegionById.bind(controller)))
 

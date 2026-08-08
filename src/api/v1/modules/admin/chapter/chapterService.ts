@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { BadRequestError, NotFoundError } from "../../../../../constants/customErrors";
+import { BadRequestError, NotFoundError, ConflictError } from "../../../../../constants/customErrors";
 import { UserRole } from "../../../../../enums/common";
 import { IAccountablity } from "../../../../../interfaces/models/IAccountablity";
 import { IChapter } from "../../../../../interfaces/models/IChaper";
@@ -144,5 +144,15 @@ export class ChapterService {
        const users = await this.userRepository.findCoreTeam(chapterId as string);
      
        return users;
+    }
+
+    async updateChapter(chapterId: string, data: { name?: string; description?: string; isActive?: boolean }): Promise<any> {
+        if (data.name) {
+            const existing = await this.chapterRepository.findByName(data.name);
+            if (existing && (existing as any)._id.toString() !== chapterId) {
+                throw new ConflictError("Chapter name conflict. A chapter with this name already exists");
+            }
+        }
+        return await this.chapterRepository.findByIdAndUpdate(chapterId, data);
     }
 }

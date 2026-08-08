@@ -157,11 +157,12 @@ export class EventController {
     }
     async getAllEventsForCalender(req: Request, res: Response, next: NextFunction): Promise<void> {
         const { chapterId } = req.params;
+        const { level } = req.query;
 
         if (!chapterId || !mongoose.Types.ObjectId.isValid(chapterId)) {
-            throw new BadRequestError("Invalid ChapterId");
+            throw new BadRequestError("Invalid ChapterId / level ID");
         }
-        const result = await this.eventServices.getAllEventsForCalender(chapterId as string);
+        const result = await this.eventServices.getAllEventsForCalender(chapterId as string, level as string);
 
         res.status(OK).json({ success: true, data: result });
     }

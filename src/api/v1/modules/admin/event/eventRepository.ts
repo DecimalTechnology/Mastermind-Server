@@ -13,10 +13,24 @@ export class EventRepository extends BaseRepository<IEvent> {
             return await User.aggregate([{ $match: { chapter: new mongoose.Types.ObjectId(levelId) } }, { $match: { name: { $regex: search, $options: "i" }, role: "member" } }]);
         }
 
-        if (level == "region") {
+        if (level == "local") {
+            const Chapter = mongoose.model("Chapter");
+            const chapterIds = await Chapter.distinct("_id", { localId: new mongoose.Types.ObjectId(levelId) });
+            return await User.aggregate([
+                { $match: { chapter: { $in: chapterIds } } },
+                { $match: { name: { $regex: search, $options: "i" }, role: "member" } }
+            ]);
         }
 
-        if (level == "local") {
+        if (level == "region" || level == "regional") {
+            const Local = mongoose.model("Local");
+            const Chapter = mongoose.model("Chapter");
+            const localIds = await Local.distinct("_id", { regionId: new mongoose.Types.ObjectId(levelId) });
+            const chapterIds = await Chapter.distinct("_id", { localId: { $in: localIds } });
+            return await User.aggregate([
+                { $match: { chapter: { $in: chapterIds } } },
+                { $match: { name: { $regex: search, $options: "i" }, role: "member" } }
+            ]);
         }
 
         if (level == "nation") {
@@ -30,9 +44,16 @@ export class EventRepository extends BaseRepository<IEvent> {
     async getAllEvents(chapterId: string, query: any): Promise<any> {
         const page = parseInt(query?.page) || 1;
 
-        const matchStage: any = {
-            chapterId: new mongoose.Types.ObjectId(chapterId),
-        };
+        const matchStage: any = {};
+        if (query.level === "local") {
+            matchStage.localId = new mongoose.Types.ObjectId(chapterId);
+            matchStage.eventType = "local";
+        } else if (query.level === "regional") {
+            matchStage.regionId = new mongoose.Types.ObjectId(chapterId);
+            matchStage.eventType = "regional";
+        } else {
+            matchStage.chapterId = new mongoose.Types.ObjectId(chapterId);
+        }
 
         // 🔹 Filter by status
         if (query.status && query.status !== "all") {

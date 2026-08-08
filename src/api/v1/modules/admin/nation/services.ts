@@ -5,6 +5,10 @@ import { IUser } from "../../../../../interfaces/models/IUser";
 
 import { UserRepository } from "../../shared/repositories/userRepository";
 import { NationRepository } from "./repository";
+import { Nation } from "../../../../../models/nationModel";
+import { Region } from "../../../../../models/regionModel";
+import { Local } from "../../../../../models/localModel";
+import { Chapter } from "../../../../../models/chapterModal";
 
 export class NationServices {
     constructor(private nationRepository: NationRepository, private userRepository: UserRepository) {}
@@ -42,5 +46,90 @@ export class NationServices {
     // Find all nations
     async searchNations(search: string): Promise<INation[] | []> {
         return await this.nationRepository.searchBySearchQuery(search);
+    }
+
+    // Get community tree
+    async getCommunityTree(): Promise<any> {
+        const nations = await Nation.find({}).lean();
+        const regions = await Region.find({}).lean();
+        const locals = await Local.find({}).lean();
+        const chapters = await Chapter.find({}).select('name nationId regionId localId').lean();
+
+        // Map regions by nationId
+        const regionsByNation: Record<string, any[]> = {};
+        regions.forEach(region => {
+            const nationId = region.nationId?.toString();
+            if (nationId) {
+                if (!regionsByNation[nationId]) {
+                    regionsByNation[nationId] = [];
+                }
+                regionsByNation[nationId].push({
+                    _id: region._id,
+                    name: region.name,
+                    isActive: region.isActive,
+                    locals: []
+                });
+            }
+        });
+
+        // Map locals by regionId
+        const localsByRegion: Record<string, any[]> = {};
+        locals.forEach(loc => {
+            const regionId = loc.regionId?.toString();
+            if (regionId) {
+                if (!localsByRegion[regionId]) {
+                    localsByRegion[regionId] = [];
+                }
+                localsByRegion[regionId].push({
+                    _id: loc._id,
+                    name: loc.name,
+                    isActive: loc.isActive,
+                    chapters: []
+                });
+            }
+        });
+
+        // Map chapters by localId
+        const chaptersByLocal: Record<string, any[]> = {};
+        chapters.forEach(chap => {
+            const localId = chap.localId?.toString();
+            if (localId) {
+                if (!chaptersByLocal[localId]) {
+                    chaptersByLocal[localId] = [];
+                }
+                chaptersByLocal[localId].push({
+                    _id: chap._id,
+                    name: chap.name,
+                    isActive: chap.isActive
+                });
+            }
+        });
+
+        // Construct tree
+        const tree = nations.map(nation => {
+            const nationId = nation._id.toString();
+            const nationRegions = regionsByNation[nationId] || [];
+
+            nationRegions.forEach(reg => {
+                const regId = reg._id.toString();
+                const regionLocals = localsByRegion[regId] || [];
+
+                regionLocals.forEach(loc => {
+                    const locId = loc._id.toString();
+                    loc.chapters = chaptersByLocal[locId] || [];
+                });
+
+                reg.locals = regionLocals;
+            });
+
+            return {
+                _id: nation._id,
+                name: nation.name,
+                isActive: nation.isActive,
+                regions: nationRegions
+            };
+        });
+
+        return tree;
     }
 }
