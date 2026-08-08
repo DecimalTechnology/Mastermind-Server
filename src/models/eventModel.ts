@@ -3,6 +3,7 @@ import { IEvent } from "../interfaces/models/IEvent";
 
 export enum EventLevel {
     CHAPTER = "chapter",
+    LOCAL = "local",
     REGIONAL = "regional",
     NATIONAL = "national",
     GLOBAL = "global",

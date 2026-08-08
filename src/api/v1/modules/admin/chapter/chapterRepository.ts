@@ -207,9 +207,7 @@ export class ChapterRepository extends BaseRepository<IChapter> {
     }
 
     async findMembers(adminId: string, query: any): Promise<any> {
-        const { page = 1, type, search } = query;
-
-      
+        const { page = 1, type, search, chapterId } = query;
 
         const limit = 10;
         const skip = (Number(page) - 1) * limit;
@@ -218,19 +216,22 @@ export class ChapterRepository extends BaseRepository<IChapter> {
 
         const matchStage: any = {};
 
-        matchStage.chapter = new mongoose.Types.ObjectId(user?.manage?.chapter);
-        matchStage.name = { $regex: search, $options: "i" };
+        const targetChapterId = chapterId || user?.manage?.chapter;
+        if (targetChapterId) {
+            matchStage.chapter = new mongoose.Types.ObjectId(targetChapterId);
+        }
 
-        //type == "member" ? (matchStage.role = "member") : "";
-
-        type == "admin" ? (matchStage.role = "core_team_admin") : "";
+        if (search) {
+            matchStage.name = { $regex: search, $options: "i" };
+        }
 
         if (type == "admin") {
             matchStage.role = "core_team_admin";
-            matchStage["manage.chapter"] = new mongoose.Types.ObjectId(user?.chapter);
+            if (targetChapterId) {
+                matchStage["manage.chapter"] = new mongoose.Types.ObjectId(targetChapterId);
+            }
+            delete matchStage.chapter;
         }
-
-        //type == "all" ? (matchStage.role = { $in: ["core_team_admin", "member"] }) : "";
 
         const result = await User.aggregate([{ $match: matchStage }, { $project: { password: 0 } }, { $skip: skip }, { $limit: limit }]);
 

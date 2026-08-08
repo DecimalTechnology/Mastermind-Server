@@ -60,4 +60,44 @@ export class RegionController {
             data: result,
         });
     }
+
+    async getRegionMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const adminId = req.adminId;
+            const response = await this.regionService.getMembersByAdmin(adminId as string);
+            res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getRegionDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const adminId = req.adminId;
+            const response = await this.regionService.getRegionDetails(adminId as string);
+            res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getLocalDetailsByRegion(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { localId } = req.params;
+            const response = await this.regionService.getLocalDetailsById(localId);
+            res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getRegionAdmins(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const adminId = req.adminId;
+            const response = await this.regionService.getRegionAdmins(adminId as string);
+            res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

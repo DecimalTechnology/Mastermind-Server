@@ -26,5 +26,10 @@ localRouter.get("/",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.g
 localRouter.post("/",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.createLocalArea.bind(controller)));
 localRouter.post("/:id",adminAuth,roleAuth(...chapterAdminAccess),asyncHandler(controller.findLocalById.bind(controller)));
 localRouter.get("/info",adminAuth,roleAuth(...chapterAdminAccess),asyncHandler(controller.getAllLocalDetails.bind(controller)));
+localRouter.get("/chapter/:chapterId/core-team",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.getCoreTeam.bind(controller)));
+localRouter.get("/chapter/:chapterId/members/search",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.searchChapterMembers.bind(controller)));
+localRouter.post("/core-team/assign",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.updateCoreTeamRole.bind(controller)));
+localRouter.put("/:id",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.updateLocalArea.bind(controller)));
+localRouter.delete("/:id",adminAuth,roleAuth(...accessRoles),asyncHandler(controller.deleteLocalArea.bind(controller)));
 
 export default localRouter;

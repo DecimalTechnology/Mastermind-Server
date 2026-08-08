@@ -155,4 +155,14 @@ export class ChapterController {
       
         res.status(OK).json({ success: true, message: "", data: result });
     }
+
+    async updateChapter(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { id } = req.params;
+            const response = await this.chapterService.updateChapter(id, req.body);
+            res.status(OK).json({ success: true, data: response, message: "Chapter successfully updated" });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

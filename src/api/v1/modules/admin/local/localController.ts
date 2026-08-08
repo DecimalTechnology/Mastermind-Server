@@ -82,4 +82,56 @@ export class LocalController {
             next(error);
         }
     }
+
+    async getCoreTeam(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { chapterId } = req.params;
+            const response = await this.localServices.getCoreTeamByChapter(chapterId);
+            res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async searchChapterMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { chapterId } = req.params;
+            const search = req.query.search as string;
+            const response = await this.localServices.searchChapterMembers(chapterId, search);
+            res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateCoreTeamRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { userId, isAdd, chapterId } = req.body;
+            const response = await this.localServices.updateCoreTeamRole(userId, isAdd, chapterId);
+            res.status(OK).json({ success: true, data: response, message: "Core team status successfully updated" });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateLocalArea(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const id = req.params.id;
+            const adminId = req.query.adminId as string;
+            const response = await this.localServices.updateLocal(id, req.body, adminId);
+            res.status(OK).json({ success: true, data: response, message: "Local area successfully updated" });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteLocalArea(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const id = req.params.id;
+            await this.localServices.deleteLocal(id);
+            res.status(OK).json({ success: true, message: "Local area successfully deleted" });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

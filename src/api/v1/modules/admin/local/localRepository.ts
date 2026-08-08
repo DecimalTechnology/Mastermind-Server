@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ILocal } from "../../../../../interfaces/models/ILocal";
 import { IRegion } from "../../../../../interfaces/models/IRegion";
 import { IUser } from "../../../../../interfaces/models/IUser";
@@ -118,21 +119,80 @@ export class LocalRepository extends BaseRepository<ILocal> {
 
         const local: any = await Local.findOne({ _id: user?.manage?.local }).populate("nationId").populate("regionId").populate("createdBy");
 
-        // Get all chapter _id's under this local
-        const chapterIds = await Chapter.distinct("_id", { localId: local?._id });
+        // Get all chapters under this local
+        const chapters = await Chapter.find({ localId: local?._id }).populate("createdBy");
+        const chapterIds = chapters.map(c => c._id);
 
-        // Get users who belong to any of those chapters (if user has chapterId field)
+        // Get users who belong to or manage any of those chapters
         const members = await User.find({
-            $and: [{ chapter: { $in: chapterIds } }, { role: { $in: ["member", "core_team_admin", "chapter_admin"] } }],
-        });
+            $and: [
+                {
+                    $or: [
+                        { chapter: { $in: chapterIds } },
+                        { "manage.chapter": { $in: chapterIds } }
+                    ]
+                },
+                { role: { $in: ["member", "core_team_admin", "chapter_admin"] } }
+            ]
+        }).populate("chapter");
 
         // Get events under those chapters
-        const events = await Event.find({ chapterId: { $in: chapterIds } });
+        const events = await Event.find({ chapterId: { $in: chapterIds } }).populate("chapterId");
+
+        // Get local events
+        const localEvents = await Event.find({ localId: local?._id, eventType: "local" });
+
+        // Get local area admins who manage this local area
+        const localAdmins = await User.find({
+            role: "local_admin",
+            "manage.local": local?._id
+        });
 
         return {
             local: local,
+            chapters,
             members,
             events,
+            localEvents,
+            localAdmins,
         };
+    }
+
+    async getCoreTeamByChapter(chapterId: string): Promise<any[]> {
+        return await User.find({
+            "manage.chapter": new mongoose.Types.ObjectId(chapterId),
+            role: "core_team_admin"
+        });
+    }
+
+    async searchChapterMembers(chapterId: string, search: string): Promise<any[]> {
+        const query: any = {
+            chapter: new mongoose.Types.ObjectId(chapterId),
+            role: "member"
+        };
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } }
+            ];
+        }
+        return await User.find(query).limit(10);
+    }
+
+    async updateCoreTeamRole(userId: string, isAdd: boolean, chapterId?: string): Promise<any> {
+        const user = await User.findById(userId);
+        if (!user) {
+            return null;
+        }
+
+        if (isAdd) {
+            user.role = "core_team_admin" as any;
+            user.manage = { chapter: new mongoose.Types.ObjectId(chapterId) };
+        } else {
+            user.role = "member" as any;
+            user.manage = undefined;
+        }
+
+        return await user.save();
     }
 }

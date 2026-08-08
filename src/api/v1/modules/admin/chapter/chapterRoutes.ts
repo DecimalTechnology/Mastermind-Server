@@ -37,6 +37,7 @@ chapterRouter.get("/meeting/members/:chapterId",adminAuth,roleAuth(...coreTeamAc
 chapterRouter.post("/meeting",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.createMeeting.bind(controller)))
 chapterRouter.get("/meeting",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllMeeting.bind(controller)))
 chapterRouter.get("/:id",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getChapterById.bind(controller)));
+chapterRouter.put("/:id",adminAuth,roleAuth(...allowedRoles),asyncHandler(controller.updateChapter.bind(controller)));
 chapterRouter.get("/media/:chapterId",adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllMedia.bind(controller)))
 chapterRouter.get('/core-team/:chapterId',adminAuth,roleAuth(...coreTeamAccess),asyncHandler(controller.getAllCoreteam.bind(controller)))
 export default chapterRouter;

@@ -97,8 +97,13 @@ export class EventServices {
     async getAllMedia(relatedTo: string): Promise<any> {
         return await this.medialRepository.findRelatedId(relatedTo);
     }
-    async getAllEventsForCalender(chapterId: string): Promise<any> {
-        const events = await Event.find({ chapterId: new mongoose.Types.ObjectId(chapterId) }, { startDate: 1, endDate: 1, name: 1 });
-        return events;
+    async getAllEventsForCalender(chapterId: string, level?: string): Promise<any> {
+        let queryObj: any = { chapterId: chapterId };
+        if (level === "local") {
+            queryObj = { localId: chapterId, eventType: "local" };
+        } else if (level === "regional") {
+            queryObj = { regionId: chapterId, eventType: "regional" };
+        }
+        return await Event.find(queryObj, { name: 1, startDate: 1, endDate: 1, type: 1 });
     }
 }
