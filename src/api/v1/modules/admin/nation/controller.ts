@@ -54,4 +54,47 @@ export class NationController {
             data: result,
         });
     }
+
+    // @desc   Update nation
+    // @route  PUT v1/admin/nation/:id
+    // @access Super admin
+    async updateNation(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        const { adminId } = req.query;
+        if (!id) throw new NotFoundError("Nation ID not found");
+        const result = await this.nationServices.updateNation(id, req.body, adminId as string);
+        res.status(OK).json({
+            success: true,
+            message: "Nation updated successfully",
+            data: result
+        });
+    }
+
+    // @desc   Delete nation
+    // @route  DELETE v1/admin/nation/:id
+    // @access Super admin
+    async deleteNation(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        if (!id) throw new NotFoundError("Nation ID not found");
+        await this.nationServices.deleteNation(id);
+        res.status(OK).json({
+            success: true,
+            message: "Nation deleted successfully"
+        });
+    }
+
+    // @desc   Get nation details
+    // @route  GET v1/admin/nation/details/:id
+    // @access Super admin
+    async getNationDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        if (!id) throw new NotFoundError("Nation ID not found");
+        const result = await this.nationServices.getNationDetails(id);
+        res.status(OK).json({
+            success: true,
+            message: "Nation details retrieved successfully",
+            data: result
+        });
+    }
 }
+

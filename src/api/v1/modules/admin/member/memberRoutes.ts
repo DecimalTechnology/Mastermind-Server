@@ -16,7 +16,7 @@ const userRepository = new UserRepository();
 const profileRepository = new ProfileRepository()
 const memberService = new MemberService(memberRepository, userRepository,profileRepository);
 const controller = new MemberController(memberService);
-const access = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN,UserRole.CORE_TEAM_ADMIN]
+const access = [UserRole.SUPER_ADMIN,UserRole.REGIONAL_ADMIN,UserRole.LOCAL_ADMIN,UserRole.CORE_TEAM_ADMIN,UserRole.NATIONAL_ADMIN]
 
 
 memberRouter.patch('/block/:id',adminAuth,roleAuth(...access),asyncHandler(controller.blockMember.bind(controller)))

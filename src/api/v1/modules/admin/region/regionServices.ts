@@ -32,31 +32,48 @@ export class RegionServices {
     }
 
     // Find all regions
-    async getAllRegions(search: string): Promise<any> {
-        return await this.regionRepository.findAllRegions(search);
+    async getAllRegions(search: string, adminId?: string, role?: string, queryNationId?: string): Promise<any> {
+        let nationId: string | undefined = queryNationId;
+        if (role === UserRole.NATIONAL_ADMIN && adminId) {
+            const admin = await this.regionRepository.findAdminById(adminId);
+            if (admin && admin.manage?.nation) {
+                nationId = admin.manage.nation.toString();
+            }
+        }
+        return await this.regionRepository.findAllRegions(search, nationId);
     }
     // Find all regions
     async findRegionById(id:string): Promise<any> {
         return await this.regionRepository.findById(id)
     }
 
-    async getMembersByAdmin(adminId: string): Promise<any> {
-        const admin = await this.regionRepository.findAdminById(adminId);
-        if (!admin || !admin.manage?.region) {
-            throw new BadRequestError("Region admin has no managed region assigned");
+    async getMembersByAdmin(adminId: string, queryRegionId?: string): Promise<any> {
+        let regionId: string;
+        if (queryRegionId) {
+            regionId = queryRegionId;
+        } else {
+            const admin = await this.regionRepository.findAdminById(adminId);
+            if (!admin || !admin.manage?.region) {
+                throw new BadRequestError("Region admin has no managed region assigned");
+            }
+            regionId = admin.manage.region.toString();
         }
-        const regionId = admin.manage.region;
         const members = await this.regionRepository.findMembersByRegion(regionId);
         const locals = await this.regionRepository.findLocalsByRegion(regionId);
         return { members, locals };
     }
 
-    async getRegionDetails(adminId: string): Promise<any> {
-        const admin = await this.regionRepository.findAdminById(adminId);
-        if (!admin || !admin.manage?.region) {
-            throw new BadRequestError("Region admin has no managed region assigned");
+    async getRegionDetails(adminId: string, queryRegionId?: string): Promise<any> {
+        let regionId: string;
+        if (queryRegionId) {
+            regionId = queryRegionId;
+        } else {
+            const admin = await this.regionRepository.findAdminById(adminId);
+            if (!admin || !admin.manage?.region) {
+                throw new BadRequestError("Region admin has no managed region assigned");
+            }
+            regionId = admin.manage.region.toString();
         }
-        const regionId = admin.manage.region;
         const regionData = await this.regionRepository.findRegionById(regionId);
         const locals = await this.regionRepository.findLocalsByRegion(regionId);
         const members = await this.regionRepository.findMembersByRegion(regionId);
@@ -107,12 +124,36 @@ export class RegionServices {
         };
     }
 
-    async getRegionAdmins(adminId: string): Promise<any> {
-        const admin = await this.regionRepository.findAdminById(adminId);
-        if (!admin || !admin.manage?.region) {
-            throw new BadRequestError("Region admin has no managed region assigned");
+    async getRegionAdmins(adminId: string, queryRegionId?: string): Promise<any> {
+        let regionId: string;
+        if (queryRegionId) {
+            regionId = queryRegionId;
+        } else {
+            const admin = await this.regionRepository.findAdminById(adminId);
+            if (!admin || !admin.manage?.region) {
+                throw new BadRequestError("Region admin has no managed region assigned");
+            }
+            regionId = admin.manage.region.toString();
         }
-        const regionId = admin.manage.region;
         return await this.regionRepository.findAdminsByRegion(regionId);
+    }
+
+    async updateRegion(id: string, data: { name?: string }, adminId?: string): Promise<any> {
+        if (data.name) {
+            const isAlreadyExists: any = await this.regionRepository.findByName(data.name);
+            if (isAlreadyExists && isAlreadyExists._id.toString() !== id) {
+                throw new BadRequestError("The region name already exists");
+            }
+        }
+        await this.regionRepository.findByIdAndUpdate(id, data);
+        if (adminId) {
+            await this.regionRepository.updateRegionAdmin(id, adminId);
+        }
+        const populatedResult: any = await this.regionRepository.findRegionById(id);
+        return populatedResult ? populatedResult[0] : null;
+    }
+
+    async deleteRegion(id: string): Promise<any> {
+        return await this.regionRepository.deleteRegion(id);
     }
 }

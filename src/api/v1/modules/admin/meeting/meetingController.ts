@@ -5,6 +5,7 @@ import { BadRequestError, NotFoundError } from "../../../../../constants/customE
 import { STATUS_CODES } from "../../../../../constants/statusCodes";
 import MeetingModel from "../../../../../models/MeetingModel";
 import mongoose from "mongoose";
+import { Chapter } from "../../../../../models/chapterModal";
 export class MeetingController {
     constructor() {}
 
@@ -23,7 +24,10 @@ export class MeetingController {
             const user: any = await User.findById(userId);
             if (!user) throw new NotFoundError("User not found");
 
-            const Id = Object.values(user.manage)[0];
+            let referenceId = Object.values(user.manage)[0];
+            if (req.body.referenceId && mongoose.Types.ObjectId.isValid(req.body.referenceId)) {
+                referenceId = new mongoose.Types.ObjectId(req.body.referenceId as string);
+            }
 
             // ✅ Convert to Date objects and sort ascending (nearest first)
             const sortedDates = dates.map((d: string) => new Date(d)).sort((a: Date, b: Date) => a.getTime() - b.getTime());
@@ -32,7 +36,7 @@ export class MeetingController {
                 ...req.body,
                 dates: sortedDates,
                 createdBy: user._id,
-                referenceId: Id,
+                referenceId: referenceId,
             });
 
             res.status(STATUS_CODES.CREATED).json({
@@ -46,7 +50,7 @@ export class MeetingController {
 
     getAllMeeting = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { search = "", page = "1", limit = "10", filter } = req.query;
+            const { search = "", page = "1", limit = "10", filter, meetingType, referenceId } = req.query;
 
             const pageNumber = parseInt(page as string);
             const limitNumber = parseInt(limit as string);
@@ -64,6 +68,18 @@ export class MeetingController {
             if (filter == "Ended") dataFilter["status"] = "Ended";
             if (filter == "Upcoming") dataFilter["status"] = "Upcoming";
             if (filter == "Next") dataFilter["status"] = "Next";
+
+            if (meetingType) {
+                dataFilter.meetingType = meetingType;
+            }
+
+            if (referenceId) {
+                if (typeof referenceId === "string" && referenceId.includes(",")) {
+                    dataFilter.referenceId = { $in: referenceId.split(",").map(id => new mongoose.Types.ObjectId(id.trim())) };
+                } else if (mongoose.Types.ObjectId.isValid(referenceId as string)) {
+                    dataFilter.referenceId = new mongoose.Types.ObjectId(referenceId as string);
+                }
+            }
 
             const meetings = await MeetingModel.find(dataFilter).sort({ createdAt: -1 }).skip(skip).limit(limitNumber);
 
@@ -105,16 +121,20 @@ export class MeetingController {
     getMeetingById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { meetingId } = req.params;
-            const userId = req.adminId;
-
-            const user = await User?.findById(userId);
 
             if (!meetingId || !mongoose.Types.ObjectId.isValid(meetingId)) throw new BadRequestError("Meeting Invalid meeting Id");
 
             const meeting = await MeetingModel.findById(meetingId);
             if (!meeting) throw new NotFoundError("Meeting not found");
 
-            const members = await User.find({ chapter: new mongoose.Types.ObjectId(user?.manage?.chapter) }, { name: 1 });
+            let members: any[] = [];
+            if (meeting.meetingType === "Chapter") {
+                members = await User.find({ chapter: meeting.referenceId }, { name: 1 });
+            } else if (meeting.meetingType === "Local") {
+                const chapters = await Chapter.find({ localId: meeting.referenceId });
+                const chapterIds = chapters.map(c => c._id);
+                members = await User.find({ chapter: { $in: chapterIds } }, { name: 1 });
+            }
 
             res.status(STATUS_CODES.OK).json({ success: true, message: "", meeting, members });
         } catch (error) {

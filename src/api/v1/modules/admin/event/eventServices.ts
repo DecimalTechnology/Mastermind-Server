@@ -103,6 +103,8 @@ export class EventServices {
             queryObj = { localId: chapterId, eventType: "local" };
         } else if (level === "regional") {
             queryObj = { regionId: chapterId, eventType: "regional" };
+        } else if (level === "national") {
+            queryObj = { nationId: chapterId, eventType: "national" };
         }
         return await Event.find(queryObj, { name: 1, startDate: 1, endDate: 1, type: 1 });
     }

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { INation } from "../../../../../interfaces/models/INation";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import { Nation } from "../../../../../models/nationModel";
@@ -40,11 +41,23 @@ export class NationRepository extends BaseRepository<INation> {
     }
 
     async findNation(nationId:string):Promise<INation[]>{
+        const targetId = mongoose.Types.ObjectId.isValid(nationId) ? new mongoose.Types.ObjectId(nationId) : nationId;
         return  await Nation.aggregate([
-            { $match: {_id:nationId }},
+            { $match: {_id:targetId }},
             { $lookup: { from: "users", localField: "_id", foreignField: "manage.nation", as: "admin" } },
             { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
         ]);
 
     }
+
+    async updateNationAdmin(nationId: string, newAdminId: string): Promise<void> {
+        await User.updateMany({ "manage.nation": nationId }, { $set: { role: "member", "manage.nation": null } });
+        await User.findByIdAndUpdate(newAdminId, { role: "national_admin", "manage.nation": nationId });
+    }
+
+    async deleteNation(id: string): Promise<any> {
+        await User.updateMany({ "manage.nation": id }, { $set: { role: "member", "manage.nation": null } });
+        return await this.deleteById(id);
+    }
 }
+
