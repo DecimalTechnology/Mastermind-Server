@@ -18,6 +18,10 @@ const controller = new NationController(nationService);
 nationRouter.post("/", adminAuth,roleAuth(UserRole.SUPER_ADMIN), asyncHandler(controller.createNation.bind(controller)));
 nationRouter.get("/", adminAuth, roleAuth(UserRole.SUPER_ADMIN), asyncHandler(controller.getAllNations.bind(controller)));
 nationRouter.get("/users", adminAuth,roleAuth(UserRole.SUPER_ADMIN,UserRole.NATIONAL_ADMIN), asyncHandler(controller.findUsers.bind(controller)));
-nationRouter.get("/tree", adminAuth, roleAuth(UserRole.SUPER_ADMIN, UserRole.GLOBAL_ADMIN), asyncHandler(controller.getCommunityTree.bind(controller)));
+nationRouter.get("/tree", adminAuth, roleAuth(UserRole.SUPER_ADMIN, UserRole.GLOBAL_ADMIN, UserRole.NATIONAL_ADMIN), asyncHandler(controller.getCommunityTree.bind(controller)));
+nationRouter.put("/:id", adminAuth, roleAuth(UserRole.SUPER_ADMIN), asyncHandler(controller.updateNation.bind(controller)));
+nationRouter.delete("/:id", adminAuth, roleAuth(UserRole.SUPER_ADMIN), asyncHandler(controller.deleteNation.bind(controller)));
+nationRouter.get("/details/:id", adminAuth, roleAuth(UserRole.SUPER_ADMIN), asyncHandler(controller.getNationDetails.bind(controller)));
 
 export default nationRouter;
+

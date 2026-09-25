@@ -33,7 +33,17 @@ export class EventRepository extends BaseRepository<IEvent> {
             ]);
         }
 
-        if (level == "nation") {
+        if (level == "nation" || level == "national") {
+            const Region = mongoose.model("Region");
+            const Local = mongoose.model("Local");
+            const Chapter = mongoose.model("Chapter");
+            const regionIds = await Region.distinct("_id", { nationId: new mongoose.Types.ObjectId(levelId) });
+            const localIds = await Local.distinct("_id", { regionId: { $in: regionIds } });
+            const chapterIds = await Chapter.distinct("_id", { localId: { $in: localIds } });
+            return await User.aggregate([
+                { $match: { chapter: { $in: chapterIds } } },
+                { $match: { name: { $regex: search, $options: "i" }, role: "member" } }
+            ]);
         }
         if (level == "global") {
         }
@@ -51,6 +61,11 @@ export class EventRepository extends BaseRepository<IEvent> {
         } else if (query.level === "regional") {
             matchStage.regionId = new mongoose.Types.ObjectId(chapterId);
             matchStage.eventType = "regional";
+        } else if (query.level === "national") {
+            matchStage.nationId = new mongoose.Types.ObjectId(chapterId);
+            matchStage.eventType = "national";
+        } else if (query.level === "global") {
+            matchStage.eventType = "global";
         } else {
             matchStage.chapterId = new mongoose.Types.ObjectId(chapterId);
         }

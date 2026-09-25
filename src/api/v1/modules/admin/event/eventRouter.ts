@@ -21,8 +21,8 @@ const mediaRepository = new MediaRepository();
 const eventServices = new EventServices(eventRepository, reportRepository, mediaRepository);
 const controller = new EventController(eventServices);
 
-const allowedRoles = [UserRole.SUPER_ADMIN, UserRole.REGIONAL_ADMIN, UserRole.LOCAL_ADMIN];
-const coreTeamAccess = [UserRole.SUPER_ADMIN, UserRole.REGIONAL_ADMIN, UserRole.LOCAL_ADMIN, UserRole.CORE_TEAM_ADMIN];
+const allowedRoles = [UserRole.SUPER_ADMIN, UserRole.REGIONAL_ADMIN, UserRole.LOCAL_ADMIN, UserRole.NATIONAL_ADMIN];
+const coreTeamAccess = [UserRole.SUPER_ADMIN, UserRole.REGIONAL_ADMIN, UserRole.LOCAL_ADMIN, UserRole.CORE_TEAM_ADMIN, UserRole.NATIONAL_ADMIN];
 
 eventRouter.get("/media/:eventId", adminAuth, roleAuth(...coreTeamAccess), asyncHandler(controller.getAllMedia.bind(controller)));
 eventRouter.get("/users", adminAuth, roleAuth(...coreTeamAccess), asyncHandler(controller.getAllUsersByLevel.bind(controller)));

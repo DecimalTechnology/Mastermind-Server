@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { IRegion } from "../../../../../interfaces/models/IRegion";
 import { IUser } from "../../../../../interfaces/models/IUser";
 import { Region } from "../../../../../models/regionModel";
@@ -25,18 +26,23 @@ export class RegionRepository extends BaseRepository<any> {
     async updateAdminData(adminId: string, adminData: any): Promise<IUser | null> {
         return await User.findByIdAndUpdate(adminId, adminData);
     }
-    async findRegionById(regionId: string): Promise<IRegion[] | null> {
+    async findRegionById(regionId: string | mongoose.Types.ObjectId): Promise<IRegion[] | null> {
+        const targetId = typeof regionId === "string" ? new mongoose.Types.ObjectId(regionId) : regionId;
         return await Region.aggregate([
-            { $match: { _id: regionId } },
+            { $match: { _id: targetId } },
             { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
             { $lookup: { from: "nations", localField: "nationId", foreignField: "_id", as: "nationData" } },
             { $lookup: { from: "users", localField: "_id", foreignField: "manage.region", as: "adminData" } },
         ])
     }
 
-    async findAllRegions(search: string): Promise<IRegion[]> {
+    async findAllRegions(search: string, nationId?: string): Promise<IRegion[]> {
+        const matchQuery: any = { name: { $regex: search, $options: "i" } };
+        if (nationId && mongoose.Types.ObjectId.isValid(nationId)) {
+            matchQuery.nationId = new mongoose.Types.ObjectId(nationId);
+        }
         return await Region.aggregate([
-            { $match: { name: { $regex: search, $options: "i" } } },
+            { $match: matchQuery },
             { $lookup: { from: "users", localField: "createdBy", foreignField: "_id", as: "createdBy" } },
             { $lookup: { from: "nations", localField: "nationId", foreignField: "_id", as: "nationData" } },
             { $lookup: { from: "users", localField: "_id", foreignField: "manage.region", as: "adminData" } },
@@ -86,5 +92,15 @@ export class RegionRepository extends BaseRepository<any> {
         return {
             regionalAdmins
         };
+    }
+
+    async updateRegionAdmin(regionId: string, newAdminId: string): Promise<void> {
+        await User.updateMany({ "manage.region": regionId }, { $set: { role: "member", "manage.region": null } });
+        await User.findByIdAndUpdate(newAdminId, { role: "regional_admin", "manage.region": regionId });
+    }
+
+    async deleteRegion(id: string): Promise<any> {
+        await User.updateMany({ "manage.region": id }, { $set: { role: "member", "manage.region": null } });
+        return await this.deleteById(id);
     }
 }

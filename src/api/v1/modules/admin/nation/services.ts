@@ -9,6 +9,8 @@ import { Nation } from "../../../../../models/nationModel";
 import { Region } from "../../../../../models/regionModel";
 import { Local } from "../../../../../models/localModel";
 import { Chapter } from "../../../../../models/chapterModal";
+import User from "../../../../../models/userModel";
+
 
 export class NationServices {
     constructor(private nationRepository: NationRepository, private userRepository: UserRepository) {}
@@ -132,4 +134,71 @@ export class NationServices {
 
         return tree;
     }
+
+    // Update nation
+    async updateNation(id: string, data: { name?: string }, adminId?: string): Promise<any> {
+        if (data.name) {
+            const isAlreadyExists: any = await this.nationRepository.findByName(data.name);
+            if (isAlreadyExists && isAlreadyExists._id.toString() !== id) {
+                throw new ConflictError("The name you provided is already assigned to another nation");
+            }
+        }
+        await this.nationRepository.findByIdAndUpdate(id, data);
+        if (adminId) {
+            const adminData = await this.userRepository.findById(adminId);
+            if (!adminData) throw new NotFoundError("Admin not found");
+            if (adminData.role !== "member" && adminData.role !== "national_admin") {
+                throw new BadRequestError(`Not able to assign multiple roles. He is already a ${adminData.role}`);
+            }
+            await this.nationRepository.updateNationAdmin(id, adminId);
+        }
+        const populatedResult: any = await this.nationRepository.findNation(id);
+        return populatedResult ? populatedResult[0] : null;
+    }
+
+    // Delete nation
+    async deleteNation(id: string): Promise<any> {
+        return await this.nationRepository.deleteNation(id);
+    }
+
+    // Get nation details (with regions and members)
+    async getNationDetails(nationId: string): Promise<any> {
+        const nationData = await this.nationRepository.findNation(nationId);
+        if (!nationData || nationData.length === 0) {
+            throw new NotFoundError("Nation not found");
+        }
+
+        // Get regions in this nation
+        const regions = await Region.find({ nationId }).populate("createdBy").lean();
+
+        // Get members in this nation hierarchy
+        const regionIds = regions.map(r => r._id);
+        const locals = await Local.find({ regionId: { $in: regionIds } }).lean();
+        const localIds = locals.map(l => l._id);
+        const chapters = await Chapter.find({ localId: { $in: localIds } }).lean();
+        const chapterIds = chapters.map(c => c._id);
+        const members = await User.find({ chapter: { $in: chapterIds } })
+            .populate({
+                path: "chapter",
+                select: "name _id localId",
+                populate: { path: "localId", select: "name _id" }
+            })
+            .lean();
+
+        // Map members to include local
+        const membersWithLocal = members.map((m: any) => {
+            const localObj = m.chapter?.localId;
+            return {
+                ...m,
+                local: localObj ? { _id: localObj._id, name: localObj.name } : null
+            };
+        });
+
+        return {
+            nation: nationData[0],
+            regions,
+            members: membersWithLocal
+        };
+    }
 }
+

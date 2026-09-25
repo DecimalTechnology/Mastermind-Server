@@ -26,9 +26,13 @@ export class LocalRepository extends BaseRepository<ILocal> {
     }
 
     async findAllLocals(search: string, regionId: string): Promise<any> {
+        const matchQuery: any = search ? { name: { $regex: search, $options: "i" } } : {};
+        if (regionId && mongoose.Types.ObjectId.isValid(regionId)) {
+            matchQuery.regionId = new mongoose.Types.ObjectId(regionId);
+        }
         const res = await Local.aggregate([
             {
-                $match: search ? { name: { $regex: search, $options: "i" } } : {},
+                $match: matchQuery,
             },
             {
                 $lookup: {
@@ -80,7 +84,10 @@ export class LocalRepository extends BaseRepository<ILocal> {
             },
         ]);
 
-        const region = await Region.findOne({ _id: regionId });
+        let region = null;
+        if (regionId && mongoose.Types.ObjectId.isValid(regionId)) {
+            region = await Region.findOne({ _id: regionId });
+        }
         return { region: region, local: res };
     }
 

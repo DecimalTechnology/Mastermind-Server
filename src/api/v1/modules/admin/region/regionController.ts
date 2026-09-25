@@ -38,7 +38,7 @@ export class RegionController {
     // @access Region admin
     async findAllRegions(req: Request, res: Response, next: NextFunction): Promise<void> {
         
-        const result = await this.regionService.getAllRegions(req.query.search as string)
+        const result = await this.regionService.getAllRegions(req.query.search as string, req.adminId as string, req.role as string, req.query.nationId as string)
 
         res.status(OK).json({
             success: true,
@@ -64,7 +64,8 @@ export class RegionController {
     async getRegionMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const adminId = req.adminId;
-            const response = await this.regionService.getMembersByAdmin(adminId as string);
+            const regionId = req.query.regionId as string;
+            const response = await this.regionService.getMembersByAdmin(adminId as string, regionId);
             res.status(OK).json({ success: true, data: response });
         } catch (error) {
             next(error);
@@ -74,7 +75,8 @@ export class RegionController {
     async getRegionDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const adminId = req.adminId;
-            const response = await this.regionService.getRegionDetails(adminId as string);
+            const regionId = req.query.regionId as string;
+            const response = await this.regionService.getRegionDetails(adminId as string, regionId);
             res.status(OK).json({ success: true, data: response });
         } catch (error) {
             next(error);
@@ -94,8 +96,30 @@ export class RegionController {
     async getRegionAdmins(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const adminId = req.adminId;
-            const response = await this.regionService.getRegionAdmins(adminId as string);
+            const regionId = req.query.regionId as string;
+            const response = await this.regionService.getRegionAdmins(adminId as string, regionId);
             res.status(OK).json({ success: true, data: response });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateRegion(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const id = req.params.id;
+            const adminId = req.query.adminId as string;
+            const response = await this.regionService.updateRegion(id, req.body, adminId);
+            res.status(OK).json({ success: true, data: response, message: "Region successfully updated" });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteRegion(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const id = req.params.id;
+            await this.regionService.deleteRegion(id);
+            res.status(OK).json({ success: true, message: "Region successfully deleted" });
         } catch (error) {
             next(error);
         }
