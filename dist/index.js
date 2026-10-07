@@ -8,8 +8,8 @@ const connectDb_1 = require("./config/connectDb");
 // import './config/redisClient'
 const dotenv_1 = __importDefault(require("dotenv"));
 require("./utils/v1/cron/index");
-const samplePassword_1 = require("./utils/v1/samplePassword");
-(0, samplePassword_1.generateSamlePassword)();
+// import { generateSamlePassword } from "./utils/v1/samplePassword";
+// generateSamlePassword()
 dotenv_1.default.config();
 const PORT = (process === null || process === void 0 ? void 0 : process.env.PORT) || 3000;
 (0, connectDb_1.connectDB)();

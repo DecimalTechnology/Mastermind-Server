@@ -7,17 +7,8 @@ exports.corsConfig = void 0;
 const cors_1 = __importDefault(require("cors"));
 const corsConfig = () => {
     return (0, cors_1.default)({
-        origin: [
-            "https://mastermind-registration-pwa.vercel.app",
-            "http://localhost:5173",
-            "http://127.0.0.1:5500",
-            "http://localhost:3001",
-            "http://localhost:3000",
-            "https://mm-web-ten.vercel.app",
-            "https://mastermind-admin-ten.vercel.app",
-            "https://mastermind-auth-pwa.vercel.app"
-        ],
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+        origin: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
     });
